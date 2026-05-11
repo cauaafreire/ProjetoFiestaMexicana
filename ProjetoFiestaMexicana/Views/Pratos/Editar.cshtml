@@ -1,0 +1,131 @@
+﻿@model ProjetoFiestaMexicana.Models.Pratos
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Editar Prato";
+}
+
+<div class="card">
+    <h2>Editar Prato</h2>
+
+    <form asp-action="Editar" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="CapaArquivo" />
+
+        <div asp-validation-summary="ModelOnly" class="validation"></div>
+
+        <div class="form-grid">
+            <div class="field">
+                <label>Nome do Prato</label>
+                <input asp-for="Nome" class="input" required />
+            </div>
+
+            <div class="field">
+                <label>Preço</label>
+                <input asp-for="Preco" type="number" step="0.01" class="input" required />
+            </div>
+
+            <div class="field">
+                <label>Descrição</label>
+                <textarea asp-for="Descricao" class="input" rows="3"></textarea>
+            </div>
+
+            <div class="field">
+                <label>Categoria</label>
+                <select asp-for="CategoriaId" asp-items="ViewBag.ListaCategorias" class="input">
+                    <option value="">(Selecione a Categoria)</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>Método de Preparo</label>
+                <select asp-for="MetodoPreparoId" asp-items="ViewBag.ListaMetodosPreparo" class="input">
+                    <option value="">(Selecione o Método)</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>Nível de Picância</label>
+                <select asp-for="NivelPicancia" asp-items="ViewBag.ListaNiveisPicancia" class="input"></select>
+            </div>
+
+            <div class="field">
+                <label>Tempo de Preparo (minutos)</label>
+                <input asp-for="TempoPreparo" type="number" class="input" />
+            </div>
+
+            <div class="field">
+                <label>
+                    <input asp-for="Disponivel" type="checkbox" /> Disponível no Cardápio
+                </label>
+            </div>
+
+            <div class="field">
+                <label>Capa Atual</label>
+                @if (!string.IsNullOrEmpty(Model.CapaArquivo))
+                {
+                    <img src="~/@Model.CapaArquivo" style="width: 100px; margin-bottom: 10px; border: 1px solid #ddd;" />
+                }
+                <input type="file" name="capa" accept="image/*" class="input" />
+                <small>Deixe em branco para manter a capa atual.</small>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Index" class="btn">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-top: 3px solid #3b82f6;
+        padding: 20px;
+        max-width: 600px;
+        margin: 20px auto;
+        border-radius: 6px;
+    }
+
+    .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+        .field label {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+    .input {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .form-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .btn-primary {
+        background: #3b82f6;
+        color: #fff;
+        border: none;
+    }
+
+    .validation {
+        color: red;
+        margin-bottom: 10px;
+    }
+</style>

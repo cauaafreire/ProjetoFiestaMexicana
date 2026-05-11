@@ -1,6 +1,6 @@
 -- DROP DATABASE IF EXISTS bdFiesaMexicana;
-CREATE DATABASE bdFiesaMexicana;
-USE bdFiesaMexicana;
+CREATE DATABASE bdFiestaMexicana;
+USE bdFiestaMexicana;
 
 CREATE TABLE categoria (
     id        INT PRIMARY KEY AUTO_INCREMENT,

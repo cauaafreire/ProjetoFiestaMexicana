@@ -12,4 +12,5 @@ namespace ProjetoFiestaMexicana.Data
             conn.Open();
             return conn;
         }
+    }
 }
