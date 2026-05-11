@@ -1,0 +1,85 @@
+﻿@model ProjetoFiestaMexicana.Models.MetodoPreparo
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Novo Método de Preparo";
+}
+
+<div class="card">
+    <h2>Novo Método de Preparo</h2>
+
+    <form asp-action="Criar" method="post">
+        <div asp-validation-summary="ModelOnly" class="validation"></div>
+
+        <div class="form-grid">
+            <div class="field">
+                <label asp-for="Nome">Nome do Método de Preparo</label>
+                <input asp-for="Nome" class="input" required />
+                <span asp-validation-for="Nome" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Index" class="btn">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Salvar Método</button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-top: 3px solid #1A4A2E;
+        padding: 20px;
+        max-width: 600px;
+        margin: 20px auto;
+        border-radius: 6px;
+    }
+
+    .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+        .field label {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+    .input {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .form-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .btn-primary {
+        background: #1A4A2E;
+        color: #fff;
+        border: none;
+    }
+
+    .validation {
+        color: red;
+        margin-bottom: 10px;
+    }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

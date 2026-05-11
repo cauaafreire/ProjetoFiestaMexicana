@@ -1,4 +1,4 @@
--- DROP DATABASE IF EXISTS bdFiesaMexicana;
+-- DROP DATABASE IF EXISTS bdFiestaMexicana;
 CREATE DATABASE bdFiestaMexicana;
 USE bdFiestaMexicana;
 
@@ -117,18 +117,6 @@ CALL sp_usuario_criar(
 
 DELIMITER $$
 
-DROP PROCEDURE IF EXISTS sp_categoria_listar $$
-CREATE PROCEDURE sp_categoria_listar()
-BEGIN
-    SELECT id, nome FROM categoria ORDER BY nome;
-END $$
-
-DROP PROCEDURE IF EXISTS sp_metodo_preparo_listar $$
-CREATE PROCEDURE sp_metodo_preparo_listar()
-BEGIN
-    SELECT id, nome FROM metodo_preparo ORDER BY nome;
-END $$
-
 DROP PROCEDURE IF EXISTS sp_prato_listar $$
 CREATE PROCEDURE sp_prato_listar()
 BEGIN
@@ -152,7 +140,6 @@ BEGIN
     ORDER BY p.nome;
 END $$
 
-DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_categoria_listar $$
 CREATE PROCEDURE sp_categoria_listar()
@@ -275,4 +262,101 @@ BEGIN
     WHERE id = p_id;
 END $$
 
+DROP PROCEDURE IF EXISTS sp_categoria_listar $$
+CREATE PROCEDURE sp_categoria_listar()
+BEGIN
+    SELECT id, nome, criado_em
+    FROM categoria
+    ORDER BY nome;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_categoria_criar $$
+CREATE PROCEDURE sp_categoria_criar (
+    IN p_nome VARCHAR(150)
+)
+BEGIN
+    INSERT INTO categoria (nome)
+    VALUES (p_nome);
+END $$
+
+DROP PROCEDURE IF EXISTS sp_categoria_obter $$
+CREATE PROCEDURE sp_categoria_obter (
+    IN p_id INT
+)
+BEGIN
+    SELECT id, nome, criado_em
+    FROM categoria
+    WHERE id = p_id;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_categoria_atualizar $$
+CREATE PROCEDURE sp_categoria_atualizar (
+    IN p_id   INT,
+    IN p_nome VARCHAR(150)
+)
+BEGIN
+    UPDATE categoria
+    SET nome = p_nome
+    WHERE id = p_id;
+END $$
+
+-- Stored Procedure para Excluir uma Categoria
+DROP PROCEDURE IF EXISTS sp_categoria_excluir $$
+CREATE PROCEDURE sp_categoria_excluir (
+    IN p_id INT
+)
+BEGIN
+    DELETE FROM categoria
+    WHERE id = p_id;
+END $$
+
+
+DROP PROCEDURE IF EXISTS sp_metodo_preparo_listar $$
+CREATE PROCEDURE sp_metodo_preparo_listar()
+BEGIN
+    SELECT id, nome, criado_em
+    FROM metodo_preparo
+    ORDER BY nome;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_metodo_preparo_criar $$
+CREATE PROCEDURE sp_metodo_preparo_criar (
+    IN p_nome VARCHAR(100)
+)
+BEGIN
+    INSERT INTO metodo_preparo (nome)
+    VALUES (p_nome);
+END $$
+
+DROP PROCEDURE IF EXISTS sp_metodo_preparo_obter $$
+CREATE PROCEDURE sp_metodo_preparo_obter (
+    IN p_id INT
+)
+BEGIN
+    SELECT id, nome, criado_em
+    FROM metodo_preparo
+    WHERE id = p_id;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_metodo_preparo_atualizar $$
+CREATE PROCEDURE sp_metodo_preparo_atualizar (
+    IN p_id   INT,
+    IN p_nome VARCHAR(100)
+)
+BEGIN
+    UPDATE metodo_preparo
+    SET nome = p_nome
+    WHERE id = p_id;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_metodo_preparo_excluir $$
+CREATE PROCEDURE sp_metodo_preparo_excluir (
+    IN p_id INT
+)
+BEGIN
+    DELETE FROM metodo_preparo
+    WHERE id = p_id;
+END $$
+
 DELIMITER ;
+
