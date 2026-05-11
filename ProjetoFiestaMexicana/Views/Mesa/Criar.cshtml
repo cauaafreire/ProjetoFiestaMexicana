@@ -1,0 +1,141 @@
+﻿@model ProjetoFiestaMexicana.Models.Mesas
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Nova Mesa";
+}
+
+<div class="page-header">
+    <h2>Nova Mesa</h2>
+</div>
+
+<style>
+    :root {
+        --verde: #1A4A2E;
+        --borda: #ddd;
+        --radius: 6px;
+    }
+
+    .page-header h2 {
+        font-size: 1.5rem;
+        color: var(--verde);
+        margin-bottom: 1.2rem;
+    }
+
+    .card {
+        background: #fff;
+        border: 1px solid var(--borda);
+        border-radius: var(--radius);
+        border-top: 3px solid var(--verde);
+        padding: 1.5rem;
+        max-width: 500px;
+    }
+
+    .validation {
+        background: #fdf2f2;
+        border: 1px solid #f5c6cb;
+        border-radius: var(--radius);
+        padding: .6rem .9rem;
+        color: #c0392b;
+        font-size: .85rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: .9rem;
+    }
+
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+        .field label {
+            font-size: .8rem;
+            color: #555;
+            font-weight: 600;
+        }
+
+    .input {
+        padding: .5rem .7rem;
+        border: 1px solid var(--borda);
+        border-radius: var(--radius);
+        font-size: .95rem;
+        outline: none;
+        width: 100%;
+    }
+
+        .input:focus {
+            border-color: var(--verde);
+        }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: .5rem;
+        margin-top: 1.2rem;
+        padding-top: .9rem;
+        border-top: 1px solid var(--borda);
+    }
+
+    .btn {
+        padding: .45rem 1.1rem;
+        border-radius: var(--radius);
+        font-size: .9rem;
+        cursor: pointer;
+        border: 1px solid transparent;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-light {
+        background: #fff;
+        border-color: var(--borda);
+        color: #555;
+    }
+
+    .btn-primary {
+        background: var(--verde);
+        color: #fff;
+    }
+</style>
+
+<div class="card">
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="validation">
+            @foreach (var e in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <div>@e.ErrorMessage</div>
+            }
+        </div>
+    }
+
+    <form asp-action="Criar" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="form-grid">
+            <div class="field">
+                <label>Número da Mesa</label>
+                <input asp-for="Numero" type="number" class="input" required />
+            </div>
+
+            <div class="field">
+                <label>Capacidade (Pessoas)</label>
+                <input asp-for="Capacidade" type="number" min="1" class="input" required />
+            </div>
+
+            <div class="field">
+                <label>Status Inicial</label>
+                <select asp-for="Status" asp-items="ViewBag.StatusMesa" class="input" required></select>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Index" class="btn btn-light">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+    </form>
+</div>

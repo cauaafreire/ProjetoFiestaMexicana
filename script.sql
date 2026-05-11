@@ -300,7 +300,6 @@ BEGIN
     WHERE id = p_id;
 END $$
 
--- Stored Procedure para Excluir uma Categoria
 DROP PROCEDURE IF EXISTS sp_categoria_excluir $$
 CREATE PROCEDURE sp_categoria_excluir (
     IN p_id INT
@@ -355,6 +354,109 @@ CREATE PROCEDURE sp_metodo_preparo_excluir (
 )
 BEGIN
     DELETE FROM metodo_preparo
+    WHERE id = p_id;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_mesa_listar $$
+CREATE PROCEDURE sp_mesa_listar()
+BEGIN
+    SELECT id, numero, capacidade, status, criado_em
+    FROM Mesa
+    ORDER BY numero;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_mesa_criar $$
+CREATE PROCEDURE sp_mesa_criar (
+    IN p_numero     INT,
+    IN p_capacidade INT,
+    IN p_status     ENUM('Livre','Ocupado')
+)
+BEGIN
+    INSERT INTO Mesa (numero, capacidade, status)
+    VALUES (p_numero, p_capacidade, p_status);
+END $$
+
+DROP PROCEDURE IF EXISTS sp_mesa_obter $$
+CREATE PROCEDURE sp_mesa_obter (IN p_id INT)
+BEGIN
+    SELECT id, numero, capacidade, status, criado_em
+    FROM Mesa
+    WHERE id = p_id;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_mesa_atualizar $$
+CREATE PROCEDURE sp_mesa_atualizar (
+    IN p_id         INT,
+    IN p_numero     INT,
+    IN p_capacidade INT,
+    IN p_status     ENUM('Livre','Ocupado')
+)
+BEGIN
+    UPDATE Mesa
+    SET numero     = p_numero,
+        capacidade = p_capacidade,
+        status     = p_status
+    WHERE id = p_id;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_mesa_excluir $$
+CREATE PROCEDURE sp_mesa_excluir (IN p_id INT)
+BEGIN
+    DELETE FROM Mesa
+    WHERE id = p_id;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_garcom_listar $$
+CREATE PROCEDURE sp_garcom_listar()
+BEGIN
+    SELECT id, nome, cpf, turno, criado_em
+    FROM Garcom
+    ORDER BY nome;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_garcom_criar $$
+CREATE PROCEDURE sp_garcom_criar (
+    IN p_nome  VARCHAR(100),
+    IN p_cpf   CHAR(11),
+    IN p_turno VARCHAR(20)
+)
+BEGIN
+    INSERT INTO Garcom (nome, cpf, turno)
+    VALUES (p_nome, p_cpf, p_turno);
+END $$
+
+DROP PROCEDURE IF EXISTS sp_garcom_obter $$
+CREATE PROCEDURE sp_garcom_obter (
+    IN p_id INT
+)
+BEGIN
+    SELECT id, nome, cpf, turno, criado_em
+    FROM Garcom
+    WHERE id = p_id;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_garcom_atualizar $$
+CREATE PROCEDURE sp_garcom_atualizar (
+    IN p_id    INT,
+    IN p_nome  VARCHAR(100),
+    IN p_cpf   CHAR(11),
+    IN p_turno VARCHAR(20)
+)
+BEGIN
+    UPDATE Garcom
+    SET
+        nome  = p_nome,
+        cpf   = p_cpf,
+        turno = p_turno
+    WHERE id = p_id;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_garcom_excluir $$
+CREATE PROCEDURE sp_garcom_excluir (
+    IN p_id INT
+)
+BEGIN
+    DELETE FROM Garcom
     WHERE id = p_id;
 END $$
 

@@ -1,0 +1,108 @@
+﻿@model IEnumerable<ProjetoFiestaMexicana.Models.Mesas>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Mesas";
+}
+
+<h2>Mesas</h2>
+
+@if (TempData["ok"] != null)
+{
+    <div class="ok">@TempData["ok"]</div>
+}
+
+<p><a asp-action="Criar">Nova Mesa</a></p>
+
+<style>
+    .tbl {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: auto;
+    }
+
+        .tbl th, .tbl td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #e6e6e6;
+            vertical-align: middle;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .tbl thead th {
+            border-bottom: 2px solid #d0d0d0;
+            font-weight: 600;
+            background: #f8f8f8;
+        }
+
+        .tbl tbody tr:hover {
+            background: #f1f1f1;
+        }
+
+    .acoes {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    .btn {
+        padding: 5px 10px;
+        border-radius: 4px;
+        text-decoration: none;
+        border: 1px solid #ccc;
+        background: #fff;
+        color: #333;
+        cursor: pointer;
+    }
+
+    .btn-editar {
+        border-color: #3b82f6;
+        color: #3b82f6;
+    }
+
+    .btn-excluir {
+        border-color: #ef4444;
+        color: #ef4444;
+    }
+</style>
+
+<table class="tbl">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Número</th>
+            <th>Capacidade</th>
+            <th>Status</th>
+            <th>Criado Em</th>
+            <th class="col-acoes">Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var m in Model)
+        {
+            <tr>
+                <td>@m.Id</td>
+                <td>Mesa @m.Numero</td>
+                <td>@m.Capacidade pessoas</td>
+                <td>
+                    <span class="status-badge @(m.Status == "Livre" ? "status-livre" : "status-ocupado")">
+                        @m.Status
+                    </span>
+                </td>
+                <td>@m.CriadoEm.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>
+                    <div class="acoes">
+                        <form asp-action="Editar" method="get">
+                            <input type="hidden" name="id" value="@m.Id" />
+                            <button type="submit" class="btn btn-editar">Editar</button>
+                        </form>
+                        <form asp-action="Excluir" method="post" onsubmit="return confirm('Excluir esta mesa?');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@m.Id" />
+                            <button type="submit" class="btn btn-excluir">Excluir</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
