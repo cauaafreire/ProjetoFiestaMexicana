@@ -1,6 +1,7 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using ProjetoFiestaMexicana.Autenticacao;
 using ProjetoFiestaMexicana.Models;
+using System.Diagnostics;
 
 namespace ProjetoFiestaMexicana.Controllers
 {
@@ -15,6 +16,9 @@ namespace ProjetoFiestaMexicana.Controllers
 
         public IActionResult Index()
         {
+            if (!HttpContext.Session.GetInt32(SessionKeys.UserId).HasValue)
+                return RedirectToAction("Login", "Auth");
+
             return View();
         }
 

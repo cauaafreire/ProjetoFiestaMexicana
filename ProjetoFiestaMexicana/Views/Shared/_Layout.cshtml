@@ -1,4 +1,4 @@
-﻿@using ProjetoRestaurante.Autenticacao
+﻿@using ProjetoFiestaMexicana.Autenticacao
 @{
     var isLogged = Context.Session.GetInt32(SessionKeys.UserId).HasValue;
     var role = Context.Session.GetString(SessionKeys.UserRole);
@@ -63,11 +63,12 @@
         {
             <nav class="topnav">
                 <a asp-controller="Home" asp-action="Index">Home</a>
-                <a asp-controller="Prato" asp-action="Index">Pratos</a>
-                <a asp-controller="Ingrediente" asp-action="Index">Ingredientes</a>
+                <a asp-controller="Pratos" asp-action="Index">Pratos</a>
+                <a asp-controller="Categoria" asp-action="Index">Categoria</a>
+                <a asp-controller="MetodoPreparo" asp-action="Index">Mesa</a>
                 <a asp-controller="Mesa" asp-action="Index">Mesa</a>
                 <a asp-controller="Garcom" asp-action="Index">Garçom</a>
-                <a asp-controller="Pedido" asp-action="Index">Usuarios</a>
+                <a asp-controller="Pedido" asp-action="Cardapio">Usuarios</a>
 
                 @* Somente Admin vê Usuários *@
                 @if (role == "Adm")

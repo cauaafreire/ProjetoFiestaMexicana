@@ -1,0 +1,81 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Acesso";
+}
+<section class="login-wrap">
+    <h2>Acesso ao sistema</h2>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert-error">@ViewBag.Error</div>
+    }
+
+    <form asp-action="Login" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+
+        <div class="form-field">
+            <label>E-mail</label>
+            <input type="email" name="email" required />
+        </div>
+
+        <div class="form-field">
+            <label>Senha</label>
+            <input type="password" name="senha" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Entrar</button>
+    </form>
+</section>
+
+@section Styles {
+    <style>
+        .login-wrap {
+            max-width: 360px;
+            margin: 48px auto;
+            padding: 24px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            background: #fff
+        }
+
+        .form-field {
+            margin-bottom: 12px
+        }
+
+            .form-field label {
+                display: block;
+                margin-bottom: 6px;
+                font-weight: 600
+            }
+
+            .form-field input {
+                width: 100%;
+                padding: 8px 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px
+            }
+
+        .alert-error {
+            background: #ffeaea;
+            border: 1px solid #ef4444;
+            color: #991b1b;
+            padding: 8px 10px;
+            border-radius: 4px;
+            margin-bottom: 12px
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border: 1px solid #3b82f6;
+            background: #3b82f6;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer
+        }
+
+            .btn:hover {
+                opacity: .9
+            }
+    </style>
+}
