@@ -71,7 +71,7 @@ CREATE TABLE Pedido (
     FOREIGN KEY (garcom) REFERENCES Garcom(id)
 );
 
-CREATE TABLE ItemPedido (
+CREATE TABLE Pedido_itens (
     id             INT PRIMARY KEY AUTO_INCREMENT,
     pedido         INT NOT NULL,
     prato          INT NOT NULL,
@@ -460,4 +460,71 @@ BEGIN
     WHERE id = p_id;
 END $$
 
-DELIMITER ;
+DROP PROCEDURE IF EXISTS sp_pedido_criar $$
+CREATE PROCEDURE sp_pedido_criar(
+    IN  p_mesa INT,
+    IN  p_garcom INT,
+    IN  p_observacao VARCHAR(255),
+    OUT p_id_gerado INT
+)
+BEGIN
+    INSERT INTO Pedido (mesa, garcom, status, observacao, total)
+    VALUES (p_mesa, p_garcom, 'Pendente', p_observacao, 0.00);
+    
+    SET p_id_gerado = LAST_INSERT_ID();
+END $$
+
+DROP PROCEDURE IF EXISTS sp_pedido_adicionar_item $$
+CREATE PROCEDURE sp_pedido_adicionar_item(
+    IN p_id_pedido INT,
+    IN p_id_prato INT,
+    IN p_quantidade INT,
+    IN p_preco_unitario DECIMAL(10,2),
+    IN p_subtotal DECIMAL(10,2)
+)
+BEGIN
+    DECLARE v_disp BOOL;
+
+    IF p_quantidade IS NULL OR p_quantidade <= 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Quantidade inválida.';
+    END IF;
+
+    -- Verifica disponibilidade do prato (FOR UPDATE para evitar concorrência)
+    SELECT disponivel INTO v_disp FROM Prato WHERE id = p_id_prato FOR UPDATE;
+    
+    IF v_disp IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Prato não encontrado.';
+    END IF;
+    
+    IF v_disp = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Este prato não está disponível no momento.';
+    END IF;
+
+    INSERT INTO Pedido_itens (pedido, prato, quantidade, preco_unitario, subtotal)
+    VALUES (p_id_pedido, p_id_prato, p_quantidade, p_preco_unitario, p_subtotal);
+
+    UPDATE Pedido 
+    SET total = (SELECT COALESCE(SUM(subtotal), 0) FROM Pedido_itens WHERE pedido = p_id_pedido)
+    WHERE id = p_id_pedido;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_prato_listar_cardapio $$
+CREATE PROCEDURE sp_prato_listar_cardapio(IN p_q VARCHAR(200))
+BEGIN
+    SELECT id, nome, preco, capa_arquivo 
+    FROM Prato
+    WHERE disponivel = 1
+      AND (p_q IS NULL OR p_q = '' OR nome LIKE CONCAT('%', p_q, '%'))
+    ORDER BY nome;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_prato_listar_por_ids $$
+CREATE PROCEDURE sp_prato_listar_por_ids(IN p_ids TEXT)
+BEGIN
+    SELECT id, nome, preco, capa_arquivo 
+    FROM Prato
+    WHERE FIND_IN_SET(id, p_ids) > 0
+    ORDER BY nome;
+END $$
+
+delimiter ;

@@ -1,0 +1,126 @@
+﻿@model ProjetoFiestaMexicana.Models.Pedido
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Meu Pedido";
+    var itens = ViewBag.Itens as List<ProjetoFiestaMexicana.Models.Pedido>;
+}
+
+<style>
+    .box {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .tbl {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+        .tbl th {
+            padding: 12px;
+            border-bottom: 2px solid #f3f4f6;
+            text-align: left;
+        }
+
+        .tbl td {
+            padding: 12px;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+        }
+
+    .thumb {
+        width: 50px;
+        height: 50px;
+        background: #f3f4f6;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+</style>
+
+<h2>Finalizar Pedido</h2>
+
+@if (itens == null || !itens.Any())
+{
+    <p>Seu pedido está vazio. <a asp-action="Cardapio">Voltar ao cardápio</a></p>
+}
+else
+{
+    <div class="box">
+        <table class="tbl">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Nome</th>
+                    <th>Preço</th>
+                    <th>Subtotal</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var it in itens)
+                {
+                    <tr>
+                        <td>
+                            <div class="thumb">
+                                @if (!string.IsNullOrEmpty(it.CapaArquivo))
+                                {
+                                    <img src="~/uploads/@it.CapaArquivo" style="max-width:100%" />
+                                }
+                                else
+                                {
+                                    <span>🌮</span>
+                                }
+                            </div>
+                        </td>
+                        <td><strong>@it.Nome</strong></td>
+                        <td>@it.Preco.ToString("C")</td>
+                        <td>@it.Subtotal.ToString("C")</td>
+                        <td>
+                            <form asp-action="RemoverDoPedido" method="post" style="display:inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@it.PratoId" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div style="text-align:right; font-size:1.6rem; font-weight:bold; color:#059669; margin:20px 0;">
+            Total: @ViewBag.TotalGeral.ToString("C")
+        </div>
+
+        <hr />
+
+        <form asp-action="Finalizar" method="post">
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Mesa">Mesa</label>
+                    <select asp-for="Mesa" class="form-control" asp-items="Model.NomeMesa" required style="border-radius: 8px;">
+                        <option value="">Selecione a Mesa</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Garcom">Garçom</label>
+                    <select asp-for="Garcom" class="form-control" asp-items="Model.NomeGarcom" required style="border-radius: 8px;">
+                        <option value="">Selecione o Garçom</option>
+                    </select>
+                </div>
+                <div class="col-12 mb-3">
+                    <label asp-for="Observacao">Observação (Ex: Sem coentro, molho à parte)</label>
+                    <input asp-for="Observacao" class="form-control" placeholder="Algum detalhe para o preparo?" style="border-radius: 8px;" />
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success btn-lg w-100" style="border-radius: 10px; font-weight: bold;">Confirmar Pedido</button>
+        </form>
+    </div>
+}
