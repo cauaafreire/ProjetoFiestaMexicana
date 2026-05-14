@@ -5,134 +5,22 @@
 }
 
 <style>
-    .card {
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        box-shadow: 0 2px 6px rgba(0,0,0,.06);
-        padding: 16px
-    }
-
-    .tbl {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        overflow: hidden
-    }
-
-        .tbl thead th {
-            background: #f8fafc;
-            padding: 12px 14px;
-            border-bottom: 1px solid #e5e7eb;
-            text-align: left
-        }
-
-        .tbl tbody td {
-            padding: 12px 14px;
-            border-bottom: 1px solid #f1f5f9;
-            vertical-align: middle
-        }
-
-        .tbl tbody tr:last-child td {
-            border-bottom: none
-        }
-
-    .thumb {
-        width: 70px;
-        height: 70px;
-        border-radius: 8px;
-        overflow: hidden;
-        background: #f3f4f6;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid #e5e7eb
-    }
-
-        .thumb img {
-            max-width: 100%;
-            max-height: 100%;
-            display: block
-        }
-
-    .mt-8 {
-        margin-top: 12px
-    }
-
-    .field {
-        display: flex;
-        flex-direction: column;
-        gap: 6px
-    }
-
-    .form-grid {
-        display: grid;
-        gap: 12px;
-        grid-template-columns: 1fr 1fr
-    }
-
-    .input {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 10px 12px;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px
-    }
-
-        .input:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37,99,235,.15)
-        }
-
-    .form-actions {
-        display: flex;
-        gap: 10px;
-        margin-top: 12px
-    }
-
-    .btn {
-        display: inline-flex;
-        align-items: center;
-        padding: 9px 14px;
-        border-radius: 8px;
-        border: 1px solid transparent;
-        cursor: pointer;
-        background: #eef2ff;
-        color: #1e3a8a
-    }
-
-    .btn-primary {
-        background: #2563eb;
-        border-color: #2563eb;
-        color: #fff
-    }
-
-    .btn-light {
-        background: #f3f4f6;
-        border-color: #e5e7eb;
-        color: #111
-    }
-
-    .btn-danger {
-        background: #fee2e2;
-        border-color: #fecaca;
-        color: #991b1b
-    }
-
-    .text-muted {
-        color: #64748b;
-        font-size: .92rem
+    .ok {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 4px;
     }
 </style>
 
-<h2>Nosso Cardápio</h2>
+<h2>Cardápio Fiesta Mexicana</h2>
 
-<form method="get" asp-action="Cardapio" style="display: flex; gap: 10px; margin-bottom: 20px;">
-    <input name="q" value="@ViewBag.q" list="titulos" placeholder="O que vai pedir hoje?" class="form-control" style="flex:1; border-radius: 8px;" />
-    <datalist id="titulos">
+<!-- Formulário de busca -->
+<form method="get" asp-action="Cardapio" style="margin-bottom:10px">
+    <input list="pratos" name="q" value="@ViewBag.q" placeholder="O que deseja comer hoje?..." style="width:300px" />
+    <datalist id="pratos">
         @if (ViewBag.Titulos is IEnumerable<string> ts)
         {
             foreach (var t in ts)
@@ -141,8 +29,8 @@
             }
         }
     </datalist>
-    <button type="submit" class="btn btn-primary" style="border-radius: 8px;">Buscar</button>
-    <a asp-action="Pedido" class="btn btn-dark" style="border-radius: 8px;">🛒 Ver Pedido</a>
+    <button type="submit">Buscar</button>
+    <a asp-action="Pedido" style="margin-left:10px">Ver meu pedido</a>
 </form>
 
 @if (TempData["ok"] != null)
@@ -150,26 +38,32 @@
     <div class="ok">@TempData["ok"]</div>
 }
 
-<div class="grid">
+<!-- Grid de pratos -->
+<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:12px">
     @foreach (var p in Model)
     {
-        <div class="card-prato">
-            <div class="img-box">
-                @if (!string.IsNullOrEmpty(p.CapaArquivo))
+        <div style="border:1px solid #eee; border-radius:8px; padding:10px; background: #fff;">
+            <div style="height:220px; display:flex; align-items:center; justify-content:center; background:#fafafa; border-radius:6px; overflow:hidden">
+                @if (!string.IsNullOrWhiteSpace(p.CapaArquivo))
                 {
-                    <img src="~/uploads/@p.CapaArquivo" style="max-height:100%" />
+                    @* O caminho p.CapaArquivo já vem do banco como "capas/nome_da_foto.jpg" *@
+                    <img src="~/@p.CapaArquivo" alt="@p.Nome" style="max-height:100%; max-width:100%" />
                 }
                 else
                 {
-                    <span style="font-size: 3rem;">🌮</span>
+                    <span style="color:#aaa">Sem foto</span>
                 }
             </div>
-            <div style="font-weight: bold; font-size: 1.1rem;">@p.Nome</div>
-            <div style="color: #059669; font-weight: 700; margin: 5px 0;">@p.Preco.ToString("C")</div>
-            <form asp-action="AdicionarAoPedido" method="post">
+
+            <div style="margin-top:8px; font-weight:600; font-size: 1.1rem;">@p.Nome</div>
+            <div style="color: #059669; font-weight: bold; margin-bottom: 8px;">@p.Preco.ToString("C")</div>
+
+            <form asp-action="AdicionarAoPedido" method="post" style="margin-top:8px">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="id" value="@p.Id" />
-                <button type="submit" class="btn-add">Adicionar ao Pedido</button>
+                <button type="submit" style="width: 100%; padding: 8px; cursor: pointer; background: #2563eb; color: #fff; border: none; border-radius: 6px;">
+                    Adicionar ao Pedido
+                </button>
             </form>
         </div>
     }

@@ -144,14 +144,29 @@ namespace ProjetoFiestaMexicana.Controllers
             using var rd = cmd.ExecuteReader();
             while (rd.Read())
             {
+                // Lógica para encontrar o texto de exibição (nome ou numero) sem dar erro
+                string textoExibicao = "";
+
+                // Percorre as colunas do resultado para ver qual delas existe
+                for (int i = 0; i < rd.FieldCount; i++)
+                {
+                    string nomeColuna = rd.GetName(i).ToLower();
+                    if (nomeColuna == "nome" || nomeColuna == "numero")
+                    {
+                        textoExibicao = rd[i].ToString();
+                        break; // Encontrou, pode parar de procurar
+                    }
+                }
+
                 lista.Add(new SelectListItem
                 {
                     Value = rd["id"].ToString(),
-                    Text = rd["nome"].ToString()
+                    Text = textoExibicao
                 });
             }
             return lista;
         }
+
 
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult RemoverDoPedido(int id)

@@ -37,7 +37,7 @@ CREATE TABLE Garcom (
 	id        INT PRIMARY KEY AUTO_INCREMENT,
     nome      VARCHAR(100) NOT NULL,
     cpf       CHAR(11) UNIQUE,
-    turno     ENUM('Almoço', 'Jantar', 'Integral') NOT NULL,
+    turno     ENUM('Manhã', 'Tarde', 'Noite') NOT NULL,
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -357,6 +357,8 @@ BEGIN
     WHERE id = p_id;
 END $$
 
+DELIMITER $$
+
 DROP PROCEDURE IF EXISTS sp_mesa_listar $$
 CREATE PROCEDURE sp_mesa_listar()
 BEGIN
@@ -528,3 +530,5 @@ BEGIN
 END $$
 
 delimiter ;
+
+SELECT * FROM Prato

@@ -1,29 +1,40 @@
 ﻿@model ProjetoFiestaMexicana.Models.Pedido
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Meu Pedido";
+    ViewData["Title"] = "Finalizar Pedido";
     var itens = ViewBag.Itens as List<ProjetoFiestaMexicana.Models.Pedido>;
 }
 
 <style>
+    /* Container compacto e centralizado */
+    .pedido-container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 0 15px;
+    }
+
     .box {
         background: #fff;
         border-radius: 12px;
         border: 1px solid #e5e7eb;
-        padding: 20px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        padding: 25px;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
     }
 
+    /* Tabela organizada */
     .tbl {
         width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
+        border-collapse: collapse;
+        margin-bottom: 20px;
     }
 
         .tbl th {
             padding: 12px;
             border-bottom: 2px solid #f3f4f6;
             text-align: left;
+            color: #4b5563;
+            font-size: 0.9rem;
+            text-transform: uppercase;
         }
 
         .tbl td {
@@ -36,91 +47,189 @@
         width: 50px;
         height: 50px;
         background: #f3f4f6;
-        border-radius: 6px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
     }
+
+    /* Área de Total */
+    .total-area {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 20px 0;
+        padding-top: 15px;
+        border-top: 2px solid #f3f4f6;
+    }
+
+    .total-label {
+        font-size: 1.1rem;
+        color: #374151;
+        font-weight: 600;
+    }
+
+    .total-valor {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #059669;
+    }
+
+    /* Grid Simétrico para o Formulário */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .form-full {
+        grid-column: span 2;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: #4b5563;
+        font-size: 0.9rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.2s;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+
+    .btn-confirmar {
+        background: #059669;
+        color: #fff;
+        border: none;
+        width: 100%;
+        padding: 14px;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: background 0.2s;
+    }
+
+        .btn-confirmar:hover {
+            background: #047857;
+        }
+
+    .btn-remove {
+        color: #dc2626;
+        background: none;
+        border: 1px solid #fecaca;
+        padding: 4px 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
+
+        .btn-remove:hover {
+            background: #fef2f2;
+        }
 </style>
 
-<h2>Finalizar Pedido</h2>
+<div class="pedido-container">
+    <h2 style="text-align: center; margin-bottom: 25px; color: #1f2937;">Resumo do Pedido</h2>
 
-@if (itens == null || !itens.Any())
-{
-    <p>Seu pedido está vazio. <a asp-action="Cardapio">Voltar ao cardápio</a></p>
-}
-else
-{
-    <div class="box">
-        <table class="tbl">
-            <thead>
-                <tr>
-                    <th>Item</th>
-                    <th>Nome</th>
-                    <th>Preço</th>
-                    <th>Subtotal</th>
-                    <th>Ação</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var it in itens)
-                {
-                    <tr>
-                        <td>
-                            <div class="thumb">
-                                @if (!string.IsNullOrEmpty(it.CapaArquivo))
-                                {
-                                    <img src="~/uploads/@it.CapaArquivo" style="max-width:100%" />
-                                }
-                                else
-                                {
-                                    <span>🌮</span>
-                                }
-                            </div>
-                        </td>
-                        <td><strong>@it.Nome</strong></td>
-                        <td>@it.Preco.ToString("C")</td>
-                        <td>@it.Subtotal.ToString("C")</td>
-                        <td>
-                            <form asp-action="RemoverDoPedido" method="post" style="display:inline">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="id" value="@it.PratoId" />
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-
-        <div style="text-align:right; font-size:1.6rem; font-weight:bold; color:#059669; margin:20px 0;">
-            Total: @ViewBag.TotalGeral.ToString("C")
+    @if (itens == null || !itens.Any())
+    {
+        <div class="box" style="text-align: center;">
+            <p style="color: #6b7280;">Seu pedido está vazio.</p>
+            <a asp-action="Cardapio" class="btn btn-primary" style="margin-top: 10px; display: inline-block; text-decoration: none;">Voltar ao Cardápio</a>
         </div>
+    }
+    else
+    {
+        <div class="box">
+            <table class="tbl">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">Item</th>
+                        <th>Prato</th>
+                        <th style="text-align: right;">Subtotal</th>
+                        <th style="width: 80px; text-align: center;">Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var it in itens)
+                    {
+                        <tr>
+                            <td>
+                                <div class="thumb">
+                                    @if (!string.IsNullOrEmpty(it.CapaArquivo))
+                                    {
+                                        <img src="~/@it.CapaArquivo" alt="@it.Nome" style="max-width:100%; max-height:100%; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <span style="font-size: 1.2rem;">🌮</span>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-weight: 600; color: #111827;">@it.Nome</div>
+                                <div style="font-size: 0.85rem; color: #6b7280;">@it.Preco.ToString("C") cada</div>
+                            </td>
+                            <td style="text-align: right; font-weight: 600; color: #374151;">
+                                @it.Subtotal.ToString("C")
+                            </td>
+                            <td style="text-align: center;">
+                                <form asp-action="RemoverDoPedido" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@it.PratoId" />
+                                    <button type="submit" class="btn-remove">Remover</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
 
-        <hr />
-
-        <form asp-action="Finalizar" method="post">
-            @Html.AntiForgeryToken()
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Mesa">Mesa</label>
-                    <select asp-for="Mesa" class="form-control" asp-items="Model.NomeMesa" required style="border-radius: 8px;">
-                        <option value="">Selecione a Mesa</option>
-                    </select>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Garcom">Garçom</label>
-                    <select asp-for="Garcom" class="form-control" asp-items="Model.NomeGarcom" required style="border-radius: 8px;">
-                        <option value="">Selecione o Garçom</option>
-                    </select>
-                </div>
-                <div class="col-12 mb-3">
-                    <label asp-for="Observacao">Observação (Ex: Sem coentro, molho à parte)</label>
-                    <input asp-for="Observacao" class="form-control" placeholder="Algum detalhe para o preparo?" style="border-radius: 8px;" />
-                </div>
+            <div class="total-area">
+                <span class="total-label">Valor Total</span>
+                <span class="total-valor">@ViewBag.TotalGeral.ToString("C")</span>
             </div>
-            <button type="submit" class="btn btn-success btn-lg w-100" style="border-radius: 10px; font-weight: bold;">Confirmar Pedido</button>
-        </form>
-    </div>
-}
+
+            <form asp-action="Finalizar" method="post">
+                @Html.AntiForgeryToken()
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label asp-for="Mesa">Número da Mesa</label>
+                        <select asp-for="Mesa" class="form-control" asp-items="Model.NomeMesa" required>
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Garcom">Garçom Atendente</label>
+                        <select asp-for="Garcom" class="form-control" asp-items="Model.NomeGarcom" required>
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                    <div class="form-group form-full">
+                        <label asp-for="Observacao">Observações do Pedido</label>
+                        <input asp-for="Observacao" class="form-control" placeholder="Ex: Sem cebola, ponto da carne mal passado..." />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-confirmar">
+                    FINALIZAR E ENVIAR PARA COZINHA
+                </button>
+            </form>
+        </div>
+    }
+</div>
