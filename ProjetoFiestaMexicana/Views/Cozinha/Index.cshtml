@@ -1,0 +1,383 @@
+﻿@model List<ProjetoFiestaMexicana.Models.CozinhaPedido>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Painel da Cozinha";
+    var ocultados = ViewBag.Ocultados as List<int> ?? new List<int>();
+    var visiveis = Model.Where(p => !ocultados.Contains(p.Id)).ToList();
+}
+
+<style>
+    .cozinha-container {
+        max-width: 1100px;
+        margin: 20px auto;
+        padding: 0 15px;
+    }
+
+    .painel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+        .painel-header h2 {
+            color: #1f2937;
+            margin: 0;
+        }
+
+    .btn-atualizar {
+        background: #2563eb;
+        color: #fff;
+        border: none;
+        padding: 8px 18px;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+        .btn-atualizar:hover {
+            background: #1d4ed8;
+            color: #fff;
+        }
+
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+    }
+
+    .card-pedido {
+        background: #fff;
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
+        padding: 20px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+        .card-pedido.status-Pendente {
+            border-color: #f59e0b;
+        }
+
+        .card-pedido.status-Preparando {
+            border-color: #3b82f6;
+        }
+
+        .card-pedido.status-Finalizado {
+            border-color: #10b981;
+            opacity: 0.75;
+        }
+
+        .card-pedido.status-Cancelado {
+            border-color: #ef4444;
+            opacity: 0.65;
+        }
+
+    .card-topo {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .card-mesa {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #111827;
+    }
+
+    .card-id {
+        font-size: 0.8rem;
+        color: #9ca3af;
+    }
+
+    .card-garcom {
+        font-size: 0.85rem;
+        color: #6b7280;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .badge-Pendente {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-Preparando {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-Finalizado {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .badge-Cancelado {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .itens-titulo {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        color: #9ca3af;
+        font-weight: 700;
+        margin-bottom: 6px;
+        padding-top: 8px;
+        border-top: 1px solid #f3f4f6;
+    }
+
+    .itens-tabela {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .itens-tabela td {
+            padding: 6px 4px;
+            font-size: 0.95rem;
+            color: #374151;
+            border-bottom: 1px dashed #f3f4f6;
+            vertical-align: middle;
+        }
+
+        .itens-tabela tr:last-child td {
+            border-bottom: none;
+        }
+
+    .col-nome {
+        font-weight: 600;
+    }
+
+    .col-qtd {
+        text-align: right;
+    }
+
+    .item-qtd-badge {
+        background: #f3f4f6;
+        color: #111827;
+        font-weight: 700;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        display: inline-block;
+    }
+
+    .sem-itens {
+        font-size: 0.85rem;
+        color: #9ca3af;
+        font-style: italic;
+    }
+
+    .observacao-box {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 0.88rem;
+        color: #78350f;
+    }
+
+        .observacao-box strong {
+            display: block;
+            margin-bottom: 3px;
+        }
+
+    .acoes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding-top: 6px;
+        border-top: 1px solid #f3f4f6;
+    }
+
+    .btn-acao {
+        flex: 1;
+        min-width: 90px;
+        padding: 7px 10px;
+        border-radius: 7px;
+        border: none;
+        font-size: 0.82rem;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+        .btn-acao:disabled {
+            opacity: 0.35;
+            cursor: default;
+            pointer-events: none;
+        }
+
+    .btn-pendente {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .btn-preparando {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .btn-finalizado {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .btn-cancelado {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .btn-ocultar {
+        width: 100%;
+        background: none;
+        border: 1px solid #d1d5db;
+        color: #6b7280;
+        padding: 7px 10px;
+        border-radius: 7px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+        .btn-ocultar:hover {
+            background: #f3f4f6;
+        }
+
+    .vazio-msg {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6b7280;
+        font-size: 1.1rem;
+    }
+
+    .refresh-info {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        text-align: right;
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="cozinha-container">
+
+    <div class="painel-header">
+        <h2>Painel da Cozinha</h2>
+        <a href="/Cozinha" class="btn-atualizar">↻ Atualizar</a>
+    </div>
+
+    <div class="refresh-info">
+        Última atualização: @DateTime.Now.ToString("HH:mm:ss") &nbsp;|&nbsp; Atualiza automaticamente a cada 30 segundos.
+    </div>
+
+    @if (!visiveis.Any())
+    {
+        <div class="vazio-msg"> Nenhum pedido para exibir no momento.</div>
+    }
+    else
+    {
+        <div class="cards-grid">
+            @for (int i = 0; i < visiveis.Count; i++)
+            {
+                var ped = visiveis[i];
+                bool encerrado = ped.Status == "Finalizado" || ped.Status == "Cancelado";
+
+                <div class="card-pedido status-@(ped.Status)">
+
+                    <div class="card-topo">
+                        <div>
+                            <div class="card-mesa">Mesa @(ped.NumeroMesa)</div>
+                            <div class="card-id">Pedido #@(ped.Id) &bull; @(ped.DataHora.ToString("HH:mm"))</div>
+                            <div class="card-garcom">Garçom: @(ped.NomeGarcom)</div>
+                        </div>
+                        <span class="badge badge-@(ped.Status)">@(ped.Status)</span>
+                    </div>
+
+                    <div>
+                        <div class="itens-titulo">🍽 Itens do pedido</div>
+                        @if (ped.Itens != null && ped.Itens.Count > 0)
+                        {
+                            <table class="itens-tabela">
+                                <tbody>
+                                    @for (int j = 0; j < ped.Itens.Count; j++)
+                                    {
+                                        <tr>
+                                            <td class="col-nome">@(ped.Itens[j].NomePrato)</td>
+                                            <td class="col-qtd">
+                                                <span class="item-qtd-badge">x@(ped.Itens[j].Quantidade)</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="sem-itens">Nenhum item registrado.</div>
+                        }
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(ped.Observacao))
+                    {
+                        <div class="observacao-box">
+                            <strong>⚠️ Observação:</strong>
+                            @(ped.Observacao)
+                        </div>
+                    }
+
+                    <div class="acoes">
+                        @if (!encerrado)
+                        {
+                            <form asp-controller="Cozinha" asp-action="AlterarStatus" method="post" style="display:contents;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@(ped.Id)" />
+                                <button type="submit" name="novoStatus" value="Pendente"
+                                        class="btn-acao btn-pendente"
+                                        @(ped.Status == "Pendente" ? "disabled" : "")>
+                                    Pendente
+                                </button>
+                                <button type="submit" name="novoStatus" value="Preparando"
+                                        class="btn-acao btn-preparando"
+                                        @(ped.Status == "Preparando" ? "disabled" : "")>
+                                    Preparando
+                                </button>
+                                <button type="submit" name="novoStatus" value="Finalizado"
+                                        class="btn-acao btn-finalizado">
+                                    Finalizado
+                                </button>
+                                <button type="submit" name="novoStatus" value="Cancelado"
+                                        class="btn-acao btn-cancelado">
+                                    Cancelado
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-controller="Cozinha" asp-action="OcultarPedido" method="post" style="width:100%;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@(ped.Id)" />
+                                <button type="submit" class="btn-ocultar">🗑 Remover da tela</button>
+                            </form>
+                        }
+                    </div>
+
+                </div>
+            }
+        </div>
+    }
+
+</div>
+
+<script>
+    setTimeout(() => location.reload(), 30000);
+</script>

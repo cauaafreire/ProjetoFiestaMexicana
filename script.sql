@@ -529,6 +529,50 @@ BEGIN
     ORDER BY nome;
 END $$
 
-delimiter ;
+DROP PROCEDURE IF EXISTS sp_cozinha_listar_pedidos $$
+CREATE PROCEDURE sp_cozinha_listar_pedidos()
+BEGIN
+    SELECT
+        p.id,
+        m.numero   AS mesa_numero,
+        g.nome     AS garcom_nome,
+        p.status,
+        p.observacao,
+        p.total,
+        p.data_hora
+    FROM Pedido p
+    INNER JOIN Mesa   m ON m.id = p.mesa
+    INNER JOIN Garcom g ON g.id = p.garcom
+    WHERE p.status IN ('Pendente', 'Preparando')
+       OR DATE(p.data_hora) = CURDATE()
+    ORDER BY
+        FIELD(p.status, 'Pendente', 'Preparando', 'Finalizado', 'Cancelado'),
+        p.data_hora DESC;
+END $$
 
-SELECT * FROM Prato
+DROP PROCEDURE IF EXISTS sp_cozinha_listar_itens $$
+CREATE PROCEDURE sp_cozinha_listar_itens(IN p_id_pedido INT)
+BEGIN
+    SELECT
+        pi.prato      AS prato_id,
+        pr.nome       AS prato_nome,
+        pi.quantidade
+    FROM Pedido_itens pi
+    INNER JOIN Prato pr ON pr.id = pi.prato
+    WHERE pi.pedido = p_id_pedido;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_cozinha_atualizar_status $$
+CREATE PROCEDURE sp_cozinha_atualizar_status(
+    IN p_id     INT,
+    IN p_status ENUM('Pendente','Preparando','Finalizado','Cancelado')
+)
+BEGIN
+    UPDATE Pedido
+    SET status = p_status
+    WHERE id = p_id;
+END $$
+
+DELIMITER ;
+
+select * from Pedido_itens

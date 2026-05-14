@@ -6,7 +6,6 @@
 }
 
 <style>
-    /* Container compacto e centralizado */
     .pedido-container {
         max-width: 800px;
         margin: 20px auto;
@@ -21,27 +20,26 @@
         box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
     }
 
-    /* Tabela organizada */
     .tbl {
         width: 100%;
         border-collapse: collapse;
         margin-bottom: 20px;
     }
 
-        .tbl th {
-            padding: 12px;
-            border-bottom: 2px solid #f3f4f6;
-            text-align: left;
-            color: #4b5563;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-        }
+    .tbl th {
+        padding: 12px;
+        border-bottom: 2px solid #f3f4f6;
+        text-align: left;
+        color: #4b5563;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+    }
 
-        .tbl td {
-            padding: 12px;
-            border-bottom: 1px solid #f3f4f6;
-            vertical-align: middle;
-        }
+    .tbl td {
+        padding: 12px;
+        border-bottom: 1px solid #f3f4f6;
+        vertical-align: middle;
+    }
 
     .thumb {
         width: 50px;
@@ -54,7 +52,48 @@
         overflow: hidden;
     }
 
-    /* Área de Total */
+    /* Controles de quantidade */
+    .qty-control {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        justify-content: center;
+    }
+
+    .btn-qty {
+        width: 30px;
+        height: 30px;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        background: #f9fafb;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #374151;
+        transition: background 0.15s;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .btn-qty:hover { background: #e5e7eb; }
+
+    .btn-qty.btn-minus:hover {
+        background: #fee2e2;
+        border-color: #fca5a5;
+        color: #dc2626;
+    }
+
+    .qty-display {
+        width: 36px;
+        text-align: center;
+        font-weight: 700;
+        font-size: 1rem;
+        color: #111827;
+    }
+
     .total-area {
         display: flex;
         justify-content: space-between;
@@ -76,16 +115,13 @@
         color: #059669;
     }
 
-    /* Grid Simétrico para o Formulário */
     .form-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 15px;
     }
 
-    .form-full {
-        grid-column: span 2;
-    }
+    .form-full { grid-column: span 2; }
 
     .form-group label {
         display: block;
@@ -104,11 +140,11 @@
         transition: border-color 0.2s;
     }
 
-        .form-control:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
-        }
+    .form-control:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
 
     .btn-confirmar {
         background: #059669;
@@ -124,9 +160,7 @@
         transition: background 0.2s;
     }
 
-        .btn-confirmar:hover {
-            background: #047857;
-        }
+    .btn-confirmar:hover { background: #047857; }
 
     .btn-remove {
         color: #dc2626;
@@ -138,9 +172,7 @@
         font-size: 0.85rem;
     }
 
-        .btn-remove:hover {
-            background: #fef2f2;
-        }
+    .btn-remove:hover { background: #fef2f2; }
 </style>
 
 <div class="pedido-container">
@@ -161,6 +193,7 @@
                     <tr>
                         <th style="width: 70px;">Item</th>
                         <th>Prato</th>
+                        <th style="text-align: center;">Quantidade</th>
                         <th style="text-align: right;">Subtotal</th>
                         <th style="width: 80px; text-align: center;">Ação</th>
                     </tr>
@@ -184,6 +217,23 @@
                             <td>
                                 <div style="font-weight: 600; color: #111827;">@it.Nome</div>
                                 <div style="font-size: 0.85rem; color: #6b7280;">@it.Preco.ToString("C") cada</div>
+                            </td>
+                            <td>
+                                <form asp-action="AlterarQuantidade" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@it.PratoId" />
+                                    <div class="qty-control">
+                                        <button type="submit" name="quantidade" value="@(it.Quantidade - 1)"
+                                                class="btn-qty btn-minus" title="Diminuir">
+                                            −
+                                        </button>
+                                        <span class="qty-display">@it.Quantidade</span>
+                                        <button type="submit" name="quantidade" value="@(it.Quantidade + 1)"
+                                                class="btn-qty btn-plus" title="Aumentar">
+                                            +
+                                        </button>
+                                    </div>
+                                </form>
                             </td>
                             <td style="text-align: right; font-weight: 600; color: #374151;">
                                 @it.Subtotal.ToString("C")
