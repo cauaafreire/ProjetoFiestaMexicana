@@ -70,54 +70,113 @@
 </div>
 
 <style>
-    .card {
-        background: #fff;
-        border: 1px solid #ddd;
-        border-top: 3px solid #1A4A2E;
-        padding: 20px;
-        max-width: 600px;
-        margin: 20px auto;
-        border-radius: 6px;
+    :root {
+        --fiesta-red: #ff5a5f; 
+        --fiesta-dark: #2d2d2d; 
+        --fiesta-bg: #f9f9f9;
     }
 
+
+    .card {
+        background: white;
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+        .card h2 {
+            color: var(--fiesta-dark);
+            border-bottom: 2px solid var(--fiesta-red);
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+        }
+
     .form-grid {
-        display: flex;
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: 1fr 1fr; 
         gap: 15px;
+    }
+
+    .field:has(textarea), .field:has(input[type="checkbox"]), .field:has(input[type="file"]) {
+        grid-column: span 2;
     }
 
     .field {
         display: flex;
         flex-direction: column;
-        gap: 5px;
+        margin-bottom: 10px;
     }
 
         .field label {
             font-weight: 600;
-            font-size: 0.9rem;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
         }
 
+
     .input {
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.3s;
     }
+
+        .input:focus {
+            border-color: var(--fiesta-red);
+            outline: none;
+        }
 
     .form-actions {
-        margin-top: 20px;
+        margin-top: 30px;
         display: flex;
         gap: 10px;
-        justify-content: flex-end;
+        justify-content: center;
     }
 
-    .btn-primary {
-        background: #1A4A2E;
-        color: #fff;
+    .btn {
+        padding: 12px 25px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
         border: none;
+        transition: opacity 0.2s;
+        text-align: center;
+    }
+
+
+        .btn:not(.btn-primary) {
+            background-color: var(--fiesta-red);
+            color: white !important;
+        }
+
+
+    .btn-primary {
+        background-color: var(--fiesta-dark);
+        color: white !important;
+    }
+
+    .btn:hover {
+        opacity: 0.9;
+    }
+
+
+    .field label:has(input[type="checkbox"]) {
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
     }
 
     .validation {
-        color: red;
-        margin-bottom: 10px;
+        color: var(--fiesta-red);
+        font-size: 13px;
+        margin-bottom: 15px;
     }
 </style>
+

@@ -12,10 +12,6 @@ namespace ProjetoFiestaMexicana.Controllers
         private readonly Database db = new Database();
         private const string OCULTOS_KEY = "CozinhaOcultos";
 
-        // =====================================================================
-        // PAINEL
-        // =====================================================================
-
         [HttpGet]
         public IActionResult Index()
         {
@@ -24,10 +20,6 @@ namespace ProjetoFiestaMexicana.Controllers
             return View(pedidos);
         }
 
-        // =====================================================================
-        // ALTERAR STATUS — bloqueado se já Finalizado ou Cancelado
-        // =====================================================================
-
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult AlterarStatus(int id, string novoStatus)
         {
@@ -35,7 +27,6 @@ namespace ProjetoFiestaMexicana.Controllers
             if (!statusValidos.Contains(novoStatus))
                 return BadRequest();
 
-            // Verifica o status atual no banco antes de alterar
             var statusAtual = ObterStatusAtual(id);
             if (statusAtual == "Finalizado" || statusAtual == "Cancelado")
             {
@@ -53,11 +44,7 @@ namespace ProjetoFiestaMexicana.Controllers
             cmd.ExecuteNonQuery();
 
             return RedirectToAction(nameof(Index));
-        }
-
-        // =====================================================================
-        // OCULTAR DA TELA — só salva o ID na sessão, não toca no banco
-        // =====================================================================
+        }   
 
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult OcultarPedido(int id)

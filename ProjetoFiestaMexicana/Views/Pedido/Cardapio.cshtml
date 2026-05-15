@@ -17,7 +17,6 @@
 
 <h2>Cardápio Fiesta Mexicana</h2>
 
-<!-- Formulário de busca -->
 <form method="get" asp-action="Cardapio" style="margin-bottom:10px">
     <input list="pratos" name="q" value="@ViewBag.q" placeholder="O que deseja comer hoje?..." style="width:300px" />
     <datalist id="pratos">
@@ -38,7 +37,7 @@
     <div class="ok">@TempData["ok"]</div>
 }
 
-<!-- Grid de pratos -->
+
 <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:12px">
     @foreach (var p in Model)
     {
@@ -46,7 +45,6 @@
             <div style="height:220px; display:flex; align-items:center; justify-content:center; background:#fafafa; border-radius:6px; overflow:hidden">
                 @if (!string.IsNullOrWhiteSpace(p.CapaArquivo))
                 {
-                    @* O caminho p.CapaArquivo já vem do banco como "capas/nome_da_foto.jpg" *@
                     <img src="~/@p.CapaArquivo" alt="@p.Nome" style="max-height:100%; max-width:100%" />
                 }
                 else

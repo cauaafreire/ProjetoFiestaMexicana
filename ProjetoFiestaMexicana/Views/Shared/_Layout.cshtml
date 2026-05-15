@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="~/css/site.css" />
     @RenderSection("Styles", required: false)
     <style>
-        /* estilos básicos opcionais (caso não esteja usando site.css) */
+       
         body {
             font-family: system-ui,Segoe UI,Roboto,Arial,sans-serif;
             margin: 0
@@ -26,26 +26,35 @@
             padding: 10px 16px;
             border-bottom: 1px solid #eee;
             background: #fff;
-            position: sticky;
-            top: 0
+            top: 0 ;
+            font-weight: 500;
         }
 
             .topnav a {
                 text-decoration: none;
-                color: #111
+                color: #111;
+                
             }
+
+        .logo-icone {
+            height: 45px; 
+            width: auto;
+            margin-right: 30px
+        }
+
+        .butlogout {
+            background: #D21E1E;
+            color: #fff ;
+            cursor: pointer;
+            border-radius: 4px;
+            border: 1px solid #D21E1E;
+            height: 25px;
+            width: 50px;
+            margin-top: 2px;
+        }
 
         .spacer {
             flex: 1
-        }
-
-        .btn-link {
-            background: none;
-            border: 1px solid #2563eb;
-            color: #2563eb;
-            border-radius: 4px;
-            padding: 6px 10px;
-            cursor: pointer
         }
 
             .btn-link:hover {
@@ -62,28 +71,35 @@
         @if (isLogged)
         {
             <nav class="topnav">
-                <a asp-controller="Home" asp-action="Index">Home</a>
+
+                <a asp-controller="Home" asp-action="Index">
+                    <img src="~/logos/iconef.png" alt="Logo" class="logo-icone" />
+                </a>
+
                 <a asp-controller="Pratos" asp-action="Index">Pratos</a>
                 <a asp-controller="Cozinha" asp-action="Index">Cozinha</a>
                 <a asp-controller="Categoria" asp-action="Index">Categoria</a>
                 <a asp-controller="MetodoPreparo" asp-action="Index">Metodo de Preparo</a>
                 <a asp-controller="Mesa" asp-action="Index">Mesa</a>
                 <a asp-controller="Garcom" asp-action="Index">Garçom</a>
-                <a asp-controller="Pedido" asp-action="Cardapio">Cardapio</a>
 
-                @* Somente Admin vê Usuários *@
+                <a asp-controller="Pedido" asp-action="Cardapio" class="me-auto">Cardapio</a>
+
                 @if (role == "Adm")
                 {
-                    <a asp-controller="Usuarios" asp-action="CriarUsuario">Usuários</a>
+                    <a asp-controller="Usuarios" asp-action="CriarUsuario" class="me-3">Usuários</a>
                 }
 
+
                 <span class="spacer"></span>
+
                 <span>Olá, @userName</span>
                 <form asp-controller="Auth" asp-action="Logout" method="post" style="display:inline">
                     @Html.AntiForgeryToken()
-                    <button type="submit" class="btn-link">Sair</button>
+                    <button type="submit" class="butlogout">Sair</button>
                 </form>
             </nav>
+
         }
     </header>
 

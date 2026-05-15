@@ -26,57 +26,98 @@
 </div>
 
 <style>
+
     .card {
-        background: #fff;
-        border: 1px solid #ddd;
-        border-top: 3px solid #1A4A2E;
-        padding: 20px;
-        max-width: 600px;
-        margin: 20px auto;
-        border-radius: 6px;
+        background: #ffffff;
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 35px;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        font-family: 'Segoe UI', sans-serif;
     }
+
+        .card h2 {
+            color: #2d2d2d;
+            border-bottom: 3px solid #ff5a5f; 
+            padding-bottom: 12px;
+            margin-bottom: 30px;
+        }
 
     .form-grid {
         display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 20px;
     }
 
     .field {
         display: flex;
         flex-direction: column;
-        gap: 5px;
+        gap: 8px;
     }
 
         .field label {
             font-weight: 600;
-            font-size: 0.9rem;
+            color: #444;
         }
 
     .input {
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        font-size: 15px;
+        background-color: #fff;
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
     }
+
 
     .form-actions {
-        margin-top: 20px;
+        margin-top: 35px;
         display: flex;
-        gap: 10px;
-        justify-content: flex-end;
+        gap: 15px;
+        justify-content: center;
     }
 
-    .btn-primary {
-        background: #1A4A2E;
-        color: #fff;
+    .btn {
+        display: inline-block; 
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none !important; 
+        cursor: pointer;
+        text-align: center;
+        min-width: 140px;
+        font-size: 15px;
+        transition: all 0.2s;
         border: none;
     }
 
-    .validation {
-        color: red;
-        margin-bottom: 10px;
+        .btn:not(.btn-primary) {
+            background-color: #ff5a5f !important;
+            color: #ffffff !important; 
+        }
+
+
+    .btn-primary {
+        background-color: #2d2d2d !important;
+        color: #ffffff !important; 
+    }
+
+    .btn:hover {
+        opacity: 0.85;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .text-danger, .validation {
+        color: #ff5a5f;
+        font-size: 13px;
+        margin-top: 5px;
     }
 </style>
+
 
 @section Scripts {
     @{
