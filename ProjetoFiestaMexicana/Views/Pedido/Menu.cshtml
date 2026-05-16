@@ -13,7 +13,6 @@
 
 <div class="fiesta-page-container">
 
-    <!-- 2. NAVEGAÇÃO DE CATEGORIAS (Lado a lado ) -->
     <div class="category-nav-wrapper">
         <div class="category-nav">
             @if (grupos != null)
@@ -31,7 +30,6 @@
         <div class="fiesta-toast">🌮 @TempData["ok"]</div>
     }
 
-    <!-- 3. CONTEÚDO DO MENU (Agrupado por Categoria) -->
     <div class="menu-sections">
         @if (grupos != null && grupos.Any())
         {
@@ -147,13 +145,13 @@
         border-radius: 10px;
     }
 
-    /* NAVEGAÇÃO DE CATEGORIAS */
+
     .category-nav-wrapper {
         background: white;
         padding: 20px 0;
         position: sticky;
         top: 0;
-        z-index: 1000;
+        z-index: 5;
         box-shadow: 0 4px 15px rgba(0,0,0,0.15);
     }
 
@@ -171,7 +169,6 @@
         .category-nav::-webkit-scrollbar {
             display: none;
         }
-    /* Esconde scroll no Chrome */
 
     .cat-btn {
         padding: 12px 25px;
@@ -191,11 +188,12 @@
             border-color: #FF5757;
         }
 
-    /* SEÇÕES DE CATEGORIA */
+
     .menu-sections {
         max-width: 1200px;
         margin: 0 auto;
         padding: 0 20px;
+        z-index: ;
     }
 
     .category-title {
@@ -217,7 +215,6 @@
             background: rgba(255,255,255,0.3);
         }
 
-    /* GRID DE PRODUTOS */
     .products-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

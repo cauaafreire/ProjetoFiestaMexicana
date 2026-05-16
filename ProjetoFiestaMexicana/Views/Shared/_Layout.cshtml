@@ -32,13 +32,13 @@
         /* ── Navbar ── */
         .topnav {
             display: flex;
-            gap: 12px;
             align-items: center;
             padding: 10px 16px;
             border-bottom: 1px solid #eee;
             background: #fff;
             font-weight: 500;
             flex-shrink: 0;
+            gap: 12px;
         }
 
             .topnav a {
@@ -54,7 +54,7 @@
         .logo-icone {
             height: 42px;
             width: auto;
-            margin-right: 16px;
+            margin-right: 8px;
         }
 
         .spacer {
@@ -91,7 +91,207 @@
 
             .btn-entrar:hover {
                 background: #e04444;
-            }        main {
+            }
+
+        /* Links e área direita — visíveis só no desktop */
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ── Hamburger ── */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            margin-left: auto;
+        }
+
+            .hamburger span {
+                display: block;
+                width: 24px;
+                height: 2px;
+                background: #111;
+                border-radius: 2px;
+                transition: all 0.3s;
+            }
+
+            .hamburger.aberto span:nth-child(1) {
+                transform: translateY(7px) rotate(45deg);
+            }
+
+            .hamburger.aberto span:nth-child(2) {
+                opacity: 0;
+            }
+
+            .hamburger.aberto span:nth-child(3) {
+                transform: translateY(-7px) rotate(-45deg);
+            }
+
+        /* ── Overlay ── */
+        .drawer-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 998;
+        }
+
+            .drawer-overlay.aberto {
+                display: block;
+            }
+
+        /* ── Drawer ── */
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -290px;
+            width: 275px;
+            height: 100%;
+            background: #fff;
+            z-index: 999;
+            box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+        }
+
+            .drawer.aberto {
+                right: 0;
+            }
+
+        .drawer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+            .drawer-header img {
+                height: 36px;
+                width: auto;
+            }
+
+        .drawer-fechar {
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #374151;
+            line-height: 1;
+            padding: 4px;
+        }
+
+            .drawer-fechar:hover {
+                color: #FF5757;
+            }
+
+        .drawer-nav {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            padding: 8px 0;
+        }
+
+            .drawer-nav a {
+                padding: 14px 24px;
+                color: #111827;
+                text-decoration: none;
+                font-size: 0.95rem;
+                font-weight: 600;
+                border-bottom: 1px solid #f9fafb;
+                transition: background 0.15s, color 0.15s;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+                .drawer-nav a:hover {
+                    background: #fff5f5;
+                    color: #FF5757;
+                }
+
+        .drawer-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #f3f4f6;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .drawer-user {
+            font-size: 0.85rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .btn-entrar-drawer {
+            background: #FF5757;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            display: block;
+        }
+
+            .btn-entrar-drawer:hover {
+                background: #e04444;
+                color: #fff;
+            }
+
+        .butlogout-drawer {
+            background: #D21E1E;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+        }
+
+            .butlogout-drawer:hover {
+                background: #b91c1c;
+            }
+
+        /* ── Responsivo ── */
+        @@media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .nav-right {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+        }
+
+        /* ── Main e container ── */
+        main {
             flex: 1;
         }
 
@@ -99,6 +299,7 @@
             padding: 20px;
         }
 
+        /* ── Footer ── */
         .site-footer {
             background: #FF5757;
             color: #fff;
@@ -178,46 +379,113 @@
     </style>
 </head>
 <body>
+
     <header>
         <nav class="topnav">
+            <!-- Logo -->
             <a asp-controller="Pedido" asp-action="Menu">
                 <img src="~/logos/iconef.png" alt="Logo" class="logo-icone" />
             </a>
+
+            <!-- Links desktop -->
+            <div class="nav-links">
+                @if (isLogged)
+                {
+                    @if (isGarcom)
+                    {
+                        <a asp-controller="Mesa" asp-action="Index">Mesa</a>
+                        <a asp-controller="Pedido" asp-action="Cardapio">Cardápio</a>
+                    }
+                    @if (isChefe)
+                    {
+                        <a asp-controller="Pratos" asp-action="Index">Pratos</a>
+                        <a asp-controller="Cozinha" asp-action="Index">Cozinha</a>
+                        <a asp-controller="Categoria" asp-action="Index">Categoria</a>
+                        <a asp-controller="MetodoPreparo" asp-action="Index">Método de Preparo</a>
+                    }
+                    @if (isAdmin)
+                    {
+                        <a asp-controller="Garcom" asp-action="Index">Garçom</a>
+                        <a asp-controller="Usuario" asp-action="Index">Usuários</a>
+                    }
+                }
+            </div>
+
+            <!-- Direita desktop -->
+            <div class="nav-right">
+                @if (isLogged)
+                {
+                    <span style="color:#6b7280; font-size:0.85rem;">Olá, @userName</span>
+                    <form asp-controller="Auth" asp-action="Logout" method="post" style="display:inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="butlogout">Sair</button>
+                    </form>
+                }
+                else
+                {
+                    <a href="/Auth/Login" class="btn-entrar">ENTRAR</a>
+                }
+            </div>
+
+            <!-- Hamburger mobile -->
+            <button class="hamburger" id="hamburger" onclick="toggleDrawer()" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Overlay -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="fecharDrawer()"></div>
+
+    <!-- Drawer -->
+    <div class="drawer" id="drawer">
+        <div class="drawer-header">
+            <img src="~/logos/iconef.png" alt="Logo" />
+            <button class="drawer-fechar" onclick="fecharDrawer()">✕</button>
+        </div>
+
+        <nav class="drawer-nav">
+            <a asp-controller="Pedido" asp-action="Menu">🏠 Início</a>
 
             @if (isLogged)
             {
                 @if (isGarcom)
                 {
-                    <a asp-controller="Mesa" asp-action="Index">Mesa</a>
-                    <a asp-controller="Pedido" asp-action="Cardapio">Cardápio</a>
+                    <a asp-controller="Mesa" asp-action="Index">🪑 Mesa</a>
+                    <a asp-controller="Pedido" asp-action="Cardapio">📋 Cardápio</a>
                 }
                 @if (isChefe)
                 {
-                    <a asp-controller="Pratos" asp-action="Index">Pratos</a>
-                    <a asp-controller="Cozinha" asp-action="Index">Cozinha</a>
-                    <a asp-controller="Categoria" asp-action="Index">Categoria</a>
-                    <a asp-controller="MetodoPreparo" asp-action="Index">Método de Preparo</a>
+                    <a asp-controller="Pratos" asp-action="Index">🍽 Pratos</a>
+                    <a asp-controller="Cozinha" asp-action="Index">👨‍🍳 Cozinha</a>
+                    <a asp-controller="Categoria" asp-action="Index">📂 Categoria</a>
+                    <a asp-controller="MetodoPreparo" asp-action="Index">📖 Método de Preparo</a>
                 }
                 @if (isAdmin)
                 {
-                    <a asp-controller="Garcom" asp-action="Index">Garçom</a>
-                    <a asp-controller="Usuario" asp-action="Index">Usuários</a>
+                    <a asp-controller="Garcom" asp-action="Index">🤵 Garçom</a>
+                    <a asp-controller="Usuario" asp-action="Index">👥 Usuários</a>
                 }
+            }
+        </nav>
 
-                <span class="spacer"></span>
-                <span style="color:#6b7280; font-size:0.85rem;">Olá, @userName</span>
-                <form asp-controller="Auth" asp-action="Logout" method="post" style="display:inline">
+        <div class="drawer-footer">
+            @if (isLogged)
+            {
+                <div class="drawer-user">Olá, @userName</div>
+                <form asp-controller="Auth" asp-action="Logout" method="post">
                     @Html.AntiForgeryToken()
-                    <button type="submit" class="butlogout">Sair</button>
+                    <button type="submit" class="butlogout-drawer">Sair</button>
                 </form>
             }
             else
             {
-                <span class="spacer"></span>
-                <a href="/Auth/Login" class="btn-entrar">ENTRAR</a>
+                <a href="/Auth/Login" class="btn-entrar-drawer">ENTRAR</a>
             }
-        </nav>
-    </header>
+        </div>
+    </div>
 
     <main role="main" class="@(isLogged ? "container" : "")">
         @RenderBody()
@@ -225,20 +493,15 @@
 
     <footer class="site-footer">
         <div class="footer-inner">
-
             <div class="footer-logo-col">
                 <img src="~/logos/logof.png" alt="Fiesta mexicana" class="footer-logo-img" />
-
-
                 <div class="footer-redes">
                     <a href="#" title="X / Twitter"><img src="~/logos/icon/icons8-x-60.png" alt="X" class="red-icon" /></a>
                     <a href="#" title="Instagram"><img src="~/logos/icon/icons8-instagram-logo-60.png" alt="Instagram" class="red-icon" /></a>
                     <a href="#" title="LinkedIn"><img src="~/logos/icon/icons8-linkedin-50.png" alt="Linkedin" class="red-icon" /></a>
                 </div>
             </div>
-
         </div>
-
         <div class="footer-bottom">
             <span>© @DateTime.Now.Year Fiesta Mexicana. Todos os direitos reservados.</span>
             <span>Feito por <strong>SkullTech</strong></span>
@@ -246,5 +509,36 @@
     </footer>
 
     @RenderSection("Scripts", required: false)
+
+    <script>
+        function toggleDrawer() {
+            const drawer  = document.getElementById('drawer');
+            const overlay = document.getElementById('drawerOverlay');
+            const burger  = document.getElementById('hamburger');
+            const aberto  = drawer.classList.contains('aberto');
+
+            if (aberto) {
+                fecharDrawer();
+            } else {
+                drawer.classList.add('aberto');
+                overlay.classList.add('aberto');
+                burger.classList.add('aberto');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function fecharDrawer() {
+            document.getElementById('drawer').classList.remove('aberto');
+            document.getElementById('drawerOverlay').classList.remove('aberto');
+            document.getElementById('hamburger').classList.remove('aberto');
+            document.body.style.overflow = '';
+        }
+
+        // Fecha com ESC
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') fecharDrawer();
+        });
+    </script>
+
 </body>
 </html>
