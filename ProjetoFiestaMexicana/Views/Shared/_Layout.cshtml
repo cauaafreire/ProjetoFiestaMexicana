@@ -17,11 +17,19 @@
     <link rel="stylesheet" href="~/css/site.css" />
     @RenderSection("Styles", required: false)
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: system-ui, Segoe UI, Roboto, Arial, sans-serif;
             margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
+        /* ── Navbar ── */
         .topnav {
             display: flex;
             gap: 12px;
@@ -30,17 +38,23 @@
             border-bottom: 1px solid #eee;
             background: #fff;
             font-weight: 500;
+            flex-shrink: 0;
         }
 
             .topnav a {
                 text-decoration: none;
                 color: #111;
+                font-size: 0.9rem;
             }
 
+                .topnav a:hover {
+                    color: #FF5757;
+                }
+
         .logo-icone {
-            height: 45px;
+            height: 42px;
             width: auto;
-            margin-right: 20px;
+            margin-right: 16px;
         }
 
         .spacer {
@@ -52,17 +66,22 @@
             color: #fff;
             cursor: pointer;
             border-radius: 4px;
-            border: 1px solid #D21E1E;
+            border: none;
             height: 28px;
-            padding: 0 12px;
+            padding: 0 14px;
             font-weight: 600;
+            font-size: 0.85rem;
         }
+
+            .butlogout:hover {
+                background: #b91c1c;
+            }
 
         .btn-entrar {
             background: #FF5757;
             color: #fff !important;
             border: none;
-            padding: 7px 18px;
+            padding: 7px 20px;
             border-radius: 6px;
             font-size: 0.88rem;
             font-weight: 700;
@@ -72,10 +91,89 @@
 
             .btn-entrar:hover {
                 background: #e04444;
-            }
+            }        main {
+            flex: 1;
+        }
 
         .container {
             padding: 20px;
+        }
+
+        .site-footer {
+            background: #FF5757;
+            color: #fff;
+            padding: 40px 20px 20px;
+            margin-top: auto;
+            flex-shrink: 0;
+        }
+
+        .footer-inner {
+            max-width: 1700px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: auto 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .footer-logo-col {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .footer-logo-img {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            border-radius: 12px;
+            padding: 5px;
+        }
+
+        .red-icon {
+            width: 35px;
+            height: 35px;
+        }
+
+        .footer-redes {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+            .footer-redes a {
+                color: rgba(255,255,255,0.85);
+                text-decoration: none;
+                font-size: 1.2rem;
+                transition: color 0.2s;
+            }
+
+                .footer-redes a:hover {
+                    color: #fff;
+                }
+
+        .footer-bottom {
+            max-width: 1800px;
+            margin: 30px auto 0;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.65);
+        }
+
+        @@media (max-width: 640px) {
+            .footer-inner {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .footer-logo-col {
+                grid-column: span 2;
+                flex-direction: row;
+                align-items: center;
+            }
         }
     </style>
 </head>
@@ -107,7 +205,7 @@
                 }
 
                 <span class="spacer"></span>
-                <span style="color:#6b7280; font-size:0.9rem;">Olá, @userName</span>
+                <span style="color:#6b7280; font-size:0.85rem;">Olá, @userName</span>
                 <form asp-controller="Auth" asp-action="Logout" method="post" style="display:inline">
                     @Html.AntiForgeryToken()
                     <button type="submit" class="butlogout">Sair</button>
@@ -124,6 +222,28 @@
     <main role="main" class="@(isLogged ? "container" : "")">
         @RenderBody()
     </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+
+            <div class="footer-logo-col">
+                <img src="~/logos/logof.png" alt="Fiesta mexicana" class="footer-logo-img" />
+
+
+                <div class="footer-redes">
+                    <a href="#" title="X / Twitter"><img src="~/logos/icon/icons8-x-60.png" alt="X" class="red-icon" /></a>
+                    <a href="#" title="Instagram"><img src="~/logos/icon/icons8-instagram-logo-60.png" alt="Instagram" class="red-icon" /></a>
+                    <a href="#" title="LinkedIn"><img src="~/logos/icon/icons8-linkedin-50.png" alt="Linkedin" class="red-icon" /></a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            <span>© @DateTime.Now.Year Fiesta Mexicana. Todos os direitos reservados.</span>
+            <span>Feito por <strong>SkullTech</strong></span>
+        </div>
+    </footer>
 
     @RenderSection("Scripts", required: false)
 </body>

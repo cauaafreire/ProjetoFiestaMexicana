@@ -55,7 +55,6 @@ namespace ProjetoFiestaMexicana.Controllers
             return View(itens);
         }
 
-        // ------------------- Carrinho: dicionário {pratoId -> quantidade} -------------------
 
         private Dictionary<int, int> GetCart()
         {
@@ -323,6 +322,41 @@ namespace ProjetoFiestaMexicana.Controllers
 
 
             return View(todosOsPratos);
+        }
+
+        [HttpGet]
+        public IActionResult Detalhes(int id)
+        {
+            Pratos? prato = null;
+
+            using var conn = db.GetConnection();
+            using var cmd = new MySqlCommand("sp_prato_obter_por_id", conn)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            cmd.Parameters.AddWithValue("p_id", id);
+            using var rd = cmd.ExecuteReader();
+
+            if (rd.Read())
+            {
+                prato = new Pratos
+                {
+                    Id = rd.GetInt32("id"),
+                    Nome = rd.GetString("nome"),
+                    Preco = rd.GetDecimal("preco"),
+                    CapaArquivo = rd["capa_arquivo"] as string,
+                    Descricao = rd["descricao"] as string,
+                    NivelPicancia = rd["nivel_picancia"] as string,
+                    TempoPreparo = rd["tempo_preparo"] == DBNull.Value
+                                    ? null : rd.GetInt32("tempo_preparo"),
+                    CategoriaNome = rd["categoria_nome"] as string
+                };
+            }
+
+            if (prato == null)
+                return NotFound();
+
+            return View(prato);
         }
     }
 }

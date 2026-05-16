@@ -614,4 +614,23 @@ END $$
 
 DELIMITER ;
 
-select * from usuarios
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS sp_prato_obter_por_id $$
+CREATE PROCEDURE sp_prato_obter_por_id(IN p_id INT)
+BEGIN
+    SELECT
+        p.id,
+        p.nome,
+        p.preco,
+        p.capa_arquivo,
+        p.descricao,
+        p.nivel_picancia,
+        p.tempo_preparo,
+        COALESCE(c.nome, '') AS categoria_nome
+    FROM Prato p
+    LEFT JOIN categoria c ON c.id = p.categoria
+    WHERE p.id = p_id;
+END $$
+
+DELIMITER ;
