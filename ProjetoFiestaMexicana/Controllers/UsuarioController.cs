@@ -70,6 +70,29 @@ namespace ProjetoFiestaMexicana.Controllers
             }
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Excluir(int id)
+        {
+            try
+            {
+                using var conn = db.GetConnection();
+                // Você pode criar a sp_usuario_excluir no banco ou usar o comando abaixo:
+                using var cmd = new MySqlCommand("DELETE FROM Usuarios WHERE id = @id", conn);
+                cmd.Parameters.AddWithValue("@id", id);
+                cmd.ExecuteNonQuery();
+
+                TempData["Sucesso"] = "Funcionário removido com sucesso!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Erro"] = "Não foi possível excluir o usuário: " + ex.Message;
+            }
+
+            return RedirectToAction("Index");
+        }
+
+
     }
 }
 

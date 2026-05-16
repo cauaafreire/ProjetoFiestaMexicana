@@ -259,6 +259,7 @@ namespace ProjetoFiestaMexicana.Controllers
         {
             var grupos = new Dictionary<string, List<Pratos>>();
             var maisPedidos = new List<PratoMaisPedido>();
+            var todosOsPratos = new List<Pratos>();
 
             using var conn = db.GetConnection();
 
@@ -320,7 +321,8 @@ namespace ProjetoFiestaMexicana.Controllers
             ViewBag.CategoriaAtiva = primeiraCategoria;
             ViewBag.TotalItensCart = GetCart().Values.Sum();
 
-            return View();
+
+            return View(todosOsPratos);
         }
     }
 }

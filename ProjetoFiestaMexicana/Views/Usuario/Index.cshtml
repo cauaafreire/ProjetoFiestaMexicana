@@ -17,7 +17,7 @@
                 <th>Nome</th>
                 <th>E-mail</th>
                 <th>Cargo</th>
-            </tr>
+                <th class="text-center">Ações</th>
         </thead>
         <tbody>
             @foreach (var user in Model)
@@ -26,6 +26,15 @@
                     <td>@user.nome</td>
                     <td>@user.email</td>
                     <td><span class="badge">@user.role</span></td>
+                    <td class="acoes">
+                        <form asp-action="Excluir" asp-route-id="@user.id" method="post"
+                              onsubmit="return confirm('Tem certeza que deseja remover este funcionário?')"
+                              style="display:inline;">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn-excluir">Excluir</button>
+                        </form>
+                    </td>
+
                 </tr>
             }
         </tbody>
@@ -132,51 +141,29 @@
         align-items: center;
     }
 
-        .acoes form {
-            margin: 0;
-            display: flex;
-        }
-
-    .btn-acao {
-        display: inline-block;
-        padding: 5px 12px;
-        border-radius: 4px;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-        background: white;
+    .acoes {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        align-items: center;
     }
-
-    .btn-editar {
-        border: 1px solid #3b82f6;
-        border-radius: 6px;
-        color: #3b82f6 !important;
-        height: 25px;
-        width: 55px;
-    }
-
-        .btn-editar:hover {
-            background: #3b82f6;
-            color: white !important;
-            transition: 0.3s ease
-        }
 
     .btn-excluir {
+        background-color: white;
         border: 1px solid #ef4444;
+        color: #ef4444;
+        padding: 5px 12px;
         border-radius: 6px;
-        color: #ef4444 !important;
-        background: white;
-        height: 25px;
-        width: 55px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s;
     }
 
         .btn-excluir:hover {
-            background: #ef4444;
-            color: white !important;
-            transition: 0.3s ease
+            background-color: #ef4444;
+            color: white;
         }
+
 
     .ok {
         padding: 10px;
