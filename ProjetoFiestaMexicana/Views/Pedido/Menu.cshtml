@@ -1,0 +1,591 @@
+﻿@{
+    Layout = null;
+    var grupos = ViewBag.Grupos as Dictionary<string, List<ProjetoFiestaMexicana.Models.Pratos>>;
+    var maisPedidos = ViewBag.MaisPedidos as List<ProjetoFiestaMexicana.Models.PratoMaisPedido>;
+    var categoriaAtiva = ViewBag.CategoriaAtiva as string ?? "";
+    int totalCart = ViewBag.TotalItensCart ?? 0;
+    var isLogged = Context.Session.GetInt32("UserId").HasValue;
+
+    var emojis = new Dictionary<string, string>
+    {
+        ["Entradas"] = "🥗",
+        ["Principais"] = "🌮",
+        ["Bebidas"] = "🥤",
+        ["Sobremesas"] = "🍮",
+        ["Promoção"] = "🏷"
+    };
+}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cardápio — Fiesta Mexicana</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #fff;
+            min-height: 100vh;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        /* ── Topbar ── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background: #fff;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .topbar-logo {
+            height: 42px;
+            width: auto;
+        }
+
+        .topbar-acoes {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-entrar {
+            background: #FF5757;
+            color: #fff;
+            border: none;
+            padding: 8px 22px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+            .btn-entrar:hover {
+                background: #e04444;
+                color: #fff;
+            }
+
+        .btn-painel {
+            background: transparent;
+            color: #FF5757;
+            border: 2px solid #FF5757;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+            .btn-painel:hover {
+                background: #FF5757;
+                color: #fff;
+            }
+
+        /* ── Banner ── */
+        .banner-wrap {
+            width: 100%;
+            line-height: 0;
+            background: #FF5757;
+        }
+
+            .banner-wrap img {
+                width: 100%;
+                max-height: 200px;
+                object-fit: cover;
+                object-position: center;
+                display: block;
+            }
+
+        /* ── Tabs — estilo Figma: fundo branco, tab ativa sublinhada ── */
+        .tabs-wrap {
+            background: #fff;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .tabs {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 16px;
+            gap: 0;
+            overflow-x: auto;
+        }
+
+            .tabs::-webkit-scrollbar {
+                display: none;
+            }
+
+        .tab {
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            padding: 14px 22px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #6b7280;
+            cursor: pointer;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            transition: all 0.2s;
+        }
+
+            .tab:hover {
+                color: #FF5757;
+            }
+
+            .tab.ativa {
+                color: #FF5757;
+                border-bottom-color: #FF5757;
+            }
+
+        /* ── Conteúdo ── */
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 28px 16px 60px;
+        }
+
+        /* ── Toast ── */
+        .toast-ok {
+            background: #f0fdf4;
+            color: #059669;
+            border-left: 4px solid #059669;
+            padding: 12px 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        /* ── Seções ── */
+        .secao {
+            display: none;
+        }
+
+            .secao.ativa {
+                display: block;
+            }
+
+        /* ── Grid de pratos — igual ao Figma: 3 colunas, cards brancos com borda ── */
+        .pratos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+
+            .card:hover {
+                box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+                transform: translateY(-3px);
+            }
+
+        .card-foto {
+            width: 100%;
+            height: 190px;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+            .card-foto img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .card-body {
+            padding: 14px 16px 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .card-nome {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #111827;
+            line-height: 1.3;
+        }
+
+        .card-preco {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .card-desc {
+            font-size: 0.8rem;
+            color: #6b7280;
+            line-height: 1.45;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-top: 2px;
+            flex: 1;
+        }
+
+        /* ── Mais Pedidos ── */
+        .mais-section {
+            margin-top: 10px;
+        }
+
+        .mais-titulo {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .carrossel-wrap {
+            position: relative;
+        }
+
+        .carrossel {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 6px;
+        }
+
+            .carrossel::-webkit-scrollbar {
+                height: 3px;
+            }
+
+            .carrossel::-webkit-scrollbar-track {
+                background: #f3f4f6;
+                border-radius: 4px;
+            }
+
+            .carrossel::-webkit-scrollbar-thumb {
+                background: #d1d5db;
+                border-radius: 4px;
+            }
+
+        /* Primeiro card destaque — maior, igual ao Figma */
+        .card-mais {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            flex-shrink: 0;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            width: 200px;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+
+            .card-mais:hover {
+                box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+                transform: translateY(-3px);
+            }
+
+            .card-mais:first-child {
+                width: 260px;
+            }
+
+        .mais-foto {
+            width: 100%;
+            height: 130px;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .card-mais:first-child .mais-foto {
+            height: 170px;
+        }
+
+        .mais-foto img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .mais-body {
+            padding: 10px 12px 12px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .mais-nome {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #111827;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-mais:first-child .mais-nome {
+            font-size: 1rem;
+        }
+
+        .mais-tags {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-top: 2px;
+        }
+
+        .mais-tag {
+            font-size: 0.68rem;
+            color: #6b7280;
+            background: #f3f4f6;
+            border-radius: 10px;
+            padding: 2px 7px;
+            display: inline-block;
+        }
+
+        .mais-preco {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #111827;
+            margin-top: 4px;
+        }
+
+        /* Setas */
+        .seta-wrap {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 18px;
+        }
+
+        .seta {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid #e5e7eb;
+            background: #fff;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: #374151;
+        }
+
+            .seta:hover {
+                background: #FF5757;
+                color: #fff;
+                border-color: #FF5757;
+            }
+
+            .seta.seta-dir {
+                background: #FF5757;
+                color: #fff;
+                border-color: #FF5757;
+            }
+
+                .seta.seta-dir:hover {
+                    background: #e04444;
+                }
+
+        .mais-vazio {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Topbar -->
+    <div class="topbar">
+        <img src="/logos/iconef.png" alt="Fiesta Mexicana" class="topbar-logo" />
+        <div class="topbar-acoes">
+            @if (isLogged)
+            {
+                <a href="/Home/Index" class="btn-painel">Painel</a>
+            }
+            else
+            {
+                <a href="/Auth/Login" class="btn-entrar">ENTRAR</a>
+            }
+        </div>
+    </div>
+
+    <!-- Banner -->
+    <div class="banner-wrap">
+        <img src="/logos/bannerf.png" alt="Fiesta Mexicana" />
+    </div>
+
+    <!-- Tabs de categoria -->
+    @if (grupos != null && grupos.Any())
+    {
+        <div class="tabs-wrap">
+            <div class="tabs">
+                @for (int i = 0; i < grupos.Keys.Count; i++)
+                {
+                    var cat = grupos.Keys.ElementAt(i);
+                    var ativa = cat == categoriaAtiva ? "ativa" : "";
+                    <button class="tab @(ativa)" onclick="mostrarCat('@(cat)')">
+                        @cat.ToUpper()
+                    </button>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Conteúdo principal -->
+    <div class="wrap">
+
+        @if (TempData["ok"] != null)
+        {
+            <div class="toast-ok">✅ @TempData["ok"]</div>
+        }
+
+        <!-- Seções por categoria -->
+        @if (grupos != null && grupos.Any())
+        {
+            @for (int i = 0; i < grupos.Keys.Count; i++)
+            {
+                var cat = grupos.Keys.ElementAt(i);
+                var lista = grupos[cat];
+                var emoji = emojis.ContainsKey(cat) ? emojis[cat] : "🍽";
+                var ativa = cat == categoriaAtiva ? "ativa" : "";
+
+                <div class="secao @(ativa)" id="secao-@(i)" data-cat="@(cat)">
+                    <div class="pratos-grid">
+                        @for (int j = 0; j < lista.Count; j++)
+                        {
+                            var p = lista[j];
+                            <div class="card">
+                                <div class="card-foto">
+                                    @if (!string.IsNullOrEmpty(p.CapaArquivo))
+                                    {
+                                        <img src="/@(p.CapaArquivo)" alt="@(p.Nome)" />
+                                    }
+                                    else
+                                    {
+                                        @emoji
+                                    }
+                                </div>
+                                <div class="card-body">
+                                    <div class="card-nome">@(p.Nome)</div>
+                                    <div class="card-preco">@(p.Preco.ToString("C"))</div>
+                                    @if (!string.IsNullOrEmpty(p.Descricao))
+                                    {
+                                        <div class="card-desc">@(p.Descricao)</div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p style="color:#9ca3af; text-align:center; margin-top:60px; font-size:1.1rem;">
+                Nenhum prato disponível no momento.
+            </p>
+        }
+
+        <!-- Mais Pedidos -->
+        <div class="mais-section">
+            <div class="mais-titulo">🔥 Mais Pedidos</div>
+
+            @if (maisPedidos != null && maisPedidos.Any())
+            {
+                <div class="carrossel-wrap">
+                    <div class="carrossel" id="carrossel-mais">
+                        @for (int i = 0; i < maisPedidos.Count; i++)
+                        {
+                            var mp = maisPedidos[i];
+                            var emoji = emojis.ContainsKey(mp.CategoriaNome) ? emojis[mp.CategoriaNome] : "🍽";
+                            <div class="card-mais">
+                                <div class="mais-foto">
+                                    @if (!string.IsNullOrEmpty(mp.CapaArquivo))
+                                    {
+                                        <img src="/@(mp.CapaArquivo)" alt="@(mp.Nome)" />
+                                    }
+                                    else
+                                    {
+                                        @emoji
+                                    }
+                                </div>
+                                <div class="mais-body">
+                                    <div class="mais-nome">@(mp.Nome)</div>
+                                    <div class="mais-tags">
+                                        <span class="mais-tag">@(mp.CategoriaNome)</span>
+                                    </div>
+                                    <div class="mais-preco">@(mp.Preco.ToString("C"))</div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="seta-wrap">
+                        <button class="seta seta-esq" onclick="scrollCarrossel(-1)">←</button>
+                        <button class="seta seta-dir" onclick="scrollCarrossel(1)">→</button>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="mais-vazio">Ainda não há dados suficientes para exibir.</div>
+            }
+        </div>
+
+    </div>
+
+    <script>
+        function mostrarCat(nome) {
+            document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('ativa'));
+            document.querySelectorAll('.secao').forEach(s => {
+                if (s.dataset.cat === nome) s.classList.add('ativa');
+            });
+            document.querySelectorAll('.tab').forEach(t => {
+                if (t.textContent.trim() === nome.toUpperCase()) t.classList.add('ativa');
+            });
+        }
+
+        function scrollCarrossel(dir) {
+            const c = document.getElementById('carrossel-mais');
+            c.scrollBy({ left: dir * 280, behavior: 'smooth' });
+        }
+    </script>
+
+</body>
+</html>

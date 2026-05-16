@@ -1,22 +1,25 @@
 ﻿@using ProjetoFiestaMexicana.Autenticacao
 @{
     var isLogged = Context.Session.GetInt32(SessionKeys.UserId).HasValue;
-    var role = Context.Session.GetString(SessionKeys.UserRole);
-    var userName = Context.Session.GetString(SessionKeys.UserName);
+    var role = Context.Session.GetString(SessionKeys.UserRole) ?? "";
+    var userName = Context.Session.GetString(SessionKeys.UserName) ?? "";
+
+    bool isAdmin = role == "Admin";
+    bool isChefe = role == "Chefe" || isAdmin;
+    bool isGarcom = role == "Garcom" || isAdmin;
 }
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="utf-8" />
-    <title>@ViewData["Title"] - Biblioteca</title>
+    <title>@ViewData["Title"] - Fiesta Mexicana</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="~/css/site.css" />
     @RenderSection("Styles", required: false)
     <style>
-       
         body {
-            font-family: system-ui,Segoe UI,Roboto,Arial,sans-serif;
-            margin: 0
+            font-family: system-ui, Segoe UI, Roboto, Arial, sans-serif;
+            margin: 0;
         }
 
         .topnav {
@@ -26,84 +29,99 @@
             padding: 10px 16px;
             border-bottom: 1px solid #eee;
             background: #fff;
-            top: 0 ;
             font-weight: 500;
         }
 
             .topnav a {
                 text-decoration: none;
                 color: #111;
-                
             }
 
         .logo-icone {
-            height: 45px; 
+            height: 45px;
             width: auto;
-            margin-right: 30px
+            margin-right: 20px;
+        }
+
+        .spacer {
+            flex: 1;
         }
 
         .butlogout {
             background: #D21E1E;
-            color: #fff ;
+            color: #fff;
             cursor: pointer;
             border-radius: 4px;
             border: 1px solid #D21E1E;
-            height: 25px;
-            width: 50px;
-            margin-top: 2px;
+            height: 28px;
+            padding: 0 12px;
+            font-weight: 600;
         }
 
-        .spacer {
-            flex: 1
+        .btn-entrar {
+            background: #FF5757;
+            color: #fff !important;
+            border: none;
+            padding: 7px 18px;
+            border-radius: 6px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
         }
 
-            .btn-link:hover {
-                background: #e6f0ff
+            .btn-entrar:hover {
+                background: #e04444;
             }
 
         .container {
-            padding: 20px
+            padding: 20px;
         }
     </style>
 </head>
 <body>
     <header>
-        @if (isLogged)
-        {
-            <nav class="topnav">
+        <nav class="topnav">
+            <a asp-controller="Pedido" asp-action="Menu">
+                <img src="~/logos/iconef.png" alt="Logo" class="logo-icone" />
+            </a>
 
-                <a asp-controller="Home" asp-action="Index">
-                    <img src="~/logos/iconef.png" alt="Logo" class="logo-icone" />
-                </a>
-
-                <a asp-controller="Pratos" asp-action="Index">Pratos</a>
-                <a asp-controller="Cozinha" asp-action="Index">Cozinha</a>
-                <a asp-controller="Categoria" asp-action="Index">Categoria</a>
-                <a asp-controller="MetodoPreparo" asp-action="Index">Metodo de Preparo</a>
-                <a asp-controller="Mesa" asp-action="Index">Mesa</a>
-                <a asp-controller="Garcom" asp-action="Index">Garçom</a>
-
-                <a asp-controller="Pedido" asp-action="Cardapio" class="me-auto">Cardapio</a>
-
-                @if (role == "Adm")
+            @if (isLogged)
+            {
+                @if (isGarcom)
                 {
-                    <a asp-controller="Usuarios" asp-action="CriarUsuario" class="me-3">Usuários</a>
+                    <a asp-controller="Mesa" asp-action="Index">Mesa</a>
+                    <a asp-controller="Pedido" asp-action="Cardapio">Cardápio</a>
+                }
+                @if (isChefe)
+                {
+                    <a asp-controller="Pratos" asp-action="Index">Pratos</a>
+                    <a asp-controller="Cozinha" asp-action="Index">Cozinha</a>
+                    <a asp-controller="Categoria" asp-action="Index">Categoria</a>
+                    <a asp-controller="MetodoPreparo" asp-action="Index">Método de Preparo</a>
+                }
+                @if (isAdmin)
+                {
+                    <a asp-controller="Garcom" asp-action="Index">Garçom</a>
+                    <a asp-controller="Usuario" asp-action="Index">Usuários</a>
                 }
 
-
                 <span class="spacer"></span>
-
-                <span>Olá, @userName</span>
+                <span style="color:#6b7280; font-size:0.9rem;">Olá, @userName</span>
                 <form asp-controller="Auth" asp-action="Logout" method="post" style="display:inline">
                     @Html.AntiForgeryToken()
                     <button type="submit" class="butlogout">Sair</button>
                 </form>
-            </nav>
-
-        }
+            }
+            else
+            {
+                <span class="spacer"></span>
+                <a href="/Auth/Login" class="btn-entrar">ENTRAR</a>
+            }
+        </nav>
     </header>
 
-    <main role="main" class="container">
+    <main role="main" class="@(isLogged ? "container" : "")">
         @RenderBody()
     </main>
 

@@ -253,5 +253,74 @@ namespace ProjetoFiestaMexicana.Controllers
 
             return RedirectToAction(nameof(Cardapio));
         }
+
+        [HttpGet]
+        public IActionResult Menu(string? categoria)
+        {
+            var grupos = new Dictionary<string, List<Pratos>>();
+            var maisPedidos = new List<PratoMaisPedido>();
+
+            using var conn = db.GetConnection();
+
+            using (var cmd = new MySqlCommand("sp_prato_listar_cardapio_categorias", conn)
+            { CommandType = CommandType.StoredProcedure })
+            {
+                using var rd = cmd.ExecuteReader();
+                while (rd.Read())
+                {
+                    var cat = rd.GetString("categoria_nome");
+                    if (!grupos.ContainsKey(cat))
+                        grupos[cat] = new List<Pratos>();
+
+                    grupos[cat].Add(new Pratos
+                    {
+                        Id = rd.GetInt32("id"),
+                        Nome = rd.GetString("nome"),
+                        Preco = rd.GetDecimal("preco"),
+                        CapaArquivo = rd["capa_arquivo"] as string,
+                        Descricao = rd["descricao"] as string,
+                        TempoPreparo = rd["tempo_preparo"] == DBNull.Value
+                                        ? null : rd.GetInt32("tempo_preparo"),
+                        NivelPicancia = rd["nivel_picancia"] as string
+                    });
+                }
+            }
+
+            using (var cmd2 = new MySqlCommand("sp_pratos_mais_pedidos", conn)
+            { CommandType = CommandType.StoredProcedure })
+            {
+                using var rd2 = cmd2.ExecuteReader();
+                while (rd2.Read())
+                {
+                    maisPedidos.Add(new PratoMaisPedido
+                    {
+                        Id = rd2.GetInt32("id"),
+                        Nome = rd2.GetString("nome"),
+                        Preco = rd2.GetDecimal("preco"),
+                        CapaArquivo = rd2["capa_arquivo"] as string,
+                        CategoriaNome = rd2.GetString("categoria_nome"),
+                        TotalPedidos = rd2.GetInt32("total_pedidos")
+                    });
+                }
+            }
+
+            var ordemCats = new List<string> { "Entradas", "Principais", "Bebidas", "Sobremesas" };
+            var gruposOrdenados = new Dictionary<string, List<Pratos>>();
+            foreach (var c in ordemCats)
+                if (grupos.ContainsKey(c)) gruposOrdenados[c] = grupos[c];
+            foreach (var kv in grupos)
+                if (!gruposOrdenados.ContainsKey(kv.Key)) gruposOrdenados[kv.Key] = kv.Value;
+
+            var primeiraCategoria = categoria
+                ?? ordemCats.FirstOrDefault(c => gruposOrdenados.ContainsKey(c))
+                ?? "";
+
+            ViewBag.Grupos = gruposOrdenados;
+            ViewBag.MaisPedidos = maisPedidos;
+            ViewBag.CategoriaAtiva = primeiraCategoria;
+            ViewBag.TotalItensCart = GetCart().Values.Sum();
+
+            return View();
+        }
     }
 }

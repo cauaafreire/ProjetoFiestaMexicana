@@ -19,7 +19,7 @@ CREATE TABLE Usuarios (
     nome       VARCHAR(100),
     email      VARCHAR(100) UNIQUE,
     senha_hash VARCHAR(255),
-    role       ENUM('Funcionario', 'Admin'),
+    role       ENUM('Garcom', 'Chefe', 'Admin'),
     ativo      TINYINT(1) DEFAULT 1,
     criado_em  DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -573,6 +573,43 @@ BEGIN
     WHERE id = p_id;
 END $$
 
-DELIMITER ;
+DELIMITER $$
 
-select * from Pedido_itens
+DROP PROCEDURE IF EXISTS sp_prato_listar_cardapio_categorias $$
+CREATE PROCEDURE sp_prato_listar_cardapio_categorias()
+BEGIN
+    SELECT 
+        p.id,
+        p.nome,
+        p.preco,
+        p.capa_arquivo,
+        p.descricao,
+        p.tempo_preparo,
+        p.nivel_picancia,
+        COALESCE(c.nome, 'Outros') AS categoria_nome
+    FROM Prato p
+    LEFT JOIN categoria c ON c.id = p.categoria
+    WHERE p.disponivel = 1
+    ORDER BY categoria_nome, p.nome;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_pratos_mais_pedidos $$
+CREATE PROCEDURE sp_pratos_mais_pedidos()
+BEGIN
+    SELECT
+        p.id,
+        p.nome,
+        p.preco,
+        p.capa_arquivo,
+        COALESCE(c.nome, 'Outros') AS categoria_nome,
+        SUM(pi.quantidade) AS total_pedidos
+    FROM Pedido_itens pi
+    INNER JOIN Prato p  ON p.id  = pi.prato
+    LEFT  JOIN categoria c ON c.id = p.categoria
+    WHERE p.disponivel = 1
+    GROUP BY p.id, p.nome, p.preco, p.capa_arquivo, c.nome
+    ORDER BY total_pedidos DESC
+    LIMIT 15;
+END $$
+
+DELIMITER ;
