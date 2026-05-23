@@ -26,19 +26,47 @@ namespace ProjetoFiestaMexicana.Controllers
         {
             var lista = new List<Garcom>();
             using var conn = db.GetConnection();
-            using var cmd = new MySqlCommand("sp_garcom_listar", conn) { CommandType = System.Data.CommandType.StoredProcedure };
-            using var rd = cmd.ExecuteReader();
-            while (rd.Read())
+
+            // Garçons cadastrados na tabela Garcom
+            using (var cmd = new MySqlCommand("sp_garcom_listar", conn)
+            { CommandType = System.Data.CommandType.StoredProcedure })
+            using (var rd = cmd.ExecuteReader())
             {
-                lista.Add(new Garcom
+                while (rd.Read())
                 {
-                    Id = rd.GetInt32("id"),
-                    Nome = rd["nome"] as string,
-                    Cpf = rd["cpf"] as string,
-                    Turno = rd["turno"] as string,
-                    CriadoEm = rd.GetDateTime("criado_em")
-                });
+                    lista.Add(new Garcom
+                    {
+                        Id = rd.GetInt32("id"),
+                        Nome = rd["nome"] as string,
+                        Cpf = rd["cpf"] as string,
+                        Turno = rd["turno"] as string,
+                        CriadoEm = rd.GetDateTime("criado_em")
+                    });
+                }
             }
+
+            // Usuários com role Garcom que ainda não estão na lista
+            using (var cmd = new MySqlCommand(
+                "SELECT id, nome, email FROM Usuarios WHERE role = 'Garcom' AND ativo = 1 ORDER BY nome", conn))
+            using (var rd = cmd.ExecuteReader())
+            {
+                while (rd.Read())
+                {
+                    var nome = rd.GetString("nome");
+                    if (!lista.Any(g => g.Nome != null &&
+                        g.Nome.Equals(nome, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        lista.Add(new Garcom
+                        {
+                            Id = rd.GetInt32("id"),
+                            Nome = nome,
+                            Cpf = rd.GetString("email"),
+                            Turno = "—",
+                        });
+                    }
+                }
+            }
+
             return View(lista);
         }
 

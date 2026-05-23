@@ -1,68 +1,909 @@
-﻿@model IEnumerable<ProjetoFiestaMexicana.Models.Pratos>
-@{
+﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Cardápio";
+    ViewData["Title"] = "Cardápio — Garçom";
+    var grupos = ViewBag.Grupos as Dictionary<string, List<ProjetoFiestaMexicana.Models.Pratos>>;
 }
 
 <style>
-    .ok {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
+    /* ── Layout principal: sidebar comanda + conteúdo ── */
+    .garcom-layout {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 0;
+        min-height: calc(100vh - 63px);
+        margin: -20px;
+    }
+
+    /* ── Área do cardápio ── */
+    .cardapio-area {
+        padding: 24px;
+        overflow-y: auto;
+        background: #f9fafb;
+    }
+
+    /* ── Topo ── */
+    .cardapio-topo {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+        .cardapio-topo h1 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #111827;
+            margin: 0;
+        }
+
+    /* Busca */
+    .busca-wrap {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 6px 12px;
+        flex: 1;
+        max-width: 320px;
+    }
+
+        .busca-wrap input {
+            border: none;
+            outline: none;
+            font-size: 0.9rem;
+            flex: 1;
+            color: #111827;
+        }
+
+        .busca-wrap button {
+            background: #FF5757;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+    /* ── Tabs de categoria ── */
+    .cat-tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .cat-tab {
+        background: #fff;
+        border: 2px solid #e5e7eb;
+        color: #374151;
+        border-radius: 50px;
+        padding: 8px 18px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+        .cat-tab:hover {
+            border-color: #FF5757;
+            color: #FF5757;
+        }
+
+        .cat-tab.ativa {
+            background: #FF5757;
+            border-color: #FF5757;
+            color: #fff;
+        }
+
+    /* ── Seções ── */
+    .cat-secao {
+        display: none;
+    }
+
+        .cat-secao.ativa {
+            display: block;
+        }
+
+    .cat-titulo {
+        font-size: 1rem;
+        font-weight: 800;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .cat-titulo::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+    /* ── Grid de pratos ── */
+    .pratos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 14px;
+        margin-bottom: 32px;
+    }
+
+    .prato-card {
+        background: #fff;
+        border-radius: 14px;
+        border: 2px solid #f3f4f6;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+    }
+
+        .prato-card:hover {
+            border-color: #FF5757;
+            box-shadow: 0 4px 16px rgba(255,87,87,0.15);
+        }
+
+    .prato-foto {
+        width: 100%;
+        height: 140px;
+        background: #f3f4f6;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        flex-shrink: 0;
+    }
+
+        .prato-foto img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .prato-info {
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        flex: 1;
+    }
+
+    .prato-nome {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #111827;
+        line-height: 1.3;
+    }
+
+    .prato-preco {
+        font-size: 1rem;
+        font-weight: 800;
+        color: #FF5757;
+    }
+
+    .prato-desc {
+        font-size: 0.75rem;
+        color: #9ca3af;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .btn-add-comanda {
+        margin: 0 12px 12px;
+        background: #111827;
+        color: #fff;
+        border: none;
         padding: 10px;
-        margin-bottom: 15px;
-        border-radius: 4px;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        cursor: pointer;
+        width: calc(100% - 24px);
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+        .btn-add-comanda:hover {
+            background: #FF5757;
+        }
+
+    /* ── COMANDA (sidebar direita) ── */
+    .comanda-sidebar {
+        background: #fff;
+        border-left: 1px solid #e5e7eb;
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 63px);
+        position: sticky;
+        top: 63px;
+    }
+
+    .comanda-header {
+        padding: 20px;
+        border-bottom: 1px solid #f3f4f6;
+        background: #FF5757;
+        color: #fff;
+    }
+
+        .comanda-header h2 {
+            margin: 0 0 4px;
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+
+        .comanda-header p {
+            margin: 0;
+            font-size: 0.8rem;
+            opacity: 0.85;
+        }
+
+    /* Seleção de mesa e garçom */
+    .comanda-config {
+        padding: 14px 16px;
+        border-bottom: 1px solid #f3f4f6;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .comanda-select {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #111827;
+        background: #fff;
+        outline: none;
+        cursor: pointer;
+    }
+
+        .comanda-select:focus {
+            border-color: #FF5757;
+        }
+
+    /* Itens da comanda */
+    .comanda-itens {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px 16px;
+    }
+
+        .comanda-itens::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .comanda-itens::-webkit-scrollbar-thumb {
+            background: #e5e7eb;
+            border-radius: 4px;
+        }
+
+    .comanda-vazia {
+        text-align: center;
+        padding: 40px 20px;
+        color: #9ca3af;
+        font-size: 0.88rem;
+    }
+
+        .comanda-vazia .icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+    .comanda-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid #f9fafb;
+    }
+
+        .comanda-item:last-child {
+            border-bottom: none;
+        }
+
+    .ci-foto {
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        background: #f3f4f6;
+        overflow: hidden;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+        .ci-foto img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .ci-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .ci-nome {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #111827;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .ci-preco {
+        font-size: 0.78rem;
+        color: #6b7280;
+    }
+
+    .ci-qtd-ctrl {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    .ci-btn {
+        width: 26px;
+        height: 26px;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+        background: #f9fafb;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #374151;
+        padding: 0;
+        line-height: 1;
+        transition: all 0.15s;
+    }
+
+        .ci-btn:hover {
+            background: #FF5757;
+            color: #fff;
+            border-color: #FF5757;
+        }
+
+    .ci-qtd {
+        font-size: 0.9rem;
+        font-weight: 800;
+        color: #111827;
+        min-width: 18px;
+        text-align: center;
+    }
+
+    .ci-rm {
+        background: none;
+        border: none;
+        color: #d1d5db;
+        cursor: pointer;
+        font-size: 1rem;
+        padding: 0;
+        line-height: 1;
+        transition: color 0.15s;
+    }
+
+        .ci-rm:hover {
+            color: #ef4444;
+        }
+
+    /* Observação por item */
+    .ci-obs-input {
+        width: 100%;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 5px 8px;
+        font-size: 0.75rem;
+        color: #374151;
+        margin-top: 5px;
+        outline: none;
+        resize: none;
+    }
+
+        .ci-obs-input:focus {
+            border-color: #FF5757;
+        }
+
+    /* Rodapé da comanda */
+    .comanda-footer {
+        padding: 16px;
+        border-top: 1px solid #f3f4f6;
+        background: #fafafa;
+    }
+
+    .comanda-obs-geral {
+        width: 100%;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 0.82rem;
+        color: #374151;
+        resize: none;
+        outline: none;
+        margin-bottom: 10px;
+        font-family: inherit;
+    }
+
+        .comanda-obs-geral:focus {
+            border-color: #FF5757;
+        }
+
+    .comanda-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .comanda-total-label {
+        font-size: 0.85rem;
+        color: #6b7280;
+        font-weight: 600;
+    }
+
+    .comanda-total-valor {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #111827;
+    }
+
+    .btn-enviar {
+        width: 100%;
+        background: #FF5757;
+        color: #fff;
+        border: none;
+        padding: 14px;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 800;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition: background 0.2s;
+    }
+
+        .btn-enviar:hover {
+            background: #e04444;
+        }
+
+        .btn-enviar:disabled {
+            background: #d1d5db;
+            cursor: default;
+        }
+
+    .btn-limpar {
+        width: 100%;
+        background: none;
+        border: 1px solid #e5e7eb;
+        color: #6b7280;
+        padding: 8px;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 6px;
+        transition: all 0.15s;
+    }
+
+        .btn-limpar:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+    /* Badge contador */
+    .comanda-count {
+        background: #fff;
+        color: #FF5757;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 6px;
+    }
+
+    /* Toast */
+    .toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #059669;
+        color: #fff;
+        padding: 12px 28px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        z-index: 9999;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        animation: fadeInUp 0.3s ease;
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            bottom: -60px;
+            opacity: 0;
+        }
+
+        to {
+            bottom: 24px;
+            opacity: 1;
+        }
+    }
+
+    @@media (max-width: 900px) {
+        .garcom-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .comanda-sidebar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 55vh;
+            top: auto;
+            border-left: none;
+            border-top: 2px solid #FF5757;
+            z-index: 500;
+        }
     }
 </style>
 
-<h2>Cardápio Fiesta Mexicana</h2>
+<div class="garcom-layout">
 
-<form method="get" asp-action="Cardapio" style="margin-bottom:10px">
-    <input list="pratos" name="q" value="@ViewBag.q" placeholder="O que deseja comer hoje?..." style="width:300px" />
-    <datalist id="pratos">
-        @if (ViewBag.Titulos is IEnumerable<string> ts)
+    <!-- ── Área do cardápio ── -->
+    <div class="cardapio-area">
+
+        <div class="cardapio-topo">
+            <h1>🍽 Cardápio</h1>
+            <form method="get" asp-action="Cardapio" class="busca-wrap">
+                <input name="q" value="@ViewBag.q" placeholder="Buscar prato..." list="sugestoes" />
+                <datalist id="sugestoes">
+                    @if (ViewBag.Titulos is IEnumerable<string> ts)
+                    {
+                        foreach (var t in ts)
+                        {
+                            <option value="@t"></option>
+                        }
+                    }
+                </datalist>
+                <button type="submit">🔍</button>
+            </form>
+        </div>
+
+        @if (TempData["ok"] != null)
         {
-            foreach (var t in ts)
-            {
-                <option value="@t"></option>
-            }
+            <div class="toast" id="toastOk">✅ @TempData["ok"]</div>
         }
-    </datalist>
-    <button type="submit">Buscar</button>
-    <a asp-action="Pedido" style="margin-left:10px">Ver meu pedido</a>
-</form>
 
-@if (TempData["ok"] != null)
-{
-    <div class="ok">@TempData["ok"]</div>
-}
-
-
-<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:12px">
-    @foreach (var p in Model)
-    {
-        <div style="border:1px solid #eee; border-radius:8px; padding:10px; background: #fff;">
-            <div style="height:220px; display:flex; align-items:center; justify-content:center; background:#fafafa; border-radius:6px; overflow:hidden">
-                @if (!string.IsNullOrWhiteSpace(p.CapaArquivo))
+        <!-- Tabs -->
+        @if (grupos != null && grupos.Any())
+        {
+            <div class="cat-tabs">
+                @for (int i = 0; i < grupos.Keys.Count; i++)
                 {
-                    <img src="~/@p.CapaArquivo" alt="@p.Nome" style="max-height:100%; max-width:100%" />
-                }
-                else
-                {
-                    <span style="color:#aaa">Sem foto</span>
+                    var cat = grupos.Keys.ElementAt(i);
+                    var ativa = i == 0 ? "ativa" : "";
+                    <button class="cat-tab @(ativa)" onclick="mostrarCat('@(cat)', this)">
+                        @(cat)
+                    </button>
                 }
             </div>
 
-            <div style="margin-top:8px; font-weight:600; font-size: 1.1rem;">@p.Nome</div>
-            <div style="color: #059669; font-weight: bold; margin-bottom: 8px;">@p.Preco.ToString("C")</div>
+            @for (int i = 0; i < grupos.Keys.Count; i++)
+            {
+                var cat = grupos.Keys.ElementAt(i);
+                var lista = grupos[cat];
+                var ativa = i == 0 ? "ativa" : "";
 
-            <form asp-action="AdicionarAoPedido" method="post" style="margin-top:8px">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="id" value="@p.Id" />
-                <button type="submit" style="width: 100%; padding: 8px; cursor: pointer; background: #2563eb; color: #fff; border: none; border-radius: 6px;">
-                    Adicionar ao Pedido
-                </button>
-            </form>
+                <div class="cat-secao @(ativa)" id="cat-@(i)" data-cat="@(cat)">
+                    <div class="cat-titulo">@(cat)</div>
+                    <div class="pratos-grid">
+                        @for (int j = 0; j < lista.Count; j++)
+                        {
+                            var p = lista[j];
+                            <div class="prato-card">
+                                <div class="prato-foto">
+                                    @if (!string.IsNullOrWhiteSpace(p.CapaArquivo))
+                                    {
+                                        <img src="~/@(p.CapaArquivo)" alt="@(p.Nome)" />
+                                    }
+                                    else
+                                    {
+                                        <span>🌶️</span>
+                                    }
+                                </div>
+                                <div class="prato-info">
+                                    <div class="prato-nome">@(p.Nome)</div>
+                                    <div class="prato-preco">@(p.Preco.ToString("C"))</div>
+                                    @if (!string.IsNullOrEmpty(p.Descricao))
+                                    {
+                                        <div class="prato-desc">@(p.Descricao)</div>
+                                    }
+                                </div>
+                                <button class="btn-add-comanda"
+                                        onclick="adicionarComanda(@(p.Id), '@(p.Nome.Replace("'", "\'"))', @(p.Preco.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)), '@(p.CapaArquivo ?? "")')">
+                                    ➕ Adicionar à Comanda
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div style="text-align:center; padding:60px; color:#9ca3af;">
+                Nenhum prato disponível.
+            </div>
+        }
+    </div>
+
+    <!-- ── Comanda (sidebar) ── -->
+    <div class="comanda-sidebar">
+        <div class="comanda-header">
+            <h2>🧾 Comanda <span class="comanda-count" id="contadorComanda">0</span></h2>
+            <p>Adicione os pratos do cliente</p>
         </div>
-    }
+
+        <div class="comanda-config">
+            <select class="comanda-select" id="selMesa">
+                <option value="">🪑 Selecione a Mesa</option>
+                @if (ViewBag.NomeMesa is IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> mesas)
+                {
+                    foreach (var m in mesas)
+                    {
+                        <option value="@m.Value">Mesa @m.Text</option>
+                    }
+                }
+            </select>
+            <select class="comanda-select" id="selGarcom">
+                <option value="">🤵 Selecione o Garçom</option>
+                @if (ViewBag.NomeGarcom is IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> garcons)
+                {
+                    foreach (var g in garcons)
+                    {
+                        <option value="@g.Value">@g.Text</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="comanda-itens" id="comandaItens">
+            <div class="comanda-vazia" id="comandaVazia">
+                <div class="icon">🛒</div>
+                <p>Nenhum item adicionado.<br />Clique nos pratos ao lado.</p>
+            </div>
+        </div>
+
+        <div class="comanda-footer">
+            <textarea class="comanda-obs-geral" id="obsGeral"
+                      rows="2" placeholder="Observação geral (ex: sem coentro)..."></textarea>
+            <div class="comanda-total">
+                <span class="comanda-total-label">Total da Comanda</span>
+                <span class="comanda-total-valor" id="totalComanda">R$ 0,00</span>
+            </div>
+            <button class="btn-enviar" id="btnEnviar" onclick="enviarComanda()">
+                ENVIAR PARA COZINHA
+            </button>
+            <button class="btn-limpar" onclick="limparComanda()">
+                Limpar comanda
+            </button>
+        </div>
+    </div>
+
 </div>
+
+<!-- Form oculto para submit -->
+<form id="formPedido" asp-action="Finalizar" method="post" style="display:none">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="Mesa" id="fMesa" />
+    <input type="hidden" name="Garcom" id="fGarcom" />
+    <input type="hidden" name="Observacao" id="fObs" />
+</form>
+
+@section Scripts {
+    <script>
+        // ── Estado da comanda ──
+        let comanda = {}; // { id: { nome, preco, foto, qtd, obs } }
+
+        function mostrarCat(nome, btn) {
+            document.querySelectorAll('.cat-secao').forEach(s => s.classList.remove('ativa'));
+            document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('ativa'));
+            document.querySelectorAll('.cat-secao').forEach(s => {
+                if (s.dataset.cat === nome) s.classList.add('ativa');
+            });
+            if (btn) btn.classList.add('ativa');
+        }
+
+        function adicionarComanda(id, nome, preco, foto) {
+            if (comanda[id]) {
+                comanda[id].qtd++;
+            } else {
+                comanda[id] = { nome, preco, foto, qtd: 1, obs: '' };
+            }
+            renderComanda();
+            flashCard(id);
+        }
+
+        function flashCard(id) {
+            // Feedback visual no botão
+            const btns = document.querySelectorAll('.btn-add-comanda');
+            btns.forEach(b => {
+                if (b.onclick?.toString().includes(`adicionarComanda(${id},`)) {
+                    b.textContent = '✔ Adicionado!';
+                    b.style.background = '#059669';
+                    setTimeout(() => {
+                        b.textContent = '➕ Adicionar à Comanda';
+                        b.style.background = '';
+                    }, 800);
+                }
+            });
+        }
+
+        function alterarQtd(id, delta) {
+            if (!comanda[id]) return;
+            comanda[id].qtd += delta;
+            if (comanda[id].qtd <= 0) delete comanda[id];
+            renderComanda();
+        }
+
+        function removerItem(id) {
+            delete comanda[id];
+            renderComanda();
+        }
+
+        function atualizarObs(id, val) {
+            if (comanda[id]) comanda[id].obs = val;
+        }
+
+        function renderComanda() {
+            const container = document.getElementById('comandaItens');
+            const vazia     = document.getElementById('comandaVazia');
+            const contador  = document.getElementById('contadorComanda');
+            const totalEl   = document.getElementById('totalComanda');
+            const btnEnviar = document.getElementById('btnEnviar');
+
+            const ids = Object.keys(comanda);
+            contador.textContent = ids.reduce((s, k) => s + comanda[k].qtd, 0);
+
+            if (ids.length === 0) {
+                container.innerHTML = '';
+                container.appendChild(vazia);
+                vazia.style.display = 'block';
+                totalEl.textContent = 'R$ 0,00';
+                btnEnviar.disabled  = true;
+                return;
+            }
+
+            vazia.style.display = 'none';
+            btnEnviar.disabled  = false;
+
+            let total = 0;
+            let html  = '';
+
+            ids.forEach(id => {
+                const it      = comanda[id];
+                const subtotal = it.preco * it.qtd;
+                total += subtotal;
+
+                const fotoHtml = it.foto
+                    ? `<img src="/${it.foto}" alt="${it.nome}" />`
+                    : '🌶️';
+
+                html += `
+                <div class="comanda-item" id="ci-${id}">
+                    <div class="ci-foto">${fotoHtml}</div>
+                    <div style="flex:1; min-width:0;">
+                        <div class="ci-info">
+                            <div class="ci-nome">${it.nome}</div>
+                            <div class="ci-preco">
+                                ${it.qtd}x · R$ ${(subtotal).toFixed(2).replace('.',',')}
+                            </div>
+                        </div>
+                        <input class="ci-obs-input"
+                               placeholder="Observação..."
+                               value="${it.obs}"
+                               oninput="atualizarObs(${id}, this.value)" />
+                    </div>
+                    <div class="ci-qtd-ctrl">
+                        <button class="ci-btn" onclick="alterarQtd(${id}, -1)">−</button>
+                        <span class="ci-qtd">${it.qtd}</span>
+                        <button class="ci-btn" onclick="alterarQtd(${id}, 1)">+</button>
+                    </div>
+                    <button class="ci-rm" onclick="removerItem(${id})" title="Remover">🗑</button>
+                </div>`;
+            });
+
+            container.innerHTML = html;
+
+            totalEl.textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+        }
+
+        function limparComanda() {
+            if (Object.keys(comanda).length === 0) return;
+            if (!confirm('Limpar toda a comanda?')) return;
+            comanda = {};
+            renderComanda();
+        }
+
+        async function enviarComanda() {
+            const mesa   = document.getElementById('selMesa').value;
+            const garcom = document.getElementById('selGarcom').value;
+            const obs    = document.getElementById('obsGeral').value;
+
+            if (!mesa)   { alert('Selecione a mesa!');   return; }
+            if (!garcom) { alert('Selecione o garçom!'); return; }
+            if (Object.keys(comanda).length === 0) { alert('Comanda vazia!'); return; }
+
+            const btn = document.getElementById('btnEnviar');
+            btn.disabled    = true;
+            btn.textContent = 'Enviando...';
+
+            // Monta observação final com obs por item
+            let obsCompleta = obs;
+            Object.values(comanda).forEach(it => {
+                if (it.obs) obsCompleta += ` | ${it.nome}: ${it.obs}`;
+            });
+
+            // Adiciona cada item ao carrinho via fetch
+            for (const id of Object.keys(comanda)) {
+                const it = comanda[id];
+                for (let q = 0; q < it.qtd; q++) {
+                    await fetch('/Pedido/AdicionarAoPedido', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `id=${id}&__RequestVerificationToken=${getToken()}`
+                    });
+                }
+            }
+
+            // Preenche e submete o form de finalizar
+            document.getElementById('fMesa').value   = mesa;
+            document.getElementById('fGarcom').value = garcom;
+            document.getElementById('fObs').value    = obsCompleta;
+            document.getElementById('formPedido').submit();
+        }
+
+        function getToken() {
+            return document.querySelector('input[name="__RequestVerificationToken"]').value;
+        }
+
+        // Toast auto-hide
+        const toast = document.getElementById('toastOk');
+        if (toast) setTimeout(() => toast.style.display = 'none', 3000);
+
+        // Init
+        renderComanda();
+    </script>
+}

@@ -1,357 +1,405 @@
 ﻿@using ProjetoFiestaMexicana.Models
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Cardápio Fiesta Mexicana";
-
-    // Recupera os grupos de pratos enviados pelo Controller
+    ViewData["Title"] = "Cardápio";
     var grupos = ViewBag.Grupos as Dictionary<string, List<Pratos>>;
+    var isLogged = Context.Session.GetInt32("UserId").HasValue;
 }
 
-<div class="fiesta-hero">
-    <img src="~/logos/bannerf.png" alt="Banner Fiesta Mexicana" class="hero-banner-img" />
-</div>
-
-<div class="fiesta-page-container">
-
-    <div class="category-nav-wrapper">
-        <div class="category-nav">
-            @if (grupos != null)
-            {
-                foreach (var g in grupos.Keys)
-                {
-                    <a href="#cat-@g.Replace(" ", "-")" class="cat-btn">@g</a>
-                }
-            }
-        </div>
-    </div>
-
-    @if (TempData["ok"] != null)
-    {
-        <div class="fiesta-toast">🌮 @TempData["ok"]</div>
-    }
-
-    <div class="menu-sections">
-        @if (grupos != null && grupos.Any())
-        {
-            foreach (var g in grupos)
-            {
-                <section id="cat-@g.Key.Replace(" ", "-")" class="menu-category-section">
-                    <h2 class="category-title">@g.Key</h2>
-
-                    <div class="products-grid">
-                        @foreach (var p in g.Value)
-                        {
-                            <div class="product-card">
-                                <div class="product-img-box">
-                                    @if (!string.IsNullOrWhiteSpace(p.CapaArquivo))
-                                    {
-                                        <img src="~/@p.CapaArquivo" alt="@p.Nome" />
-                                    }
-                                    else
-                                    {
-                                        <div class="no-img">🌶️</div>
-                                    }
-                                    <span class="product-price">@p.Preco.ToString("C")</span>
-                                </div>
-
-                                <div class="product-details">
-                                    <h3 class="product-name">@p.Nome</h3>
-                                    <p class="product-desc">@p.Descricao</p>
-
-                                    <div class="product-info-small">
-                                        @if (!string.IsNullOrEmpty(p.NivelPicancia))
-                                        {
-                                            <span>🔥 @p.NivelPicancia</span>
-                                        }
-                                        @if (p.TempoPreparo.HasValue)
-                                        {
-                                            <span>⏱️ @p.TempoPreparo min</span>
-                                        }
-                                    </div>
-
-                                    <a href="/Pedido/Detalhes/@(p.Id)" class="add-to-cart-btn" style="display:block; text-align:center; text-decoration:none; padding:14px; background:#2d2d2d; color:#fff; border-radius:15px; font-weight:800; font-size:0.88rem; text-transform:uppercase; letter-spacing:1px; transition:background 0.3s;" onmouseover="this.style.background='#FF5757'" onmouseout="this.style.background='#2d2d2d'">
-                                        VER DETALHES
-                                    </a>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </section>
-            }
-        }
-        else
-        {
-            <div class="empty-state">
-                <h3>Ops! O cardápio está sendo preparado.</h3>
-                <p>Volte em instantes para conferir nossas delícias.</p>
-            </div>
-        }
-    </div>
-</div>
-
 <style>
-    .fiesta-page-container { 
-        min-height: 100vh;
-        padding-bottom: 80px;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* ── Reset local ── */
+    .menu-page {
+        font-family: 'Segoe UI', sans-serif;
+        background: #fff;
     }
 
+    /* ── Banner ── */
     .fiesta-hero {
         width: 100%;
         background: #FF5757;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 24px 0;
+        padding: 28px 0;
+        /* Garante largura total mesmo com container logado */
+        margin-left: calc(-20px);
+        margin-right: calc(-20px);
+        width: calc(100% + 40px);
     }
 
         .fiesta-hero img {
-            max-width: 600px;
-            width: 80%;
+            max-width: 520px;
+            width: 75%;
             height: auto;
-            display: block;
             object-fit: contain;
+            display: block;
         }
 
-    .hero-banner-img {
-        width: 100%;
-        height: 100%;
-
-    }
-
-    .hero-overlay {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-        color: white;
-        width: 100%;
-    }
-
-    .hero-title {
-        font-size: 4rem;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 5px;
-        margin-bottom: 0;
-    }
-
-    .fiesta-divider {
-        width: 100px;
-        height: 5px;
-        background: #FF5757;
-        margin: 10px auto;
-        border-radius: 10px;
-    }
-
-
-    .category-nav-wrapper {
-        background: white;
-        padding: 20px 0;
+    /* ── Tabs de categoria ── */
+    .cat-nav-wrap {
+        background: #fff;
+        border-bottom: 1px solid #e5e7eb;
         position: sticky;
         top: 0;
-        z-index: 5;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        z-index: 100;
+        margin-left: calc(-20px);
+        margin-right: calc(-20px);
     }
 
-    .category-nav {
+    .cat-nav {
+        display: flex;
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding: 0 20px;
         max-width: 1200px;
         margin: 0 auto;
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        overflow-x: auto;
-        padding: 0 20px;
-        scrollbar-width: none; /* Esconde scroll no Firefox */
     }
 
-        .category-nav::-webkit-scrollbar {
+        .cat-nav::-webkit-scrollbar {
             display: none;
         }
 
-    .cat-btn {
-        padding: 12px 25px;
-        background: #f8f9fa;
-        color: #2d2d2d;
-        text-decoration: none !important;
-        border-radius: 50px;
+    .cat-tab {
+        background: none;
+        border: none;
+        border-bottom: 3px solid transparent;
+        padding: 14px 22px;
+        font-size: 0.88rem;
         font-weight: 700;
+        color: #6b7280;
+        cursor: pointer;
         white-space: nowrap;
-        transition: all 0.3s;
-        border: 2px solid #eee;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition: all 0.2s;
     }
 
-        .cat-btn:hover {
-            background: #FF5757;
-            color: white;
-            border-color: #FF5757;
+        .cat-tab:hover {
+            color: #FF5757;
         }
 
+        .cat-tab.ativa {
+            color: #FF5757;
+            border-bottom-color: #FF5757;
+        }
 
-    .menu-sections {
+    /* ── Seções ── */
+    .menu-wrap {
         max-width: 1200px;
         margin: 0 auto;
-        padding: 0 20px;
-        z-index: ;
+        padding: 32px 0 80px;
     }
 
-    .category-title {
-        color: white;
-        font-size: 2.5rem;
-        font-weight: 900;
-        margin: 60px 0 30px;
+    .menu-secao {
+        display: none;
+    }
+
+        .menu-secao.ativa {
+            display: block;
+        }
+
+    .secao-titulo {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #111827;
+        margin-bottom: 24px;
         text-transform: uppercase;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        letter-spacing: 0.04em;
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 12px;
     }
 
-        .category-title::after {
+        .secao-titulo::after {
             content: "";
             flex: 1;
             height: 2px;
-            background: rgba(255,255,255,0.3);
+            background: #f3f4f6;
+            border-radius: 2px;
         }
 
+    /* ── Grid ── */
     .products-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 30px;
+        grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+        gap: 24px;
+        margin-bottom: 48px;
     }
 
     .product-card {
-        background: white;
-        border-radius: 25px;
+        background: #fff;
+        border-radius: 20px;
+        border: 1px solid #e5e7eb;
         overflow: hidden;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-        transition: all 0.3s ease;
         display: flex;
         flex-direction: column;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
     }
 
         .product-card:hover {
-            transform: translateY(-10px);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 28px rgba(0,0,0,0.12);
         }
 
     .product-img-box {
-        height: 220px;
+        width: 100%;
+        height: 210px;
+        background: #f3f4f6;
         position: relative;
-        background: #f0f0f0;
+        overflow: hidden;
+        flex-shrink: 0;
     }
 
         .product-img-box img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: block;
         }
+
+    .no-img {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3.5rem;
+    }
 
     .product-price {
         position: absolute;
-        bottom: 15px;
-        right: 15px;
+        bottom: 12px;
+        right: 12px;
         background: #FF5757;
-        color: white;
-        padding: 8px 18px;
+        color: #fff;
+        padding: 6px 14px;
         border-radius: 50px;
         font-weight: 800;
-        font-size: 1.1rem;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        font-size: 1rem;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
     }
 
     .product-details {
-        padding: 25px;
-        text-align: center;
-        flex-grow: 1;
+        padding: 20px;
         display: flex;
         flex-direction: column;
+        flex: 1;
+        gap: 6px;
     }
 
     .product-name {
-        font-size: 1.4rem;
+        font-size: 1.05rem;
         font-weight: 800;
-        color: #2d2d2d;
-        margin-bottom: 10px;
+        color: #111827;
+        margin: 0;
     }
 
     .product-desc {
-        color: #777;
-        font-size: 0.95rem;
-        line-height: 1.4;
-        margin-bottom: 15px;
-        flex-grow: 1;
+        font-size: 0.82rem;
+        color: #6b7280;
+        line-height: 1.5;
+        margin: 0;
+        flex: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
     .product-info-small {
         display: flex;
-        justify-content: center;
-        gap: 15px;
-        font-size: 0.85rem;
-        color: #999;
-        margin-bottom: 15px;
+        gap: 10px;
+        font-size: 0.78rem;
+        color: #9ca3af;
+        flex-wrap: wrap;
     }
 
-    .add-to-cart-btn {
+    .btn-detalhes {
+        margin-top: 10px;
         width: 100%;
-        background: #2d2d2d;
-        color: white;
+        background: #111827;
+        color: #fff;
         border: none;
-        padding: 14px;
-        border-radius: 15px;
+        padding: 13px;
+        border-radius: 12px;
         font-weight: 800;
+        font-size: 0.85rem;
         cursor: pointer;
-        transition: all 0.3s;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.06em;
+        transition: background 0.2s;
+        text-decoration: none;
+        display: block;
+        text-align: center;
     }
 
-        .add-to-cart-btn:hover {
+        .btn-detalhes:hover {
             background: #FF5757;
-            transform: scale(1.02);
+            color: #fff;
         }
 
+    /* ── Toast ── */
     .fiesta-toast {
         position: fixed;
         bottom: 30px;
         left: 50%;
         transform: translateX(-50%);
-        background: #2d2d2d;
-        color: white;
-        padding: 15px 40px;
+        background: #111827;
+        color: #fff;
+        padding: 14px 36px;
         border-radius: 50px;
-        z-index: 2000;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        animation: slideUp 0.5s ease;
+        z-index: 3000;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+        font-weight: 600;
+        animation: slideUp 0.4s ease;
+        white-space: nowrap;
     }
 
     @@keyframes slideUp {
         from {
-            bottom: -100px;
+            bottom: -80px;
+            opacity: 0;
         }
 
         to {
             bottom: 30px;
+            opacity: 1;
         }
     }
 
+    /* ── Empty state ── */
     .empty-state {
         text-align: center;
-        color: white;
-        padding: 100px 0;
+        padding: 80px 20px;
+        color: #9ca3af;
     }
 
-    @@media (max-width: 768px) {
-        .hero-title {
-            font-size: 2.5rem;
+        .empty-state p {
+            font-size: 1rem;
         }
 
+    @@media (max-width: 640px) {
         .fiesta-hero {
-            height: 250px;
+            padding: 20px 0;
         }
 
-        .category-title {
-            font-size: 1.8rem;
+            .fiesta-hero img {
+                width: 85%;
+            }
+
+        .products-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .secao-titulo {
+            font-size: 1.1rem;
         }
     }
 </style>
+
+<div class="menu-page">
+
+    <!-- Banner -->
+    <div class="fiesta-hero">
+        <img src="~/logos/bannerf.png" alt="Fiesta Mexicana" />
+    </div>
+
+    <!-- Tabs -->
+    @if (grupos != null && grupos.Any())
+    {
+        <div class="cat-nav-wrap">
+            <nav class="cat-nav">
+                @for (int i = 0; i < grupos.Keys.Count; i++)
+                {
+                    var cat = grupos.Keys.ElementAt(i);
+                    var ativa = i == 0 ? "ativa" : "";
+                    <button class="cat-tab @(ativa)"
+                            onclick="mostrarCat('@(cat)', this)">
+                        @cat
+                    </button>
+                }
+            </nav>
+        </div>
+    }
+
+    @if (TempData["ok"] != null)
+    {
+        <div class="fiesta-toast">🌮 @TempData["ok"]</div>
+    }
+
+    <!-- Seções -->
+    <div class="menu-wrap">
+        @if (grupos != null && grupos.Any())
+        {
+            for (int i = 0; i < grupos.Keys.Count; i++)
+            {
+                var cat = grupos.Keys.ElementAt(i);
+                var lista = grupos[cat];
+                var ativa = i == 0 ? "ativa" : "";
+
+                <div class="menu-secao @(ativa)" id="secao-@(i)" data-cat="@(cat)">
+                    <div class="secao-titulo">@(cat)</div>
+                    <div class="products-grid">
+                        @for (int j = 0; j < lista.Count; j++)
+                        {
+                            var p = lista[j];
+                            <div class="product-card">
+                                <div class="product-img-box">
+                                    @if (!string.IsNullOrWhiteSpace(p.CapaArquivo))
+                                    {
+                                        <img src="~/@(p.CapaArquivo)" alt="@(p.Nome)" />
+                                    }
+                                    else
+                                    {
+                                        <div class="no-img">🌶️</div>
+                                    }
+                                    <span class="product-price">@(p.Preco.ToString("C"))</span>
+                                </div>
+                                <div class="product-details">
+                                    <h3 class="product-name">@(p.Nome)</h3>
+                                    @if (!string.IsNullOrWhiteSpace(p.Descricao))
+                                    {
+                                        <p class="product-desc">@(p.Descricao)</p>
+                                    }
+                                    <div class="product-info-small">
+                                        @if (!string.IsNullOrEmpty(p.NivelPicancia) && p.NivelPicancia != "Sem Pimenta")
+                                        {
+                                            <span>🔥 @(p.NivelPicancia)</span>
+                                        }
+                                        @if (p.TempoPreparo.HasValue)
+                                        {
+                                            <span>⏱️ @(p.TempoPreparo) min</span>
+                                        }
+                                    </div>
+                                    <a href="/Pedido/Detalhes/@(p.Id)" class="btn-detalhes">
+                                        VER DETALHES
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-state">
+                <p>Cardápio sendo preparado. Volte em instantes! 🌮</p>
+            </div>
+        }
+    </div>
+
+</div>
+
+<script>
+    function mostrarCat(nome, btn) {
+        document.querySelectorAll('.menu-secao').forEach(s => s.classList.remove('ativa'));
+        document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('ativa'));
+        document.querySelectorAll('.menu-secao').forEach(s => {
+            if (s.dataset.cat === nome) s.classList.add('ativa');
+        });
+        if (btn) btn.classList.add('ativa');
+    }
+</script>

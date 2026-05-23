@@ -19,24 +19,50 @@ namespace ProjetoFiestaMexicana.Controllers
         {
             var itens = new List<Pratos>();
             var titulos = new List<string>();
-
+            var grupos = new Dictionary<string, List<Pratos>>();
             using var conn = db.GetConnection();
 
-            using (var cmd = new MySqlCommand("sp_prato_listar_cardapio", conn) { CommandType = CommandType.StoredProcedure })
-            {
-                cmd.Parameters.AddWithValue("p_q", q ?? "");
-                using var rd = cmd.ExecuteReader();
-                while (rd.Read())
+                using (var cmd = new MySqlCommand("sp_prato_listar_cardapio_categorias", conn)
+                { CommandType = CommandType.StoredProcedure })
                 {
-                    itens.Add(new Pratos
+                    using var rd = cmd.ExecuteReader();
+                    while (rd.Read())
                     {
-                        Id = rd.GetInt32("id"),
-                        Nome = rd.GetString("nome"),
-                        Preco = rd.GetDecimal("preco"),
-                        CapaArquivo = rd["capa_arquivo"] as string
-                    });
+                        var nome = rd.GetString("nome");
+                        if (!string.IsNullOrWhiteSpace(q) &&
+                            !nome.Contains(q, StringComparison.OrdinalIgnoreCase)) continue;
+
+                        var cat = rd.GetString("categoria_nome");
+                        if (!grupos.ContainsKey(cat)) grupos[cat] = new List<Pratos>();
+
+                        grupos[cat].Add(new Pratos
+                        {
+                            Id = rd.GetInt32("id"),
+                            Nome = nome,
+                            Preco = rd.GetDecimal("preco"),
+                            CapaArquivo = rd["capa_arquivo"] as string,
+                            Descricao = rd["descricao"] as string,
+                            TempoPreparo = rd["tempo_preparo"] == DBNull.Value ? null : rd.GetInt32("tempo_preparo"),
+                            NivelPicancia = rd["nivel_picancia"] as string,
+                            CategoriaNome = cat
+                        });
+
+                        if (!titulos.Contains(nome)) titulos.Add(nome);
+                    }
                 }
-            }
+
+                var ordemCats = new List<string> { "Entradas", "Principais", "Bebidas", "Sobremesas" };
+                var gruposOrdenados = new Dictionary<string, List<Pratos>>();
+                foreach (var c in ordemCats)
+                    if (grupos.ContainsKey(c)) gruposOrdenados[c] = grupos[c];
+                foreach (var kv in grupos)
+                    if (!gruposOrdenados.ContainsKey(kv.Key)) gruposOrdenados[kv.Key] = kv.Value;
+
+                ViewBag.Grupos = gruposOrdenados;
+                ViewBag.q = q ?? "";
+                ViewBag.Titulos = titulos;
+                return View();
+
 
             using (var cmdAll = new MySqlCommand("sp_prato_listar_cardapio", conn) { CommandType = CommandType.StoredProcedure })
             {
@@ -55,6 +81,7 @@ namespace ProjetoFiestaMexicana.Controllers
             return View(itens);
         }
 
+        // ------------------- Carrinho: dicionário {pratoId -> quantidade} -------------------
 
         private Dictionary<int, int> GetCart()
         {
@@ -322,41 +349,6 @@ namespace ProjetoFiestaMexicana.Controllers
 
 
             return View(todosOsPratos);
-        }
-
-        [HttpGet]
-        public IActionResult Detalhes(int id)
-        {
-            Pratos? prato = null;
-
-            using var conn = db.GetConnection();
-            using var cmd = new MySqlCommand("sp_prato_obter_por_id", conn)
-            {
-                CommandType = CommandType.StoredProcedure
-            };
-            cmd.Parameters.AddWithValue("p_id", id);
-            using var rd = cmd.ExecuteReader();
-
-            if (rd.Read())
-            {
-                prato = new Pratos
-                {
-                    Id = rd.GetInt32("id"),
-                    Nome = rd.GetString("nome"),
-                    Preco = rd.GetDecimal("preco"),
-                    CapaArquivo = rd["capa_arquivo"] as string,
-                    Descricao = rd["descricao"] as string,
-                    NivelPicancia = rd["nivel_picancia"] as string,
-                    TempoPreparo = rd["tempo_preparo"] == DBNull.Value
-                                    ? null : rd.GetInt32("tempo_preparo"),
-                    CategoriaNome = rd["categoria_nome"] as string
-                };
-            }
-
-            if (prato == null)
-                return NotFound();
-
-            return View(prato);
         }
     }
 }
