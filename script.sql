@@ -634,3 +634,95 @@ BEGIN
 END $$
 
 DELIMITER ;
+
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS sp_dashboard_mesas $$
+CREATE PROCEDURE sp_dashboard_mesas()
+BEGIN
+    SELECT
+        SUM(status = 'Livre')   AS livres,
+        SUM(status = 'Ocupado') AS ocupadas,
+        COUNT(*)                AS total
+    FROM Mesa;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_dashboard_top_pratos $$
+CREATE PROCEDURE sp_dashboard_top_pratos()
+BEGIN
+    SELECT
+        pr.nome,
+        SUM(pi.quantidade) AS total_vendido,
+        SUM(pi.subtotal)   AS receita
+    FROM Pedido_itens pi
+    INNER JOIN Prato pr  ON pr.id  = pi.prato
+    INNER JOIN Pedido p  ON p.id   = pi.pedido
+    WHERE DATE(p.data_hora) = CURDATE()
+      AND p.status != 'Cancelado'
+    GROUP BY pr.id, pr.nome
+    ORDER BY total_vendido DESC
+    LIMIT 5;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_dashboard_por_garcom $$
+CREATE PROCEDURE sp_dashboard_por_garcom()
+BEGIN
+    SELECT
+        g.nome,
+        COUNT(p.id)             AS total_pedidos,
+        COALESCE(SUM(p.total), 0) AS total_valor
+    FROM Garcom g
+    LEFT JOIN Pedido p ON p.garcom = g.id
+        AND DATE(p.data_hora) = CURDATE()
+        AND p.status != 'Cancelado'
+    GROUP BY g.id, g.nome
+    ORDER BY total_valor DESC;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_dashboard_ultimos_pedidos $$
+CREATE PROCEDURE sp_dashboard_ultimos_pedidos()
+BEGIN
+    SELECT
+        p.id,
+        m.numero  AS mesa,
+        g.nome    AS garcom,
+        p.status,
+        p.total,
+        p.data_hora
+    FROM Pedido p
+    INNER JOIN Mesa   m ON m.id = p.mesa
+    INNER JOIN Garcom g ON g.id = p.garcom
+    WHERE DATE(p.data_hora) = CURDATE()
+    ORDER BY p.data_hora DESC
+    LIMIT 8;
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS sp_dashboard_resumo $$
+CREATE PROCEDURE sp_dashboard_resumo()
+BEGIN
+    SELECT
+        COALESCE(COUNT(*), 0)                AS total_pedidos,
+        COALESCE(SUM(total), 0)              AS faturamento,
+        COALESCE(SUM(status = 'Pendente'),0)   AS pendentes,
+        COALESCE(SUM(status = 'Preparando'),0) AS preparando,
+        COALESCE(SUM(status = 'Finalizado'),0) AS finalizados,
+        COALESCE(SUM(status = 'Cancelado'),0)  AS cancelados
+    FROM Pedido
+    WHERE DATE(data_hora) = CURDATE();
+END $$
+
+DROP PROCEDURE IF EXISTS sp_dashboard_mesas $$
+CREATE PROCEDURE sp_dashboard_mesas()
+BEGIN
+    SELECT
+        COALESCE(SUM(status = 'Livre'),0)   AS livres,
+        COALESCE(SUM(status = 'Ocupado'),0) AS ocupadas,
+        COALESCE(COUNT(*),0)                AS total
+    FROM Mesa;
+END $$
+
+DELIMITER ;

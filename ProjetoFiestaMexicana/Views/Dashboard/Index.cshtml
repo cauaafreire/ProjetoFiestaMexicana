@@ -1,0 +1,545 @@
+﻿@model ProjetoFiestaMexicana.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<style>
+    .dash {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 0 4px;
+    }
+
+    /* ── Cabeçalho ── */
+    .dash-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+        .dash-header h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #111827;
+            margin: 0;
+        }
+
+    .dash-data {
+        font-size: 0.85rem;
+        color: #6b7280;
+        background: #f3f4f6;
+        padding: 6px 14px;
+        border-radius: 20px;
+    }
+
+    /* ── Cards KPI ── */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    .kpi-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 20px;
+        border: 1px solid #f3f4f6;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .kpi-icon {
+        font-size: 1.6rem;
+        line-height: 1;
+    }
+
+    .kpi-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #9ca3af;
+    }
+
+    .kpi-valor {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #111827;
+        line-height: 1;
+    }
+
+    .kpi-card.destaque {
+        background: #FF5757;
+        border-color: #FF5757;
+    }
+
+        .kpi-card.destaque .kpi-label,
+        .kpi-card.destaque .kpi-valor {
+            color: #fff;
+        }
+
+    .kpi-card.amarelo {
+        border-left: 4px solid #f59e0b;
+    }
+
+    .kpi-card.azul {
+        border-left: 4px solid #3b82f6;
+    }
+
+    .kpi-card.verde {
+        border-left: 4px solid #10b981;
+    }
+
+    .kpi-card.vermelho {
+        border-left: 4px solid #ef4444;
+    }
+
+    /* ── Grid de seções ── */
+    .secoes-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    @@media (max-width: 900px) {
+        .secoes-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .secao-card {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid #f3f4f6;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .secao-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid #f3f4f6;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .secao-header h3 {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #111827;
+        }
+
+    /* ── Top pratos ── */
+    .top-lista {
+        padding: 16px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .top-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .top-rank {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #f3f4f6;
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: #374151;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+        .top-rank.gold {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .top-rank.silver {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .top-rank.bronze {
+            background: #fde8d8;
+            color: #7c2d12;
+        }
+
+    .top-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .top-nome {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #111827;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .top-barra {
+        height: 5px;
+        border-radius: 5px;
+        background: #f3f4f6;
+        overflow: hidden;
+        margin-top: 5px;
+    }
+
+    .top-barra-fill {
+        height: 100%;
+        background: #FF5757;
+        border-radius: 5px;
+    }
+
+    .top-qtd {
+        font-size: 0.9rem;
+        font-weight: 800;
+        color: #FF5757;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    /* ── Garçons ── */
+    .garcom-lista {
+        padding: 8px 20px 16px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .garcom-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #f9fafb;
+    }
+
+        .garcom-item:last-child {
+            border-bottom: none;
+        }
+
+    .garcom-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #FF5757;
+        color: #fff;
+        font-size: 0.95rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .garcom-nome {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #111827;
+        flex: 1;
+    }
+
+    .garcom-stats {
+        text-align: right;
+    }
+
+    .garcom-pedidos {
+        font-size: 0.75rem;
+        color: #6b7280;
+    }
+
+    .garcom-valor {
+        font-size: 0.9rem;
+        font-weight: 800;
+        color: #059669;
+    }
+
+    /* ── Últimos pedidos ── */
+    .pedidos-card {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid #f3f4f6;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .pedidos-tabela {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .pedidos-tabela th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #9ca3af;
+            border-bottom: 1px solid #f3f4f6;
+            background: #fafafa;
+        }
+
+        .pedidos-tabela td {
+            padding: 13px 16px;
+            font-size: 0.88rem;
+            color: #374151;
+            border-bottom: 1px solid #f9fafb;
+            vertical-align: middle;
+        }
+
+        .pedidos-tabela tr:last-child td {
+            border-bottom: none;
+        }
+
+        .pedidos-tabela tr:hover td {
+            background: #fafafa;
+        }
+
+    .badge-status {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .badge-Pendente {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-Preparando {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-Finalizado {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .badge-Cancelado {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .vazio-msg {
+        padding: 40px;
+        text-align: center;
+        color: #9ca3af;
+        font-size: 0.9rem;
+        font-style: italic;
+    }
+
+    /* ── Responsivo tabela ── */
+    @@media (max-width: 640px) {
+        .pedidos-tabela thead {
+            display: none;
+        }
+
+        .pedidos-tabela td {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 16px;
+            border-bottom: none;
+        }
+
+        .pedidos-tabela tr {
+            display: block;
+            border-bottom: 1px solid #f3f4f6;
+            padding: 6px 0;
+        }
+
+        .kpi-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+</style>
+
+<div class="dash">
+
+    <!-- Cabeçalho -->
+    <div class="dash-header">
+        <h1>📊 Dashboard</h1>
+        <span class="dash-data">
+            📅 @DateTime.Now.ToString("dddd, dd 'de' MMMM 'de' yyyy",
+                        new System.Globalization.CultureInfo("pt-BR"))
+        </span>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+        <div class="kpi-card destaque">
+            <span class="kpi-icon">💰</span>
+            <span class="kpi-label">Faturamento Hoje</span>
+            <span class="kpi-valor">@Model.Resumo.Faturamento.ToString("C")</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-icon">🧾</span>
+            <span class="kpi-label">Pedidos Hoje</span>
+            <span class="kpi-valor">@Model.Resumo.TotalPedidos</span>
+        </div>
+        <div class="kpi-card amarelo">
+            <span class="kpi-icon">⏳</span>
+            <span class="kpi-label">Pendentes</span>
+            <span class="kpi-valor">@Model.Resumo.Pendentes</span>
+        </div>
+        <div class="kpi-card azul">
+            <span class="kpi-icon">👨‍🍳</span>
+            <span class="kpi-label">Preparando</span>
+            <span class="kpi-valor">@Model.Resumo.Preparando</span>
+        </div>
+        <div class="kpi-card verde">
+            <span class="kpi-icon">✅</span>
+            <span class="kpi-label">Finalizados</span>
+            <span class="kpi-valor">@Model.Resumo.Finalizados</span>
+        </div>
+        <div class="kpi-card vermelho">
+            <span class="kpi-icon">❌</span>
+            <span class="kpi-label">Cancelados</span>
+            <span class="kpi-valor">@Model.Resumo.Cancelados</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-icon">🪑</span>
+            <span class="kpi-label">Mesas Livres</span>
+            <span class="kpi-valor">@Model.Mesas.Livres</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-icon">🔴</span>
+            <span class="kpi-label">Mesas Ocupadas</span>
+            <span class="kpi-valor">@Model.Mesas.Ocupadas</span>
+        </div>
+    </div>
+
+    <!-- Top pratos + Garçons -->
+    <div class="secoes-grid">
+
+        <!-- Top 5 pratos -->
+        <div class="secao-card">
+            <div class="secao-header">
+                <span>🔥</span>
+                <h3>Pratos Mais Vendidos Hoje</h3>
+            </div>
+            @if (Model.TopPratos.Any())
+            {
+                var maxVendido = Model.TopPratos.Max(x => x.TotalVendido);
+                <div class="top-lista">
+                    @for (int i = 0; i < Model.TopPratos.Count; i++)
+                    {
+                        var p = Model.TopPratos[i];
+                        var rankClass = i == 0 ? "gold" : i == 1 ? "silver" : i == 2 ? "bronze" : "";
+                        var pct = maxVendido > 0 ? (p.TotalVendido * 100 / maxVendido) : 0;
+                        <div class="top-item">
+                            <div class="top-rank @(rankClass)">@(i + 1)</div>
+                            <div class="top-info">
+                                <div class="top-nome">@(p.Nome)</div>
+                                <div class="top-barra">
+                                    <div class="top-barra-fill" style="width:@(pct)%"></div>
+                                </div>
+                            </div>
+                            <div class="top-qtd">@(p.TotalVendido)x</div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="vazio-msg">Nenhum prato vendido hoje ainda.</div>
+            }
+        </div>
+
+        <!-- Garçons -->
+        <div class="secao-card">
+            <div class="secao-header">
+                <span>🤵</span>
+                <h3>Desempenho dos Garçons Hoje</h3>
+            </div>
+            @if (Model.Garcons.Any())
+            {
+                <div class="garcom-lista">
+                    @foreach (var g in Model.Garcons)
+                    {
+                        var inicial = g.Nome.Length > 0 ? g.Nome[0].ToString().ToUpper() : "?";
+                        <div class="garcom-item">
+                            <div class="garcom-avatar">@inicial</div>
+                            <div class="garcom-nome">@g.Nome</div>
+                            <div class="garcom-stats">
+                                <div class="garcom-pedidos">@g.TotalPedidos pedido(s)</div>
+                                <div class="garcom-valor">@g.TotalValor.ToString("C")</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="vazio-msg">Nenhum dado disponível.</div>
+            }
+        </div>
+
+    </div>
+
+    <!-- Últimos pedidos -->
+    <div class="pedidos-card">
+        <div class="secao-header">
+            <span>🧾</span>
+            <h3>Últimos Pedidos do Dia</h3>
+        </div>
+        @if (Model.UltimosPedidos.Any())
+        {
+            <table class="pedidos-tabela">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Mesa</th>
+                        <th>Garçom</th>
+                        <th>Horário</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model.UltimosPedidos)
+                    {
+                        <tr>
+                            <td style="color:#9ca3af; font-size:0.8rem;">#@(p.Id)</td>
+                            <td><strong>Mesa @(p.Mesa)</strong></td>
+                            <td>@(p.Garcom)</td>
+                            <td style="color:#6b7280;">@(p.DataHora.ToString("HH:mm"))</td>
+                            <td>
+                                <span class="badge-status badge-@(p.Status)">@(p.Status)</span>
+                            </td>
+                            <td><strong>@(p.Total.ToString("C"))</strong></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="vazio-msg">Nenhum pedido registrado hoje.</div>
+        }
+    </div>
+
+</div>
