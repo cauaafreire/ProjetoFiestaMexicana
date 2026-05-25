@@ -139,11 +139,11 @@ namespace ProjetoFiestaMexicana.Controllers
             var linhas = new List<Pedido>();
             decimal totalGeral = 0;
 
+            using var conn = db.GetConnection();
+
             if (cart.Count > 0)
             {
                 var idsCsv = string.Join(",", cart.Keys);
-
-                using var conn = db.GetConnection();
                 using (var cmd = new MySqlCommand("sp_prato_listar_por_ids", conn) { CommandType = CommandType.StoredProcedure })
                 {
                     cmd.Parameters.AddWithValue("p_ids", idsCsv);
@@ -151,31 +151,44 @@ namespace ProjetoFiestaMexicana.Controllers
                     while (rd.Read())
                     {
                         var pratoId = rd.GetInt32("id");
-                        var quantidade = cart.ContainsKey(pratoId) ? cart[pratoId] : 1;
-
                         var item = new Pedido
                         {
                             PratoId = pratoId,
                             Nome = rd.GetString("nome"),
                             Preco = rd.GetDecimal("preco"),
                             CapaArquivo = rd["capa_arquivo"] as string,
-                            Quantidade = quantidade
+                            Quantidade = cart[pratoId]
                         };
                         item.Subtotal = item.Quantidade * item.Preco;
                         totalGeral += item.Subtotal;
                         linhas.Add(item);
                     }
                 }
-
-                model.NomeMesa = GetSelectList("sp_mesa_listar");
-                model.NomeGarcom = GetSelectList("sp_garcom_listar");
             }
 
-            ViewBag.Itens = linhas.OrderBy(x => x.Nome).ToList();
-            ViewBag.TotalGeral = totalGeral;
+            // LÓGICA DE CARREGAR AS MESAS
+            model.NomeMesa = new List<SelectListItem>();
+            using (var cmdM = new MySqlCommand("SELECT id, numero FROM Mesa", conn))
+            using (var rdM = cmdM.ExecuteReader())
+            {
+                while (rdM.Read())
+                    model.NomeMesa.Add(new SelectListItem { Value = rdM["id"].ToString(), Text = "Mesa " + rdM["numero"].ToString() });
+            }
 
+            // LÓGICA DE CARREGAR OS GARÇONS (Buscando da sua tabela Usuarios)
+            model.NomeGarcom = new List<SelectListItem>();
+            using (var cmdG = new MySqlCommand("SELECT id, nome FROM Usuarios WHERE role = 'Garcom'", conn))
+            using (var rdG = cmdG.ExecuteReader())
+            {
+                while (rdG.Read())
+                    model.NomeGarcom.Add(new SelectListItem { Value = rdG["id"].ToString(), Text = rdG["nome"].ToString() });
+            }
+
+            ViewBag.Itens = linhas;
+            ViewBag.TotalGeral = totalGeral;
             return View(model);
         }
+
 
         private List<SelectListItem> GetSelectList(string sp)
         {

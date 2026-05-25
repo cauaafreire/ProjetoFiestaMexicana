@@ -259,16 +259,19 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label asp-for="Mesa">Número da Mesa</label>
-                        <select asp-for="Mesa" class="form-control" asp-items="Model.NomeMesa" required>
-                            <option value="">Selecione...</option>
+                        <select asp-for="Mesa" class="form-control" asp-items="@(new SelectList(Model.NomeMesa, "Value", "Text"))" required>
+                            <option value="">Selecione a mesa...</option>
                         </select>
                     </div>
+
                     <div class="form-group">
                         <label asp-for="Garcom">Garçom Atendente</label>
-                        <select asp-for="Garcom" class="form-control" asp-items="Model.NomeGarcom" required>
-                            <option value="">Selecione...</option>
+                        <select asp-for="Garcom" class="form-control" asp-items="@(new SelectList(Model.NomeGarcom, "Value", "Text"))" required>
+                            <option value="">Selecione o garçom...</option>
                         </select>
                     </div>
+
+
                     <div class="form-group form-full">
                         <label asp-for="Observacao">Observações do Pedido</label>
                         <input asp-for="Observacao" class="form-control" placeholder="Ex: Sem cebola, ponto da carne mal passado..." />
