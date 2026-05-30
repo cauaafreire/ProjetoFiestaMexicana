@@ -1,0 +1,693 @@
+﻿@model List<ProjetoFiestaMexicana.Models.ComandasViewModel>
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Comandas em Aberto";
+    var grupos = ViewBag.Grupos as Dictionary<string, List<ProjetoFiestaMexicana.Models.Pratos>>;
+    var mesas = ViewBag.Mesas as List<SelectListItem> ?? new();
+    var garcons = ViewBag.Garcons as List<SelectListItem> ?? new();
+}
+
+<style>
+    .cmd-page {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Abas */
+    .cmd-tabs {
+        display: flex;
+        gap: 0;
+        border-bottom: 2px solid #e5e7eb;
+        margin-bottom: 24px;
+    }
+
+    .cmd-tab {
+        padding: 12px 24px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #6b7280;
+        border: none;
+        background: none;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+        transition: all 0.2s;
+    }
+
+        .cmd-tab:hover {
+            color: #FF5757;
+        }
+
+        .cmd-tab.ativa {
+            color: #FF5757;
+            border-bottom-color: #FF5757;
+        }
+
+    .cmd-painel {
+        display: none;
+    }
+
+        .cmd-painel.ativo {
+            display: block;
+        }
+
+    /* Cards de comanda */
+    .comandas-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 20px;
+    }
+
+    .comanda-card {
+        background: #fff;
+        border-radius: 16px;
+        border: 2px solid #e5e7eb;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .comanda-card.status-Pendente {
+            border-color: #f59e0b;
+        }
+
+        .comanda-card.status-Preparando {
+            border-color: #3b82f6;
+        }
+
+    .cc-header {
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f9fafb;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .cc-mesa {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #111827;
+    }
+
+    .cc-info {
+        font-size: 0.78rem;
+        color: #6b7280;
+        margin-top: 2px;
+    }
+
+    .badge-s {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .badge-Pendente {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-Preparando {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    /* Itens da comanda */
+    .cc-itens {
+        padding: 12px 18px;
+        flex: 1;
+    }
+
+    .cc-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid #f9fafb;
+    }
+
+        .cc-item:last-child {
+            border-bottom: none;
+        }
+
+    .cc-foto {
+        width: 38px;
+        height: 38px;
+        border-radius: 7px;
+        background: #f3f4f6;
+        overflow: hidden;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+
+        .cc-foto img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .cc-nome {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #111827;
+        flex: 1;
+    }
+
+    .cc-qtd {
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+
+    .cc-sub {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #374151;
+        min-width: 70px;
+        text-align: right;
+    }
+
+    /* Adicionar item */
+    .cc-add-wrap {
+        padding: 12px 18px;
+        border-top: 1px solid #f3f4f6;
+        background: #fafafa;
+    }
+
+    .cc-add-titulo {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+    }
+
+    .cc-add-grid {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .cc-add-select {
+        width: 100%;
+        padding: 7px 10px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        color: #111827;
+        background: #fff;
+        outline: none;
+    }
+
+        .cc-add-select:focus {
+            border-color: #FF5757;
+        }
+
+    .cc-add-qty {
+        width: 52px;
+        padding: 7px 8px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #111827;
+        text-align: center;
+        outline: none;
+    }
+
+        .cc-add-qty:focus {
+            border-color: #FF5757;
+        }
+
+    .cc-add-btn {
+        background: #111827;
+        color: #fff;
+        border: none;
+        padding: 7px 12px;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.2s;
+    }
+
+        .cc-add-btn:hover {
+            background: #FF5757;
+        }
+
+    /* Footer do card */
+    .cc-footer {
+        padding: 14px 18px;
+        border-top: 2px solid #f3f4f6;
+        background: #fff;
+    }
+
+    .cc-totais {
+        margin-bottom: 12px;
+    }
+
+    .cc-linha {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: #6b7280;
+        padding: 3px 0;
+    }
+
+        .cc-linha.destaque {
+            font-weight: 800;
+            font-size: 1rem;
+            color: #111827;
+            border-top: 1px solid #f3f4f6;
+            margin-top: 6px;
+            padding-top: 8px;
+        }
+
+        .cc-linha.taxa {
+            color: #059669;
+            font-weight: 600;
+        }
+
+    .cc-acoes {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-add-mais {
+        flex: 1;
+        background: #f3f4f6;
+        color: #374151;
+        border: none;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+        .btn-add-mais:hover {
+            background: #e5e7eb;
+        }
+
+    .btn-finalizar-cmd {
+        flex: 2;
+        background: #059669;
+        color: #fff;
+        border: none;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+        .btn-finalizar-cmd:hover {
+            background: #047857;
+        }
+
+    .vazio-estado {
+        text-align: center;
+        padding: 60px 20px;
+        color: #9ca3af;
+    }
+
+        .vazio-estado p {
+            font-size: 0.95rem;
+        }
+
+    /* Modal de confirmação */
+    .modal-bg {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .modal-bg.aberto {
+            display: flex;
+        }
+
+    .modal-box {
+        background: #fff;
+        border-radius: 20px;
+        padding: 36px 32px;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        animation: popIn 0.3s ease;
+    }
+
+    @@keyframes popIn {
+        from {
+            transform: scale(0.85);
+            opacity: 0;
+        }
+
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .modal-check {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 16px;
+    }
+
+    .modal-titulo {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #111827;
+        margin-bottom: 6px;
+    }
+
+    .modal-sub {
+        font-size: 0.88rem;
+        color: #6b7280;
+        margin-bottom: 20px;
+    }
+
+    .modal-total {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #111827;
+        margin-bottom: 4px;
+    }
+
+    .modal-taxa {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin-bottom: 20px;
+    }
+
+    .modal-detalhe {
+        background: #f9fafb;
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .modal-linha {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        padding: 4px 0;
+        color: #374151;
+    }
+
+        .modal-linha.bold {
+            font-weight: 800;
+            color: #111827;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 4px;
+            padding-top: 8px;
+        }
+
+        .modal-linha.verde {
+            color: #059669;
+            font-weight: 700;
+        }
+
+    .modal-btn-ok {
+        width: 100%;
+        background: #059669;
+        color: #fff;
+        border: none;
+        padding: 14px;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+        .modal-btn-ok:hover {
+            background: #047857;
+        }
+
+    .modal-btn-cancelar {
+        width: 100%;
+        background: none;
+        border: 1px solid #e5e7eb;
+        color: #6b7280;
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 8px;
+    }
+</style>
+
+<!-- Modal de confirmação de finalização -->
+<div class="modal-bg" id="modalFinalizar">
+    <div class="modal-box">
+        <img src="~/logos/icon/check.png" alt="OK" class="modal-check" />
+        <div class="modal-titulo">Finalizar Comanda?</div>
+        <div class="modal-sub">Confirme os valores antes de fechar</div>
+
+        <div class="modal-detalhe" id="modalDetalhe"></div>
+
+        <form asp-action="FinalizarComanda" method="post" id="formFinalizar">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" id="modalPedidoId" />
+            <button type="submit" class="modal-btn-ok">✅ Confirmar Finalização</button>
+        </form>
+        <button class="modal-btn-cancelar" onclick="fecharModal()">Cancelar</button>
+    </div>
+</div>
+
+<div class="cmd-page">
+
+    <h1 style="font-size:1.5rem; font-weight:800; color:#111827; margin-bottom:20px;">
+        🧾 Gerenciar Comandas
+    </h1>
+
+    <!-- Abas -->
+    <div class="cmd-tabs">
+        <button class="cmd-tab ativa" onclick="mostrarPainel('abertas', this)">
+            🔥 Em Aberto (@Model.Count)
+        </button>
+        <button class="cmd-tab" onclick="mostrarPainel('novo', this)">
+            ➕ Nova Comanda
+        </button>
+    </div>
+
+    <!-- Painel: comandas em aberto -->
+    <div class="cmd-painel ativo" id="painel-abertas">
+        @if (!Model.Any())
+        {
+            <div class="vazio-estado">
+                <p>🎉 Nenhuma comanda em aberto no momento.</p>
+            </div>
+        }
+        else
+        {
+            <div class="comandas-grid">
+                @foreach (var c in Model)
+                {
+                    <div class="comanda-card status-@(c.Status)">
+
+                        <div class="cc-header">
+                            <div>
+                                <div class="cc-mesa">Mesa @c.Mesa</div>
+                                <div class="cc-info">
+                                    #@c.Id · @c.DataHora.ToString("HH:mm") · @c.Garcom
+                                    @if (!string.IsNullOrEmpty(c.Observacao))
+                                    {
+                                        <span> · 📝 @c.Observacao</span>
+                                    }
+                                </div>
+                            </div>
+                            <span class="badge-s badge-@(c.Status)">@c.Status</span>
+                        </div>
+
+                        <!-- Itens -->
+                        <div class="cc-itens">
+                            @foreach (var it in c.Itens)
+                            {
+                                <div class="cc-item">
+                                    <div class="cc-foto">
+                                        @if (!string.IsNullOrEmpty(it.CapaArquivo))
+                                        {
+                                            <img src="~/@(it.CapaArquivo)" alt="@it.NomePrato" />
+                                        }
+                                        else
+                                        {
+
+                                            <span>🌶️</span>
+                                        }
+                                    </div>
+                                    <div class="cc-nome">@it.NomePrato</div>
+                                    <div class="cc-qtd">@it.Quantidade</div>
+                                    <div class="cc-sub">@it.Subtotal.ToString("C")</div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Adicionar item a esta comanda -->
+                        <div class="cc-add-wrap">
+                            <div class="cc-add-titulo">+ Adicionar item</div>
+                            <div class="cc-add-grid">
+                                <select class="cc-add-select" id="prato-@c.Id">
+                                    <option value="">Selecione o prato...</option>
+                                    @if (grupos != null)
+                                    {
+                                        foreach (var grp in grupos)
+                                        {
+                                            <optgroup label="@grp.Key">
+                                                @foreach (var p in grp.Value)
+                                                {
+                                                    <option value="@p.Id" data-preco="@p.Preco.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)">
+                                                        @p.Nome — @p.Preco.ToString("C")
+                                                    </option>
+                                                }
+                                            </optgroup>
+                                        }
+                                    }
+                                </select>
+                                <input type="number" class="cc-add-qty" id="qty-@c.Id" value="1" min="1" max="20" />
+                                <button class="cc-add-btn" onclick="adicionarItemComanda(@c.Id)">➕</button>
+                            </div>
+                        </div>
+
+                        <!-- Totais e ações -->
+                        <div class="cc-footer">
+                            <div class="cc-totais">
+                                <div class="cc-linha">
+                                    <span>Subtotal</span>
+                                    <span>@c.Total.ToString("C")</span>
+                                </div>
+                                <div class="cc-linha taxa">
+                                    <span>Taxa garçom (10%)</span>
+                                    <span>@c.TaxaGarcom.ToString("C")</span>
+                                </div>
+                                <div class="cc-linha destaque">
+                                    <span>Total Final</span>
+                                    <span>@c.TotalFinal.ToString("C")</span>
+                                </div>
+                            </div>
+                            <div class="cc-acoes">
+                                <button class="btn-finalizar-cmd"
+                                        onclick="abrirModalFinalizar(@c.Id, @c.Total.ToString("F2", System.Globalization.CultureInfo.InvariantCulture), @c.TaxaGarcom.ToString("F2", System.Globalization.CultureInfo.InvariantCulture), @c.TotalFinal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture), @c.Mesa, '@c.Garcom')">
+                                    ✅ Finalizar Comanda
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Painel: nova comanda (redireciona para cardápio) -->
+    <div class="cmd-painel" id="painel-novo">
+        <div style="text-align:center; padding:40px 20px;">
+            <p style="font-size:1rem; color:#6b7280; margin-bottom:20px;">
+                Para criar uma nova comanda, acesse o Cardápio e adicione os pratos.
+            </p>
+            <a asp-action="Cardapio" style="background:#FF5757; color:#fff; padding:14px 32px; border-radius:10px; font-weight:800; text-decoration:none; font-size:1rem;">
+                🍽 Ir para o Cardápio
+            </a>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+
+        function mostrarPainel(nome, btn) {
+            document.querySelectorAll('.cmd-painel').forEach(p => p.classList.remove('ativo'));
+            document.querySelectorAll('.cmd-tab').forEach(t => t.classList.remove('ativa'));
+            document.getElementById('painel-' + nome)?.classList.add('ativo');
+            if (btn) btn.classList.add('ativa');
+        }
+
+        async function adicionarItemComanda(pedidoId) {
+            const sel = document.getElementById('prato-' + pedidoId);
+            const qty = document.getElementById('qty-'   + pedidoId);
+            const pratoId   = sel.value;
+            const quantidade = parseInt(qty.value) || 1;
+
+            if (!pratoId) { alert('Selecione um prato!'); return; }
+
+            const btn = sel.parentElement.querySelector('.cc-add-btn');
+            btn.textContent = '...';
+            btn.disabled    = true;
+
+            const resp = await fetch('/Pedido/AdicionarItemComanda', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `pedidoId=${pedidoId}&pratoId=${pratoId}&quantidade=${quantidade}&__RequestVerificationToken=${encodeURIComponent(token)}`
+            });
+
+            if (resp.ok) {
+                btn.textContent = '✔';
+                setTimeout(() => location.reload(), 600);
+            } else {
+                btn.textContent = '➕';
+                btn.disabled = false;
+                alert('Erro ao adicionar item.');
+            }
+        }
+
+        function abrirModalFinalizar(id, total, taxa, totalFinal, mesa, garcom) {
+            document.getElementById('modalPedidoId').value = id;
+
+            document.getElementById('modalDetalhe').innerHTML = `
+                <div class="modal-linha"><span>Mesa</span><span><strong>${mesa}</strong></span></div>
+                <div class="modal-linha"><span>Garçom</span><span>${garcom}</span></div>
+                <div class="modal-linha"><span>Subtotal</span><span>R$ ${parseFloat(total).toFixed(2).replace('.',',')}</span></div>
+                <div class="modal-linha verde"><span>Taxa garçom (10%)</span><span>R$ ${parseFloat(taxa).toFixed(2).replace('.',',')}</span></div>
+                <div class="modal-linha bold"><span>Total Final</span><span>R$ ${parseFloat(totalFinal).toFixed(2).replace('.',',')}</span></div>
+            `;
+
+            document.getElementById('modalFinalizar').classList.add('aberto');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function fecharModal() {
+            document.getElementById('modalFinalizar').classList.remove('aberto');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('modalFinalizar').addEventListener('click', e => {
+            if (e.target === document.getElementById('modalFinalizar')) fecharModal();
+        });
+
+        // Toast de sucesso do TempData
+        @if (TempData["ok"] != null)
+        {
+                <text>
+                window.addEventListener('load', () => {
+                    const t = document.createElement('div');
+                    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#059669;color:#fff;padding:12px 28px;border-radius:50px;font-weight:700;font-size:0.9rem;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.2);';
+                    t.textContent = '@TempData["ok"]';
+                    document.body.appendChild(t);
+                    setTimeout(() => t.remove(), 3000);
+                });
+                </text>
+        }
+    </script>
+}

@@ -13,72 +13,85 @@ namespace ProjetoFiestaMexicana.Controllers
         private readonly Database db = new Database();
         private const string CART_KEY = "Pedido";
 
-        // ------------------- Vitrine (Cardápio) -------------------
         [HttpGet]
         public IActionResult Cardapio(string? q)
         {
-            var itens = new List<Pratos>();
-            var titulos = new List<string>();
             var grupos = new Dictionary<string, List<Pratos>>();
+            var titulos = new List<string>();
+
             using var conn = db.GetConnection();
 
-                using (var cmd = new MySqlCommand("sp_prato_listar_cardapio_categorias", conn)
-                { CommandType = CommandType.StoredProcedure })
-                {
-                    using var rd = cmd.ExecuteReader();
-                    while (rd.Read())
-                    {
-                        var nome = rd.GetString("nome");
-                        if (!string.IsNullOrWhiteSpace(q) &&
-                            !nome.Contains(q, StringComparison.OrdinalIgnoreCase)) continue;
-
-                        var cat = rd.GetString("categoria_nome");
-                        if (!grupos.ContainsKey(cat)) grupos[cat] = new List<Pratos>();
-
-                        grupos[cat].Add(new Pratos
-                        {
-                            Id = rd.GetInt32("id"),
-                            Nome = nome,
-                            Preco = rd.GetDecimal("preco"),
-                            CapaArquivo = rd["capa_arquivo"] as string,
-                            Descricao = rd["descricao"] as string,
-                            TempoPreparo = rd["tempo_preparo"] == DBNull.Value ? null : rd.GetInt32("tempo_preparo"),
-                            NivelPicancia = rd["nivel_picancia"] as string,
-                            CategoriaNome = cat
-                        });
-
-                        if (!titulos.Contains(nome)) titulos.Add(nome);
-                    }
-                }
-
-                var ordemCats = new List<string> { "Entradas", "Principais", "Bebidas", "Sobremesas" };
-                var gruposOrdenados = new Dictionary<string, List<Pratos>>();
-                foreach (var c in ordemCats)
-                    if (grupos.ContainsKey(c)) gruposOrdenados[c] = grupos[c];
-                foreach (var kv in grupos)
-                    if (!gruposOrdenados.ContainsKey(kv.Key)) gruposOrdenados[kv.Key] = kv.Value;
-
-                ViewBag.Grupos = gruposOrdenados;
-                ViewBag.q = q ?? "";
-                ViewBag.Titulos = titulos;
-                return View();
-
-
-            using (var cmdAll = new MySqlCommand("sp_prato_listar_cardapio", conn) { CommandType = CommandType.StoredProcedure })
+            using (var cmd = new MySqlCommand("sp_prato_listar_cardapio_categorias", conn)
+            { CommandType = CommandType.StoredProcedure })
             {
-                cmdAll.Parameters.AddWithValue("p_q", "");
-                using var rd2 = cmdAll.ExecuteReader();
-                while (rd2.Read())
+                using var rd = cmd.ExecuteReader();
+                while (rd.Read())
                 {
-                    var nome = rd2.GetString("nome");
-                    if (!string.IsNullOrWhiteSpace(nome) && !titulos.Contains(nome))
-                        titulos.Add(nome);
+                    var nome = rd.GetString("nome");
+                    if (!string.IsNullOrWhiteSpace(q) &&
+                        !nome.Contains(q, StringComparison.OrdinalIgnoreCase)) continue;
+
+                    var cat = rd.GetString("categoria_nome");
+                    if (!grupos.ContainsKey(cat)) grupos[cat] = new List<Pratos>();
+
+                    grupos[cat].Add(new Pratos
+                    {
+                        Id = rd.GetInt32("id"),
+                        Nome = nome,
+                        Preco = rd.GetDecimal("preco"),
+                        CapaArquivo = rd["capa_arquivo"] as string,
+                        Descricao = rd["descricao"] as string,
+                        TempoPreparo = rd["tempo_preparo"] == DBNull.Value ? null : rd.GetInt32("tempo_preparo"),
+                        NivelPicancia = rd["nivel_picancia"] as string,
+                        CategoriaNome = cat
+                    });
+
+                    if (!titulos.Contains(nome)) titulos.Add(nome);
                 }
             }
 
+            var ordemCats = new List<string> { "Entradas", "Principais", "Bebidas", "Sobremesas" };
+            var gruposOrdenados = new Dictionary<string, List<Pratos>>();
+            foreach (var c in ordemCats)
+                if (grupos.ContainsKey(c)) gruposOrdenados[c] = grupos[c];
+            foreach (var kv in grupos)
+                if (!gruposOrdenados.ContainsKey(kv.Key)) gruposOrdenados[kv.Key] = kv.Value;
+
+            // ── MESAS ──
+            var mesas = new List<SelectListItem>();
+            using (var cmd = new MySqlCommand("sp_mesa_listar", conn)
+            { CommandType = CommandType.StoredProcedure })
+            using (var rd = cmd.ExecuteReader())
+            {
+                while (rd.Read())
+                    mesas.Add(new SelectListItem
+                    {
+                        Value = rd["id"].ToString(),
+                        Text = "Mesa " + rd["numero"].ToString()
+                    });
+            }
+
+            // ── GARÇONS ──
+            var garcons = new List<SelectListItem>();
+            using (var cmd = new MySqlCommand("sp_garcom_listar", conn)
+            { CommandType = CommandType.StoredProcedure })
+            using (var rd = cmd.ExecuteReader())
+            {
+                while (rd.Read())
+                    garcons.Add(new SelectListItem
+                    {
+                        Value = rd["id"].ToString(),
+                        Text = rd["nome"].ToString()
+                    });
+            }
+
+            ViewBag.Grupos = gruposOrdenados;
             ViewBag.q = q ?? "";
             ViewBag.Titulos = titulos;
-            return View(itens);
+            ViewBag.Mesas = mesas;
+            ViewBag.Garcons = garcons;
+
+            return View();
         }
 
         // ------------------- Carrinho: dicionário {pratoId -> quantidade} -------------------
@@ -397,6 +410,164 @@ namespace ProjetoFiestaMexicana.Controllers
                 return NotFound();
 
             return View(prato);
+        }
+
+        // =====================================================================
+        // COMANDAS EM ABERTO
+        // =====================================================================
+
+        [HttpGet]
+        public IActionResult Comandas()
+        {
+            var lista = new List<dynamic>();
+            using var conn = db.GetConnection();
+
+            var pedidos = new List<(int Id, int Mesa, string Garcom, string Status, decimal Total, DateTime DataHora, string Obs)>();
+
+            using (var cmd = new MySqlCommand("sp_comanda_listar_abertas", conn)
+            { CommandType = CommandType.StoredProcedure })
+            using (var rd = cmd.ExecuteReader())
+            {
+                while (rd.Read())
+                {
+                    pedidos.Add((
+                        rd.GetInt32("id"),
+                        rd.GetInt32("mesa_numero"),
+                        rd.GetString("garcom_nome"),
+                        rd.GetString("status"),
+                        rd.GetDecimal("total"),
+                        rd.GetDateTime("data_hora"),
+                        rd["observacao"] as string ?? ""
+                    ));
+                }
+            }
+
+            // Busca itens de cada pedido
+            var resultado = new List<ComandasViewModel>();
+            foreach (var p in pedidos)
+            {
+                var vm = new ComandasViewModel
+                {
+                    Id = p.Id,
+                    Mesa = p.Mesa,
+                    Garcom = p.Garcom,
+                    Status = p.Status,
+                    Total = p.Total,
+                    DataHora = p.DataHora,
+                    Observacao = p.Obs
+                };
+
+                using (var cmd2 = new MySqlCommand("sp_comanda_itens", conn)
+                { CommandType = CommandType.StoredProcedure })
+                {
+                    cmd2.Parameters.AddWithValue("p_id", p.Id);
+                    using var rd2 = cmd2.ExecuteReader();
+                    while (rd2.Read())
+                    {
+                        vm.Itens.Add(new ComandasItem
+                        {
+                            PratoId = rd2.GetInt32("prato_id"),
+                            NomePrato = rd2.GetString("prato_nome"),
+                            CapaArquivo = rd2["capa_arquivo"] as string,
+                            Quantidade = rd2.GetInt32("quantidade"),
+                            PrecoUnitario = rd2.GetDecimal("preco_unitario"),
+                            Subtotal = rd2.GetDecimal("subtotal")
+                        });
+                    }
+                }
+
+                resultado.Add(vm);
+            }
+
+            ViewBag.Grupos = GetGruposCardapio();
+            ViewBag.Mesas = GetSelectList("sp_mesa_listar");
+            ViewBag.Garcons = GetSelectList("sp_garcom_listar");
+
+            return View(resultado);
+        }
+
+        // Adiciona item a uma comanda já existente
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult AdicionarItemComanda(int pedidoId, int pratoId, int quantidade)
+        {
+            using var conn = db.GetConnection();
+
+            decimal preco = 0;
+            using (var cmdP = new MySqlCommand("SELECT preco FROM Prato WHERE id=@id", conn))
+            {
+                cmdP.Parameters.AddWithValue("@id", pratoId);
+                preco = Convert.ToDecimal(cmdP.ExecuteScalar());
+            }
+
+            using var cmd = new MySqlCommand("sp_comanda_adicionar_item", conn)
+            { CommandType = CommandType.StoredProcedure };
+            cmd.Parameters.AddWithValue("p_pedido", pedidoId);
+            cmd.Parameters.AddWithValue("p_prato", pratoId);
+            cmd.Parameters.AddWithValue("p_quantidade", quantidade);
+            cmd.Parameters.AddWithValue("p_preco", preco);
+            cmd.ExecuteNonQuery();
+
+            return Ok(new { preco = preco.ToString("F2", System.Globalization.CultureInfo.InvariantCulture) });
+        }
+
+        // Finaliza uma comanda
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult FinalizarComanda(int id)
+        {
+            using var conn = db.GetConnection();
+            using var cmd = new MySqlCommand("sp_comanda_finalizar", conn)
+            { CommandType = CommandType.StoredProcedure };
+            cmd.Parameters.AddWithValue("p_id", id);
+            cmd.ExecuteNonQuery();
+            TempData["ok"] = $"Comanda #{id} finalizada!";
+            return RedirectToAction(nameof(Comandas));
+        }
+
+        // Limpa carrinho (usado pela comanda via fetch)
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult LimparCarrinho()
+        {
+            HttpContext.Session.Remove(CART_KEY);
+            return Ok();
+        }
+
+        // Adiciona item sem redirecionar
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult AdicionarAoPedidoSilencioso(int id)
+        {
+            var cart = GetCart();
+            if (cart.ContainsKey(id)) cart[id]++;
+            else cart[id] = 1;
+            SaveCart(cart);
+            return Ok();
+        }
+
+        private Dictionary<string, List<Pratos>> GetGruposCardapio()
+        {
+            var grupos = new Dictionary<string, List<Pratos>>();
+            using var conn = db.GetConnection();
+            using var cmd = new MySqlCommand("sp_prato_listar_cardapio_categorias", conn)
+            { CommandType = CommandType.StoredProcedure };
+            using var rd = cmd.ExecuteReader();
+            while (rd.Read())
+            {
+                var cat = rd.GetString("categoria_nome");
+                if (!grupos.ContainsKey(cat)) grupos[cat] = new List<Pratos>();
+                grupos[cat].Add(new Pratos
+                {
+                    Id = rd.GetInt32("id"),
+                    Nome = rd.GetString("nome"),
+                    Preco = rd.GetDecimal("preco"),
+                    CapaArquivo = rd["capa_arquivo"] as string,
+                    CategoriaNome = cat
+                });
+            }
+
+            var ordem = new List<string> { "Entradas", "Principais", "Bebidas", "Sobremesas" };
+            var ord = new Dictionary<string, List<Pratos>>();
+            foreach (var c in ordem) if (grupos.ContainsKey(c)) ord[c] = grupos[c];
+            foreach (var kv in grupos) if (!ord.ContainsKey(kv.Key)) ord[kv.Key] = kv.Value;
+            return ord;
         }
     }
 }

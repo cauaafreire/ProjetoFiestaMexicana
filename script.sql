@@ -726,3 +726,72 @@ BEGIN
 END $$
 
 DELIMITER ;
+
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS sp_comanda_listar_abertas $$
+CREATE PROCEDURE sp_comanda_listar_abertas()
+BEGIN
+    SELECT
+        p.id,
+        m.numero   AS mesa_numero,
+        g.nome     AS garcom_nome,
+        p.status,
+        p.total,
+        p.data_hora,
+        p.observacao
+    FROM Pedido p
+    INNER JOIN Mesa   m ON m.id = p.mesa
+    INNER JOIN Garcom g ON g.id = p.garcom
+    WHERE p.status IN ('Pendente','Preparando')
+    ORDER BY p.data_hora DESC;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_comanda_itens $$
+CREATE PROCEDURE sp_comanda_itens(IN p_id INT)
+BEGIN
+    SELECT
+        pi.id,
+        pr.id   AS prato_id,
+        pr.nome AS prato_nome,
+        pr.capa_arquivo,
+        pi.quantidade,
+        pi.preco_unitario,
+        pi.subtotal
+    FROM Pedido_itens pi
+    INNER JOIN Prato pr ON pr.id = pi.prato
+    WHERE pi.pedido = p_id;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_comanda_adicionar_item $$
+CREATE PROCEDURE sp_comanda_adicionar_item(
+    IN p_pedido     INT,
+    IN p_prato      INT,
+    IN p_quantidade INT,
+    IN p_preco      DECIMAL(10,2)
+)
+BEGIN
+    -- Adiciona ou incrementa item existente
+    IF EXISTS (SELECT 1 FROM Pedido_itens WHERE pedido = p_pedido AND prato = p_prato) THEN
+        UPDATE Pedido_itens
+        SET quantidade      = quantidade + p_quantidade,
+            subtotal        = (quantidade + p_quantidade) * p_preco
+        WHERE pedido = p_pedido AND prato = p_prato;
+    ELSE
+        INSERT INTO Pedido_itens (pedido, prato, quantidade, preco_unitario, subtotal)
+        VALUES (p_pedido, p_prato, p_quantidade, p_preco, p_quantidade * p_preco);
+    END IF;
+
+    -- Recalcula total do pedido
+    UPDATE Pedido
+    SET total = (SELECT SUM(subtotal) FROM Pedido_itens WHERE pedido = p_pedido)
+    WHERE id = p_pedido;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_comanda_finalizar $$
+CREATE PROCEDURE sp_comanda_finalizar(IN p_id INT)
+BEGIN
+    UPDATE Pedido SET status = 'Finalizado' WHERE id = p_id;
+END $$
+
+DELIMITER ;

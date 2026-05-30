@@ -425,9 +425,9 @@
     <div class="grid-2">
         <div class="secao-card">
             <div class="secao-header"><span>🍩</span><h3>Pedidos por Status</h3></div>
-            <div class="chart-pad" style="display:flex; align-items:center; gap:24px; flex-wrap:wrap;">
-                <canvas id="chartStatus" width="160" height="160" style="flex-shrink:0;"></canvas>
-                <div id="legendaStatus" style="display:flex; flex-direction:column; gap:10px; flex:1;"></div>
+            <div class="chart-pad" style="display:flex; align-items:center; gap:20px;">
+                <canvas id="chartStatus" width="110" height="110" style="flex-shrink:0; width:110px; height:110px;"></canvas>
+                <div id="legendaStatus" style="display:flex; flex-direction:column; gap:8px; flex:1;"></div>
             </div>
         </div>
 
@@ -545,7 +545,7 @@
                                                             g.TotalValor.ToString("F2", System.Globalization.CultureInfo.InvariantCulture))))];
 
     // Rosca de status
-    new Chart(document.getElementById('chartStatus').getContext('2d'), {
+        new Chart(document.getElementById('chartStatus').getContext('2d'), {
         type: 'doughnut',
         data: {
             labels: statusLabels,
@@ -557,7 +557,11 @@
                 hoverOffset: 6
             }]
         },
-        options: { cutout: '68%', plugins: { legend: { display: false } } }
+        options: {
+            cutout: '68%',
+            responsive: false,
+            plugins: { legend: { display: false } }
+        }
     });
 
         // Legenda manual
