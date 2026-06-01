@@ -831,59 +831,65 @@
         }
 
         function renderComanda() {
-            const lista   = document.getElementById('listaItens');
-            const vazia   = document.getElementById('vazia');
-            const count   = document.getElementById('countTotal');
+            const lista = document.getElementById('listaItens');
             const totalEl = document.getElementById('totalValor');
-            const btnEnv  = document.getElementById('btnEnviar');
-            const ids     = Object.keys(comanda);
+            const count = document.getElementById('countTotal');
+            const btnEnv = document.getElementById('btnEnviar');
 
+            if (!lista) return; // Segurança caso o elemento não exista
+
+            const ids = Object.keys(comanda);
             count.textContent = ids.reduce((s, k) => s + comanda[k].qtd, 0);
 
             if (ids.length === 0) {
-                lista.innerHTML = '';
-                lista.appendChild(vazia);
-                vazia.style.display = 'block';
-                totalEl.textContent = 'R$ 0,00';
-                btnEnv.disabled = true;
+                lista.innerHTML = '<div class="comanda-vazia" style="text-align:center;padding:20px;color:#9ca3af;">🛒<p>Nenhum item.</p></div>';
+                if (totalEl) totalEl.textContent = 'R$ 0,00';
+                if (btnEnv) btnEnv.disabled = true;
                 return;
             }
 
-            vazia.style.display = 'none';
-            btnEnv.disabled = false;
-
-            let total = 0;
-            let html  = '';
+            if (btnEnv) btnEnv.disabled = false;
+            let totalGeral = 0;
+            let html = '';
 
             ids.forEach(id => {
-                const it  = comanda[id];
-                const sub = it.preco * it.qtd;
-                total    += sub;
-                const fotoHtml = it.foto
-                    ? `<img src="/${it.foto}" alt="${it.nome}" />`
-                    : '🌶️';
+                const it = comanda[id];
+                const subtotal = it.preco * it.qtd;
+                totalGeral += subtotal;
+                const fotoUrl = it.foto ? (it.foto.startsWith('/') ? it.foto : '/' + it.foto) : '';
+                const fotoHtml = fotoUrl ? `<img src="${fotoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:5px;" />` : '🌶️';
 
                 html += `
-                <div class="comanda-item" id="ci-${id}">
-                    <div class="ci-foto">${fotoHtml}</div>
-                    <div class="ci-meio">
-                        <div class="ci-nome">${it.nome}</div>
-                        <div class="ci-sub">${it.qtd}x · R$ ${sub.toFixed(2).replace('.',',')}</div>
-                        <input class="ci-obs" placeholder="Obs. deste item..."
-                               value="${it.obs}"
-                               oninput="atualizarObs(${id}, this.value)" />
+                <div class="comanda-item" style="display:flex; flex-direction:column; padding:10px; border-bottom:1px solid #eee; background:#fff; margin-bottom:5px; border-radius:8px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="width:40px; height:40px; background:#f3f4f6; display:flex; align-items:center; justify-content:center; flex-shrink:0; border-radius:5px; overflow:hidden;">
+                            ${fotoHtml}
+                        </div>
+                        <div style="flex:1; min-width:0;">
+                            <div style="font-weight:700; font-size:0.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${it.nome}</div>
+                            <div style="font-size:0.75rem; color:#666;">
+                                ${it.qtd}x R$ ${it.preco.toFixed(2).replace('.',',')} = <strong>R$ ${subtotal.toFixed(2).replace('.',',')}</strong>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:4px;">
+                            <button onclick="alterarQtd(${id}, -1)" style="width:24px;height:24px;border:1px solid #ddd;background:#f9f9f9;cursor:pointer;border-radius:4px;">−</button>
+                            <span style="font-weight:800; font-size:0.85rem; min-width:15px; text-align:center;">${it.qtd}</span>
+                            <button onclick="alterarQtd(${id}, 1)" style="width:24px;height:24px;border:1px solid #ddd;background:#f9f9f9;cursor:pointer;border-radius:4px;">+</button>
+                            <button onclick="removerItem(${id})" style="border:none;background:none;cursor:pointer;color:#ccc;margin-left:5px;">🗑</button>
+                        </div>
                     </div>
-                    <div class="ci-ctrl">
-                        <button class="ci-btn" onclick="alterarQtd(${id}, -1)">−</button>
-                        <span class="ci-qtd">${it.qtd}</span>
-                        <button class="ci-btn" onclick="alterarQtd(${id}, 1)">+</button>
-                        <button class="ci-rm" onclick="removerItem(${id})" title="Remover">🗑</button>
+                    <div style="margin-top:8px;">
+                        <input type="text"
+                               style="width:100%; font-size:0.7rem; padding:4px 8px; border:1px solid #eee; border-radius:4px; outline:none;"
+                               placeholder="Obs: sem cebola, etc..."
+                               value="${it.obs || ''}"
+                               oninput="atualizarObsItem(${id}, this.value)" />
                     </div>
                 </div>`;
             });
 
             lista.innerHTML = html;
-            totalEl.textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+            if (totalEl) totalEl.textContent = 'R$ ' + totalGeral.toFixed(2).replace('.', ',');
         }
 
         function limparComanda() {

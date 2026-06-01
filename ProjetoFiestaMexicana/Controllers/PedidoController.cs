@@ -523,14 +523,6 @@ namespace ProjetoFiestaMexicana.Controllers
             return RedirectToAction(nameof(Comandas));
         }
 
-        // Limpa carrinho (usado pela comanda via fetch)
-        [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult LimparCarrinho()
-        {
-            HttpContext.Session.Remove(CART_KEY);
-            return Ok();
-        }
-
         // Adiciona item sem redirecionar
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult AdicionarAoPedidoSilencioso(int id)
@@ -569,5 +561,52 @@ namespace ProjetoFiestaMexicana.Controllers
             foreach (var kv in grupos) if (!ord.ContainsKey(kv.Key)) ord[kv.Key] = kv.Value;
             return ord;
         }
+        [HttpGet]
+        public IActionResult GetCartJson()
+        {
+            var cart = GetCart();
+            var result = new Dictionary<string, object>();
+            if (cart.Count > 0)
+            {
+                var idsCsv = string.Join(",", cart.Keys);
+                using var conn = db.GetConnection();
+                using (var cmd = new MySqlCommand("sp_prato_listar_por_ids", conn) { CommandType = CommandType.StoredProcedure })
+                {
+                    cmd.Parameters.AddWithValue("p_ids", idsCsv);
+                    using var rd = cmd.ExecuteReader();
+                    while (rd.Read())
+                    {
+                        var id = rd.GetInt32("id");
+                        result[id.ToString()] = new
+                        {
+                            nome = rd.GetString("nome"),
+                            preco = rd.GetDecimal("preco"),
+                            foto = rd["capa_arquivo"] as string,
+                            qtd = cart[id],
+                            obs = ""
+                        };
+                    }
+                }
+            }
+            return Json(result);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult AtualizarItemCarrinho(int id, int quantidade)
+        {
+            var cart = GetCart();
+            if (quantidade <= 0) cart.Remove(id);
+            else cart[id] = quantidade;
+            SaveCart(cart);
+            return Ok();
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult LimparCarrinho()
+        {
+            HttpContext.Session.Remove(CART_KEY);
+            return Ok();
+        }
+
     }
 }
