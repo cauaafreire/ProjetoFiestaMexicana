@@ -67,7 +67,7 @@ namespace ProjetoFiestaMexicana.Controllers
             using var conn = db.GetConnection();
             using var cmd = new MySqlCommand("sp_garcom_criar", conn) { CommandType = System.Data.CommandType.StoredProcedure };
             cmd.Parameters.AddWithValue("p_nome", model.Nome);
-            cmd.Parameters.AddWithValue("p_cpf", (object?)model.Cpf ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("p_cpf", (object?)System.Text.RegularExpressions.Regex.Replace(model.Cpf ?? "", @"\D", "") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("p_turno", (object?)model.Turno ?? DBNull.Value);
 
             cmd.ExecuteNonQuery();
@@ -121,7 +121,7 @@ namespace ProjetoFiestaMexicana.Controllers
             using var cmd = new MySqlCommand("sp_garcom_atualizar", conn) { CommandType = System.Data.CommandType.StoredProcedure };
             cmd.Parameters.AddWithValue("p_id", model.Id);
             cmd.Parameters.AddWithValue("p_nome", model.Nome);
-            cmd.Parameters.AddWithValue("p_cpf", (object?)model.Cpf ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("p_cpf", (object?)System.Text.RegularExpressions.Regex.Replace(model.Cpf ?? "", @"\D", "") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("p_turno", (object?)model.Turno ?? DBNull.Value);
             cmd.ExecuteNonQuery();
 

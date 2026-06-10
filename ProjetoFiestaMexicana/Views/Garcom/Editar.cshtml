@@ -32,7 +32,7 @@
 
             <div class="field">
                 <label asp-for="Cpf">CPF</label>
-                <input asp-for="Cpf" class="input" maxlength="11" />
+                <input asp-for="Cpf" class="input" maxlength="14" required/>
                 <small class="hint">Apenas números, 11 dígitos.</small>
                 <span asp-validation-for="Cpf" class="text-danger"></span>
             </div>
@@ -175,4 +175,26 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        const cpfInput = document.getElementById('Cpf');
+
+        cpfInput.addEventListener('input', function () {
+            let v = this.value.replace(/\D/g, '').substring(0, 11);
+
+            if (v.length > 9) {
+                v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, '$1.$2.$3-$4');
+            } else if (v.length > 6) {
+                v = v.replace(/(\d{3})(\d{3})(\d{0,3})/, '$1.$2.$3');
+            } else if (v.length > 3) {
+                v = v.replace(/(\d{3})(\d{0,3})/, '$1.$2');
+            }
+
+            this.value = v;
+        });
+
+        document.querySelector('form').addEventListener('submit', function (e) {
+            cpfInput.value = cpfInput.value.replace(/\D/g, '');
+        });
+    </script>
 }
