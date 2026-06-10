@@ -28,10 +28,16 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            padding-top: 63px;
         }
 
         /* ── Navbar ── */
         .topnav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
             display: flex;
             align-items: center;
             padding: 10px 16px;
@@ -40,6 +46,7 @@
             font-weight: 500;
             flex-shrink: 0;
             gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
 
             .topnav a {
@@ -94,7 +101,6 @@
                 background: #e04444;
             }
 
-        /* Links e área direita — visíveis só no desktop */
         .nav-links {
             display: flex;
             align-items: center;
@@ -276,7 +282,7 @@
                 background: #b91c1c;
             }
 
-        /* ── Responsivo ── */
+        /* ── Responsivo navbar ── */
         @@media (max-width: 768px) {
             .nav-links {
                 display: none;
@@ -291,7 +297,7 @@
             }
         }
 
-        /* ── Main e container ── */
+        /* ── Main ── */
         main {
             flex: 1;
         }
@@ -303,78 +309,178 @@
         /* ── Footer ── */
         .site-footer {
             background: #FF5757;
-            color: #fff;
-            padding: 40px 20px 20px;
+            color: #2d1a0e;
+            padding: 48px 60px 24px;
             margin-top: auto;
             flex-shrink: 0;
         }
 
         .footer-inner {
-            max-width: 1700px;
+            max-width: 1200px;
             margin: 0 auto;
-            display: grid;
-            grid-template-columns: auto 1fr 1fr;
-            gap: 40px;
-            align-items: start;
+            display: flex;
+            align-items: flex-start;
+            gap: 80px;
         }
 
         .footer-logo-col {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            align-items: flex-start;
+            gap: 20px;
+            flex-shrink: 0;
         }
 
         .footer-logo-img {
-            width: 100px;
-            height: 100px;
+            width: 110px;
+            height: 110px;
             object-fit: contain;
             border-radius: 12px;
             padding: 5px;
         }
 
         .red-icon {
-            width: 35px;
-            height: 35px;
+            width: 28px;
+            height: 28px;
+            filter: brightness(0);
         }
 
         .footer-redes {
             display: flex;
-            gap: 12px;
+            gap: 14px;
             align-items: center;
         }
 
             .footer-redes a {
-                color: rgba(255,255,255,0.85);
-                text-decoration: none;
-                font-size: 1.2rem;
-                transition: color 0.2s;
+                opacity: 0.6;
+                transition: opacity 0.2s;
             }
 
                 .footer-redes a:hover {
-                    color: #fff;
+                    opacity: 1;
                 }
 
-        .footer-bottom {
-            max-width: 1800px;
-            margin: 30px auto 0;
-            padding-top: 16px;
-            border-top: 1px solid rgba(255,255,255,0.2);
+        .footer-divider {
+            display: none;
+        }
+
+        .footer-nav-col {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .footer-nav-heading {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #2d1a0e;
+            margin: 0 0 8px;
+            padding: 0;
+            border: none;
+        }
+
+        .footer-nav-col a {
+            font-size: 0.88rem;
+            color: #2d1a0e;
+            text-decoration: none;
+            font-weight: 400;
+            opacity: 0.75;
+            transition: opacity 0.2s;
+            line-height: 1.6;
+        }
+
+            .footer-nav-col a:hover {
+                opacity: 1;
+            }
+
+        .footer-col {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .footer-heading {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #2d1a0e;
+            margin: 0 0 8px;
+            padding: 0;
+            border: none;
+        }
+
+        .footer-links {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+            .footer-links li {
+                font-size: 0.88rem;
+                color: #2d1a0e;
+                line-height: 1.6;
+                font-weight: 400;
+                opacity: 0.75;
+            }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 40px auto 0;
+            padding-top: 16px;
+            border-top: 1px solid rgba(0,0,0,0.12);
+            display: flex;
+            justify-content: center;
             align-items: center;
-            font-size: 0.78rem;
-            color: rgba(255,255,255,0.65);
+            gap: 6px;
+            font-size: 0.76rem;
+            color: #2d1a0e;
+            font-weight: 400;
+            opacity: 0.7;
+        }
+
+        .footer-bottom-sep {
+            opacity: 0.4;
         }
 
         @@media (max-width: 640px) {
+            .site-footer {
+                padding: 40px 24px 20px;
+            }
+
             .footer-inner {
-                grid-template-columns: 1fr 1fr;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 32px;
             }
 
             .footer-logo-col {
-                grid-column: span 2;
-                flex-direction: row;
                 align-items: center;
+            }
+
+            .footer-redes {
+                justify-content: center;
+            }
+
+            .footer-nav-col,
+            .footer-col {
+                align-items: center;
+            }
+
+            .footer-links {
+                align-items: center;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: 4px;
+                text-align: center;
             }
         }
     </style>
@@ -383,12 +489,10 @@
 
     <header>
         <nav class="topnav">
-            <!-- Logo -->
             <a asp-controller="Pedido" asp-action="Menu">
                 <img src="~/logos/iconef.png" alt="Logo" class="logo-icone" />
             </a>
 
-            <!-- Links desktop -->
             <div class="nav-links">
                 @if (isLogged)
                 {
@@ -414,7 +518,6 @@
                 }
             </div>
 
-            <!-- Direita desktop -->
             <div class="nav-right">
                 @if (isLogged)
                 {
@@ -430,7 +533,6 @@
                 }
             </div>
 
-            <!-- Hamburger mobile -->
             <button class="hamburger" id="hamburger" onclick="toggleDrawer()" aria-label="Menu">
                 <span></span>
                 <span></span>
@@ -439,10 +541,8 @@
         </nav>
     </header>
 
-    <!-- Overlay -->
     <div class="drawer-overlay" id="drawerOverlay" onclick="fecharDrawer()"></div>
 
-    <!-- Drawer -->
     <div class="drawer" id="drawer">
         <div class="drawer-header">
             <img src="~/logos/iconef.png" alt="Logo" />
@@ -450,28 +550,28 @@
         </div>
 
         <nav class="drawer-nav">
-            <a asp-controller="Pedido" asp-action="Menu">🏠 Início</a>
+            <a asp-controller="Pedido" asp-action="Menu">Início</a>
 
             @if (isLogged)
             {
                 @if (isGarcom)
                 {
-                    <a asp-controller="Mesa" asp-action="Index">🪑 Mesa</a>
-                    <a asp-controller="Pedido" asp-action="Cardapio">📋 Cardápio</a>
-                    <a asp-controller="Pedido" asp-action="Comandas">🧾 Comandas</a>
+                    <a asp-controller="Mesa" asp-action="Index">Mesa</a>
+                    <a asp-controller="Pedido" asp-action="Cardapio">Cardápio</a>
+                    <a asp-controller="Pedido" asp-action="Comandas">Comandas</a>
                 }
                 @if (isChefe)
                 {
-                    <a asp-controller="Pratos" asp-action="Index">🍽 Pratos</a>
-                    <a asp-controller="Cozinha" asp-action="Index">👨‍🍳 Cozinha</a>
-                    <a asp-controller="Categoria" asp-action="Index">📂 Categoria</a>
-                    <a asp-controller="MetodoPreparo" asp-action="Index">📖 Método de Preparo</a>
+                    <a asp-controller="Pratos" asp-action="Index">Pratos</a>
+                    <a asp-controller="Cozinha" asp-action="Index">Cozinha</a>
+                    <a asp-controller="Categoria" asp-action="Index">Categoria</a>
+                    <a asp-controller="MetodoPreparo" asp-action="Index"> Método de Preparo</a>
                 }
                 @if (isAdmin)
                 {
-                    <a asp-controller="Garcom" asp-action="Index">🤵 Garçom</a>
-                    <a asp-controller="Usuario" asp-action="Index">👥 Usuários</a>
-                    <a asp-controller="Dashboard" asp-action="Index">📊Dashboard</a>
+                    <a asp-controller="Garcom" asp-action="Index"> Garçom</a>
+                    <a asp-controller="Usuario" asp-action="Index"> Usuários</a>
+                    <a asp-controller="Dashboard" asp-action="Index"> Dashboard</a>
                 }
             }
         </nav>
@@ -498,17 +598,35 @@
 
     <footer class="site-footer">
         <div class="footer-inner">
+
             <div class="footer-logo-col">
-                <img src="~/logos/logof.png" alt="Fiesta mexicana" class="footer-logo-img" />
+                <img src="~/logos/logof.png" alt="Fiesta Mexicana" class="footer-logo-img" />
                 <div class="footer-redes">
                     <a href="#" title="X / Twitter"><img src="~/logos/icon/icons8-x-60.png" alt="X" class="red-icon" /></a>
                     <a href="#" title="Instagram"><img src="~/logos/icon/icons8-instagram-logo-60.png" alt="Instagram" class="red-icon" /></a>
                     <a href="#" title="LinkedIn"><img src="~/logos/icon/icons8-linkedin-50.png" alt="Linkedin" class="red-icon" /></a>
                 </div>
             </div>
+
+            <div class="footer-divider"></div>
+
+            <!-- Contato -->
+            <div class="footer-col">
+                <h4 class="footer-heading">Contato & Horário</h4>
+                <ul class="footer-links">
+                    <li>São Paulo, SP</li>
+                    <li>(11) 99999-9999</li>
+                    <li>contato@fiestamexicana.com</li>
+                    <li style="margin-top:4px;"> Seg–Sex: 11h às 23h</li>
+                    <li>Sáb–Dom: 11h às 00h</li>
+                </ul>
+            </div>
+
         </div>
+
         <div class="footer-bottom">
             <span>© @DateTime.Now.Year Fiesta Mexicana. Todos os direitos reservados.</span>
+            <span class="footer-bottom-sep">·</span>
             <span>Feito por <strong>SkullTech</strong></span>
         </div>
     </footer>
@@ -539,7 +657,6 @@
             document.body.style.overflow = '';
         }
 
-        // Fecha com ESC
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape') fecharDrawer();
         });

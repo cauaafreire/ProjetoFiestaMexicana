@@ -70,10 +70,19 @@ namespace ProjetoFiestaMexicana.Controllers
             cmd.Parameters.AddWithValue("p_cpf", (object?)System.Text.RegularExpressions.Regex.Replace(model.Cpf ?? "", @"\D", "") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("p_turno", (object?)model.Turno ?? DBNull.Value);
 
-            cmd.ExecuteNonQuery();
+            try
+            {
+                cmd.ExecuteNonQuery();
 
-            TempData["ok"] = "Garçom cadastrado!";
-            return RedirectToAction(nameof(Index));
+                TempData["ok"] = "Garçom cadastrado!";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (MySqlException ex) when (ex.Number == 1062)
+            {
+                ModelState.AddModelError("Cpf", "Este CPF já está cadastrado.");
+                return View(model);
+            }
+
         }
 
         [HttpGet]

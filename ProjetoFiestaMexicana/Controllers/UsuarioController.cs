@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
+using ProjetoFiestaMexicana.Autenticacao;
 using ProjetoFiestaMexicana.Data;
 using ProjetoFiestaMexicana.Models;
 using System.Data;
@@ -94,5 +95,7 @@ namespace ProjetoFiestaMexicana.Controllers
 
 
     }
+
+
 }
 

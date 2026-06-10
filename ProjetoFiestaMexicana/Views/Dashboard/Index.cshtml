@@ -6,7 +6,6 @@
 @section Styles {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 }
-
 <style>
     .dash {
         max-width: 1300px;
@@ -24,10 +23,14 @@
     }
 
         .dash-header h1 {
+            color: #4A2C17;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             font-size: 1.6rem;
-            font-weight: 800;
-            color: #111827;
-            margin: 0;
+            font-weight: 700;
+            margin-bottom: 6px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #FF5757;
+            display: inline-block;
         }
 
     .dash-data {
@@ -370,9 +373,9 @@
 <div class="dash">
 
     <div class="dash-header">
-        <h1>📊 Dashboard</h1>
+        <h1> Dashboard</h1>
         <span class="dash-data">
-            📅 @DateTime.Now.ToString("dddd, dd 'de' MMMM 'de' yyyy",
+             @DateTime.Now.ToString("dddd, dd 'de' MMMM 'de' yyyy",
                         new System.Globalization.CultureInfo("pt-BR"))
         </span>
     </div>
@@ -424,7 +427,7 @@
     <!-- Gráficos -->
     <div class="grid-2">
         <div class="secao-card">
-            <div class="secao-header"><span>🍩</span><h3>Pedidos por Status</h3></div>
+            <div class="secao-header"><span></span><h3>Pedidos por Status</h3></div>
             <div class="chart-pad" style="display:flex; align-items:center; gap:20px;">
                 <canvas id="chartStatus" width="110" height="110" style="flex-shrink:0; width:110px; height:110px;"></canvas>
                 <div id="legendaStatus" style="display:flex; flex-direction:column; gap:8px; flex:1;"></div>
@@ -436,7 +439,7 @@
     <!-- Top pratos + Garçons -->
     <div class="grid-2">
         <div class="secao-card">
-            <div class="secao-header"><span>🔥</span><h3>Pratos Mais Vendidos Hoje</h3></div>
+            <div class="secao-header"><span></span><h3>Pratos Mais Vendidos Hoje</h3></div>
             @if (Model.TopPratos.Any())
             {
                 var maxV = Model.TopPratos.Max(x => x.TotalVendido);
@@ -467,7 +470,7 @@
         </div>
 
         <div class="secao-card">
-            <div class="secao-header"><span>🤵</span><h3>Desempenho dos Garçons</h3></div>
+            <div class="secao-header"><span></span><h3>Desempenho dos Garçons</h3></div>
             @if (Model.Garcons.Any())
             {
                 <div class="garcom-lista">
@@ -495,7 +498,7 @@
 
     <!-- Últimos pedidos -->
     <div class="pedidos-card">
-        <div class="secao-header"><span>🧾</span><h3>Últimos Pedidos do Dia</h3></div>
+        <div class="secao-header"><span></span><h3>Últimos Pedidos do Dia</h3></div>
         @if (Model.UltimosPedidos.Any())
         {
             <table class="pedidos-tabela">
