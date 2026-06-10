@@ -45,28 +45,6 @@ namespace ProjetoFiestaMexicana.Controllers
                 }
             }
 
-            // Usuários com role Garcom que ainda não estão na lista
-            using (var cmd = new MySqlCommand(
-                "SELECT id, nome, email FROM Usuarios WHERE role = 'Garcom' AND ativo = 1 ORDER BY nome", conn))
-            using (var rd = cmd.ExecuteReader())
-            {
-                while (rd.Read())
-                {
-                    var nome = rd.GetString("nome");
-                    if (!lista.Any(g => g.Nome != null &&
-                        g.Nome.Equals(nome, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        lista.Add(new Garcom
-                        {
-                            Id = rd.GetInt32("id"),
-                            Nome = nome,
-                            Cpf = rd.GetString("email"),
-                            Turno = "—",
-                        });
-                    }
-                }
-            }
-
             return View(lista);
         }
 

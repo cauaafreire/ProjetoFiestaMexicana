@@ -33,7 +33,7 @@ namespace ProjetoFiestaMexicana.Controllers
 
             if (!rd.Read())
             {
-                ViewBag.Error = "Usuário não encontrado.";
+                ViewBag.Error = "Usuário ou senha inválidos.";
                 return View();
             }
 
@@ -59,7 +59,7 @@ namespace ProjetoFiestaMexicana.Controllers
 
             if (!ok)
             {
-                ViewBag.Error = "Senha inválida.";
+                ViewBag.Error = "Usuário ou senha inválidos.";
                 return View();
             }
 

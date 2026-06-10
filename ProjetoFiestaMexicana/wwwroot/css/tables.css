@@ -1,0 +1,210 @@
+﻿/* ============================================================
+   FIESTA MEXICANA — CSS Universal de Tabelas
+   Paleta: Coral #FF5757 | Laranja #FF8C42 | Verde #27AE60
+           Amarelo #F39C12 | Creme #FFF5F5 | Marrom #4A2C17
+   ============================================================ */
+
+h2 {
+    color: #4A2C17;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #FF5757;
+    display: inline-block;
+}
+
+.btn-novo {
+    display: inline-block;
+    padding: 9px 20px;
+    background-color: #FF5757;
+    color: #fff !important;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 18px;
+    transition: background 0.2s, box-shadow 0.2s;
+    border: none;
+}
+
+.btn-novo:hover {
+    background-color: #e04444;
+    box-shadow: 0 3px 8px rgba(255, 87, 87, 0.4);
+}
+
+.ok {
+    padding: 11px 16px;
+    background: #eafaf1;
+    color: #1a7a42;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    border-left: 4px solid #27AE60;
+    font-size: 0.92rem;
+    font-weight: 500;
+}
+
+.tbl {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+    margin-top: 8px;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(255, 87, 87, 0.1);
+}
+
+.tbl thead th {
+    background: #FF5757;
+    color: #fff;
+    padding: 13px 14px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: left;
+    border-bottom: 3px solid #e04444;
+}
+
+.tbl tbody td {
+    padding: 11px 14px;
+    border-bottom: 1px solid #ffe8e8;
+    vertical-align: middle;
+    text-align: left;
+    color: #3a2010;
+    font-size: 0.93rem;
+}
+
+.tbl thead th:last-child,
+.tbl tbody td:last-child {
+    text-align: center;
+    width: 160px;
+}
+
+.tbl tbody tr:hover {
+    background: #FFF5F5;
+}
+
+.tbl tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.acoes {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+.acoes form {
+    margin: 0;
+    display: flex;
+}
+
+.btn-editar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 14px;
+    height: 30px;
+    min-width: 60px;
+    border: 1.5px solid #FF8C42;
+    border-radius: 6px;
+    color: #FF8C42 !important;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-editar:hover {
+    background: #FF8C42;
+    color: #fff !important;
+    box-shadow: 0 2px 6px rgba(255, 140, 66, 0.35);
+}
+
+.btn-excluir {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 14px;
+    height: 30px;
+    min-width: 60px;
+    border: 1.5px solid #FF5757;
+    border-radius: 6px;
+    color: #FF5757 !important;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-excluir:hover {
+    background: #FF5757;
+    color: #fff !important;
+    box-shadow: 0 2px 6px rgba(255, 87, 87, 0.35);
+}
+
+/* Status badges (Mesas) */
+.status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-livre {
+    background: #eafaf1;
+    color: #27AE60;
+    border: 1px solid #27AE60;
+}
+
+.status-ocupado {
+    background: #fff0f0;
+    color: #FF5757;
+    border: 1px solid #FF5757;
+}
+
+/* Disponibilidade (Pratos) */
+.badge-disponivel {
+    background: #eafaf1;
+    color: #27AE60;
+    border: 1px solid #a9dfbf;
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-indisponivel {
+    background: #fff0f0;
+    color: #FF5757;
+    border: 1px solid #ffb3b3;
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Miniatura de imagem (Pratos) */
+.img-capa {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 2px solid #ffe8e8;
+}
+
+/* Container das páginas de listagem */
+.page-container {
+    width: 85%;
+    margin: 30px auto;
+}
