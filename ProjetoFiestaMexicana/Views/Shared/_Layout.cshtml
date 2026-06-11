@@ -57,14 +57,14 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%; /* Garante 100% da largura sem espaços */
-            z-index: 2;
+            width: 100%;
+            z-index: 1000;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 30px; /* Espaço interno equilibrado */
+            /* Aumentamos o padding lateral para "empurrar" o logo e o login para dentro */
+            padding: 0 8%;
             background: #fff;
-            height: 70px; /* Reduzi um pouco para ficar mais elegante (era 80px) */
+            height: 75px;
             border-bottom: 1px solid #f0f0f0;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
@@ -72,11 +72,12 @@
             .topnav a {
                 text-decoration: none;
                 color: #1f2937;
-                font-size: 0.95rem;
+                font-size: 1rem;
                 font-weight: 600;
                 transition: color 0.2s;
                 text-transform: uppercase;
-                letter-spacing: 0.3px;
+                letter-spacing: 0.5px;
+                white-space: nowrap;
             }
 
                 .topnav a:hover {
@@ -84,8 +85,9 @@
                 }
 
         .logo-icone {
-            height: 48px; /* Tamanho médio ideal */
+            height: 50px;
             width: auto;
+            flex-shrink: 0;
         }
 
         .spacer {
@@ -127,15 +129,17 @@
         .nav-links {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 20px;
+            justify-content: flex-start;
+            padding-left: 60px;
+            gap: 30px;
             flex: 1;
         }
 
         .nav-right {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
+            flex-shrink: 0;
             justify-content: flex-end;
         }
 
@@ -317,7 +321,12 @@
             }
 
             .topnav {
-                padding: 0 20px;
+                padding: 0 4%;
+            }
+
+            .nav-links {
+                padding-left: 30px;
+                gap: 15px;
             }
         }
 
