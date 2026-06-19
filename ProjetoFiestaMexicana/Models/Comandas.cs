@@ -13,6 +13,8 @@
     public class ComandasViewModel
     {
         public int Id { get; set; }
+        public int MesaId { get; set; }     
+        public int GarcomId { get; set; }
         public int Mesa { get; set; }
         public string Garcom { get; set; } = "";
         public string Status { get; set; } = "";

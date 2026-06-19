@@ -1,23 +1,32 @@
 ﻿@model ProjetoFiestaMexicana.Models.Pedido
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Finalizar Pedido";
+    ViewData["Title"] = "Resumo do Pedido";
     var itens = ViewBag.Itens as List<ProjetoFiestaMexicana.Models.Pedido>;
 }
 
 <style>
     .pedido-container {
-        max-width: 800px;
-        margin: 20px auto;
-        padding: 0 15px;
+        max-width: 860px;
+        margin: 32px auto;
+        padding: 0 16px;
+    }
+
+    .pedido-titulo {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #111827;
+        margin-bottom: 24px;
+        text-align: center;
     }
 
     .box {
         background: #fff;
-        border-radius: 12px;
+        border-radius: 14px;
         border: 1px solid #e5e7eb;
-        padding: 25px;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        padding: 28px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        margin-bottom: 20px;
     }
 
     .tbl {
@@ -26,31 +35,43 @@
         margin-bottom: 20px;
     }
 
-    .tbl th {
-        padding: 12px;
-        border-bottom: 2px solid #f3f4f6;
-        text-align: left;
-        color: #4b5563;
-        font-size: 0.9rem;
-        text-transform: uppercase;
-    }
+        .tbl th {
+            padding: 11px 12px;
+            border-bottom: 2px solid #f3f4f6;
+            text-align: left;
+            color: #6b7280;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
 
-    .tbl td {
-        padding: 12px;
-        border-bottom: 1px solid #f3f4f6;
-        vertical-align: middle;
-    }
+        .tbl td {
+            padding: 12px;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+        }
+
+        .tbl tbody tr:last-child td {
+            border-bottom: none;
+        }
 
     .thumb {
-        width: 50px;
-        height: 50px;
+        width: 48px;
+        height: 48px;
         background: #f3f4f6;
-        border-radius: 8px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
+        font-size: 1.3rem;
     }
+
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
     .qty-control {
         display: flex;
@@ -60,189 +81,301 @@
     }
 
     .btn-qty {
-        width: 30px;
-        height: 30px;
+        width: 28px;
+        height: 28px;
         border-radius: 6px;
         border: 1px solid #d1d5db;
         background: #f9fafb;
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 700;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         color: #374151;
-        transition: background 0.15s;
+        transition: all 0.15s;
         padding: 0;
         line-height: 1;
     }
 
-    .btn-qty:hover { background: #e5e7eb; }
+        .btn-qty:hover {
+            background: #e5e7eb;
+        }
 
-    .btn-qty.btn-minus:hover {
-        background: #fee2e2;
-        border-color: #fca5a5;
-        color: #dc2626;
-    }
+        .btn-qty.btn-minus:hover {
+            background: #fee2e2;
+            border-color: #fca5a5;
+            color: #dc2626;
+        }
+
+        .btn-qty:disabled {
+            opacity: 0.4;
+            cursor: default;
+            pointer-events: none;
+        }
 
     .qty-display {
-        width: 36px;
+        width: 32px;
         text-align: center;
         font-weight: 700;
-        font-size: 1rem;
+        font-size: 0.95rem;
         color: #111827;
+        min-height: 20px;
     }
+
+    .btn-remove {
+        color: #dc2626;
+        background: none;
+        border: 1px solid #fecaca;
+        padding: 4px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition: background 0.15s;
+    }
+
+        .btn-remove:hover {
+            background: #fef2f2;
+        }
+
+        .btn-remove:disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
 
     .total-area {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin: 20px 0;
-        padding-top: 15px;
+        padding: 16px 0 4px;
         border-top: 2px solid #f3f4f6;
+        margin-top: 4px;
     }
 
     .total-label {
-        font-size: 1.1rem;
+        font-size: 1rem;
         color: #374151;
         font-weight: 600;
     }
 
     .total-valor {
-        font-size: 1.8rem;
+        font-size: 2rem;
         font-weight: 800;
         color: #059669;
+    }
+
+    .secao-titulo {
+        font-size: 1rem;
+        font-weight: 800;
+        color: #111827;
+        margin-bottom: 16px;
     }
 
     .form-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 15px;
+        gap: 14px;
     }
 
-    .form-full { grid-column: span 2; }
+    .form-full {
+        grid-column: span 2;
+    }
 
     .form-group label {
         display: block;
         margin-bottom: 6px;
         font-weight: 600;
         color: #4b5563;
-        font-size: 0.9rem;
+        font-size: 0.88rem;
     }
 
     .form-control {
         width: 100%;
         padding: 10px 12px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        font-size: 1rem;
+        border: 1.5px solid #d1d5db;
+        border-radius: 9px;
+        font-size: 0.95rem;
+        color: #111827;
+        background: #fff;
         transition: border-color 0.2s;
+        box-sizing: border-box;
     }
 
-    .form-control:focus {
-        outline: none;
-        border-color: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        .form-control:focus {
+            outline: none;
+            border-color: #FF5757;
+            box-shadow: 0 0 0 3px rgba(255,87,87,0.1);
+        }
+
+    select.form-control {
+        appearance: auto;
+        cursor: pointer;
     }
 
-    .btn-confirmar {
-        background: #059669;
+    .btn-enviar-cozinha {
+        width: 100%;
+        background: #FF5757;
         color: #fff;
         border: none;
-        width: 100%;
-        padding: 14px;
-        border-radius: 10px;
-        font-size: 1.1rem;
-        font-weight: 700;
+        padding: 15px;
+        border-radius: 11px;
+        font-size: 1rem;
+        font-weight: 800;
         cursor: pointer;
-        margin-top: 10px;
+        margin-top: 8px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
         transition: background 0.2s;
     }
 
-    .btn-confirmar:hover { background: #047857; }
+        .btn-enviar-cozinha:hover {
+            background: #e04444;
+        }
 
-    .btn-remove {
-        color: #dc2626;
-        background: none;
-        border: 1px solid #fecaca;
-        padding: 4px 8px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.85rem;
+    .btn-voltar {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #6b7280;
+        text-decoration: none;
+        font-size: 0.88rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        transition: color 0.15s;
     }
 
-    .btn-remove:hover { background: #fef2f2; }
+        .btn-voltar:hover {
+            color: #FF5757;
+        }
+
+    .vazio-box {
+        text-align: center;
+        padding: 60px 20px;
+        color: #9ca3af;
+    }
+
+        .vazio-box .icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+
+        .vazio-box p {
+            font-size: 1rem;
+            margin: 0 0 16px;
+        }
+
+    .alert {
+        padding: 12px 16px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
+
+    .alert-ok {
+        background: #d1fae5;
+        color: #065f46;
+        border: 1px solid #a7f3d0;
+    }
+
+    .alert-erro {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+    }
+
+    @@media (max-width: 600px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-full {
+            grid-column: span 1;
+        }
+    }
 </style>
 
 <div class="pedido-container">
-    <h2 style="text-align: center; margin-bottom: 25px; color: #1f2937;">Resumo do Pedido</h2>
+
+    <a asp-action="Cardapio" class="btn-voltar">← Voltar ao Cardápio</a>
+    <div class="pedido-titulo">🧾 Resumo do Pedido</div>
+
+    @if (TempData["ok"] != null)
+    {
+        <div class="alert alert-ok">✅ @TempData["ok"]</div>
+    }
+    @if (TempData["erro"] != null)
+    {
+        <div class="alert alert-erro">❌ @TempData["erro"]</div>
+    }
 
     @if (itens == null || !itens.Any())
     {
-        <div class="box" style="text-align: center;">
-            <p style="color: #6b7280;">Seu pedido está vazio.</p>
-            <a asp-action="Cardapio" class="btn btn-primary" style="margin-top: 10px; display: inline-block; text-decoration: none;">Voltar ao Cardápio</a>
+        <div class="box vazio-box">
+            <div class="icon">🛒</div>
+            <p>Seu pedido está vazio.</p>
+            <a asp-action="Cardapio" style="background:#FF5757;color:#fff;padding:12px 28px;border-radius:10px;font-weight:800;text-decoration:none;display:inline-block;">
+                Ir ao Cardápio
+            </a>
         </div>
     }
     else
     {
+        @Html.AntiForgeryToken()
+
         <div class="box">
-            <table class="tbl">
+            <div class="secao-titulo">🍽 Itens selecionados</div>
+            <table class="tbl" id="tabelaItens">
                 <thead>
                     <tr>
-                        <th style="width: 70px;">Item</th>
+                        <th style="width:60px;">Foto</th>
                         <th>Prato</th>
-                        <th style="text-align: center;">Quantidade</th>
-                        <th style="text-align: right;">Subtotal</th>
-                        <th style="width: 80px; text-align: center;">Ação</th>
+                        <th style="text-align:center;">Qtd</th>
+                        <th style="text-align:right;">Subtotal</th>
+                        <th style="width:90px; text-align:center;">Remover</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var it in itens)
                     {
-                        <tr>
+                        <tr id="row-@it.PratoId" data-preco="@it.Preco.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)">
                             <td>
                                 <div class="thumb">
                                     @if (!string.IsNullOrEmpty(it.CapaArquivo))
                                     {
-                                        <img src="~/@it.CapaArquivo" alt="@it.Nome" style="max-width:100%; max-height:100%; object-fit: cover;" />
+                                        <img src="~/@it.CapaArquivo" alt="@it.Nome" />
                                     }
                                     else
                                     {
-                                        <span style="font-size: 1.2rem;">🌮</span>
+                                        <span>🌮</span>
                                     }
                                 </div>
                             </td>
                             <td>
-                                <div style="font-weight: 600; color: #111827;">@it.Nome</div>
-                                <div style="font-size: 0.85rem; color: #6b7280;">@it.Preco.ToString("C") cada</div>
+                                <div style="font-weight:700;color:#111827;font-size:0.92rem;">@it.Nome</div>
+                                <div style="font-size:0.8rem;color:#6b7280;">@it.Preco.ToString("C") cada</div>
                             </td>
                             <td>
-                                <form asp-action="AlterarQuantidade" method="post">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@it.PratoId" />
-                                    <div class="qty-control">
-                                        <button type="submit" name="quantidade" value="@(it.Quantidade - 1)"
-                                                class="btn-qty btn-minus" title="Diminuir">
-                                            −
-                                        </button>
-                                        <span class="qty-display">@it.Quantidade</span>
-                                        <button type="submit" name="quantidade" value="@(it.Quantidade + 1)"
-                                                class="btn-qty btn-plus" title="Aumentar">
-                                            +
-                                        </button>
-                                    </div>
-                                </form>
+                                <div class="qty-control">
+                                    <button type="button" class="btn-qty btn-minus"
+                                            onclick="alterarQtd(@it.PratoId, -1, this)" title="Diminuir">
+                                        −
+                                    </button>
+                                    <span class="qty-display" id="qtd-@it.PratoId">@it.Quantidade</span>
+                                    <button type="button" class="btn-qty"
+                                            onclick="alterarQtd(@it.PratoId, 1, this)" title="Aumentar">
+                                        +
+                                    </button>
+                                </div>
                             </td>
-                            <td style="text-align: right; font-weight: 600; color: #374151;">
+                            <td style="text-align:right;font-weight:700;color:#374151;" id="sub-@it.PratoId">
                                 @it.Subtotal.ToString("C")
                             </td>
-                            <td style="text-align: center;">
-                                <form asp-action="RemoverDoPedido" method="post">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@it.PratoId" />
-                                    <button type="submit" class="btn-remove">Remover</button>
-                                </form>
+                            <td style="text-align:center;">
+                                <button type="button" class="btn-remove"
+                                        onclick="removerItem(@it.PratoId, this)">
+                                    🗑 Remover
+                                </button>
                             </td>
                         </tr>
                     }
@@ -250,38 +383,120 @@
             </table>
 
             <div class="total-area">
-                <span class="total-label">Valor Total</span>
-                <span class="total-valor">@ViewBag.TotalGeral.ToString("C")</span>
+                <span class="total-label">Total do Pedido</span>
+                <span class="total-valor" id="totalGeral">@ViewBag.TotalGeral.ToString("C")</span>
             </div>
+        </div>
 
+        <div class="box">
+            <div class="secao-titulo">🚀 Enviar para a Cozinha</div>
             <form asp-action="Finalizar" method="post">
                 @Html.AntiForgeryToken()
                 <div class="form-grid">
                     <div class="form-group">
-                        <label asp-for="Mesa">Número da Mesa</label>
-                        <select asp-for="Mesa" class="form-control" asp-items="@(new SelectList(Model.NomeMesa, "Value", "Text"))" required>
+                        <label asp-for="Mesa">🪑 Mesa</label>
+                        <select asp-for="Mesa" class="form-control"
+                                asp-items="@(new SelectList(Model.NomeMesa, "Value", "Text"))" required>
                             <option value="">Selecione a mesa...</option>
                         </select>
                     </div>
-
                     <div class="form-group">
-                        <label asp-for="Garcom">Garçom Atendente</label>
-                        <select asp-for="Garcom" class="form-control" asp-items="@(new SelectList(Model.NomeGarcom, "Value", "Text"))" required>
+                        <label asp-for="Garcom">🤵 Garçom</label>
+                        <select asp-for="Garcom" class="form-control"
+                                asp-items="@(new SelectList(Model.NomeGarcom, "Value", "Text"))" required>
                             <option value="">Selecione o garçom...</option>
                         </select>
                     </div>
-
-
                     <div class="form-group form-full">
-                        <label asp-for="Observacao">Observações do Pedido</label>
-                        <input asp-for="Observacao" class="form-control" placeholder="Ex: Sem cebola, ponto da carne mal passado..." />
+                        <label asp-for="Observacao">📝 Observações</label>
+                        <input asp-for="Observacao" class="form-control"
+                               placeholder="Ex: sem cebola, ponto da carne mal passado..." />
                     </div>
                 </div>
-
-                <button type="submit" class="btn-confirmar">
-                    FINALIZAR E ENVIAR PARA COZINHA
+                <button type="submit" class="btn-enviar-cozinha">
+                    🚀 FINALIZAR E ENVIAR PARA A COZINHA
                 </button>
             </form>
         </div>
     }
 </div>
+
+@section Scripts {
+    <script>
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+
+        // Formata decimal para BRL
+        function brl(valor) {
+            return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // Recalcula e exibe o total geral
+        function recalcularTotal() {
+            let total = 0;
+            document.querySelectorAll('#tabelaItens tbody tr').forEach(row => {
+                const id    = row.id.replace('row-', '');
+                const preco = parseFloat(row.dataset.preco) || 0;
+                const qtd   = parseInt(document.getElementById('qtd-' + id)?.textContent) || 0;
+                total += preco * qtd;
+            });
+            document.getElementById('totalGeral').textContent = brl(total);
+        }
+
+        async function alterarQtd(id, delta, btnClicado) {
+            const qtdEl   = document.getElementById('qtd-' + id);
+            const subEl   = document.getElementById('sub-' + id);
+            const row     = document.getElementById('row-' + id);
+            const preco   = parseFloat(row.dataset.preco);
+            const qtdAtual = parseInt(qtdEl.textContent);
+            const novaQtd  = qtdAtual + delta;
+
+            // Desabilita botões durante a requisição
+            const btns = row.querySelectorAll('button');
+            btns.forEach(b => b.disabled = true);
+
+            if (novaQtd <= 0) {
+                // Remove o item
+                await removerItem(id, null);
+                return;
+            }
+
+            const resp = await fetch('/Pedido/AtualizarItemCarrinho', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `id=${id}&quantidade=${novaQtd}&__RequestVerificationToken=${encodeURIComponent(token)}`
+            });
+
+            if (resp.ok) {
+                qtdEl.textContent = novaQtd;
+                subEl.textContent = brl(preco * novaQtd);
+                recalcularTotal();
+            }
+
+            btns.forEach(b => b.disabled = false);
+        }
+
+        async function removerItem(id, btn) {
+            const row = document.getElementById('row-' + id);
+            if (btn) btn.disabled = true;
+
+            const resp = await fetch('/Pedido/RemoverDoPedidoAjax', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `id=${id}&__RequestVerificationToken=${encodeURIComponent(token)}`
+            });
+
+            if (resp.ok) {
+                row.remove();
+                recalcularTotal();
+
+                // Se não sobrou nenhuma linha, mostra mensagem de vazio
+                const tbody = document.querySelector('#tabelaItens tbody');
+                if (tbody && tbody.querySelectorAll('tr').length === 0) {
+                    location.reload();
+                }
+            } else {
+                if (btn) btn.disabled = false;
+            }
+        }
+    </script>
+}

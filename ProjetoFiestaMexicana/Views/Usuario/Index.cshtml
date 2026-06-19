@@ -1,15 +1,18 @@
 ﻿@model IEnumerable<ProjetoFiestaMexicana.Models.Usuarios>
+    
+<link href="~/css/tables.css" rel="stylesheet" />
 
-<div class="container-fiesta">
-    <div class="header-flex">
+<div class="page-container">
         <h2> Gestão de Funcionários</h2>
-        <a asp-action="CriarUsuario" class="btn-novo">+ Novo Funcionário</a>
-    </div>
 
     @if (TempData["Sucesso"] != null)
     {
         <div class="alert-success">@TempData["Sucesso"]</div>
     }
+
+    <p>
+        <a asp-action="CriarUsuario" class="btn-novo">+ Novo Funcionário</a>
+    </p>
 
     <table class="tbl">
         <thead>
@@ -40,18 +43,3 @@
         </tbody>
     </table>
 </div>
-
-<style>
-    .container-fiesta {
-        max-width: 900px;
-        margin: 40px auto;
-        padding: 20px; 
-    }
-    .header-flex {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 30px;
-    }
-
-</style>

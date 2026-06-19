@@ -788,10 +788,37 @@ BEGIN
     WHERE id = p_pedido;
 END $$
 
-DROP PROCEDURE IF EXISTS sp_comanda_finalizar $$
+DELIMITER ;
+
+ALTER TABLE Pedido ADD COLUMN comanda_fechada TINYINT(1) NOT NULL DEFAULT 0;
+
+DROP PROCEDURE IF EXISTS sp_comanda_listar_abertas;
+
+DELIMITER $$
+CREATE PROCEDURE sp_comanda_listar_abertas()
+BEGIN
+    SELECT
+        p.id,
+        p.mesa        AS mesa_id,
+        p.garcom      AS garcom_id,
+        m.numero      AS mesa_numero,
+        g.nome        AS garcom_nome,
+        p.status,
+        p.total,
+        p.data_hora,
+        p.observacao
+    FROM Pedido p
+    INNER JOIN Mesa   m ON m.id = p.mesa
+    INNER JOIN Garcom g ON g.id = p.garcom
+    WHERE p.comanda_fechada = 0
+    ORDER BY p.data_hora DESC;
+END $$
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS sp_comanda_finalizar;
+DELIMITER $$
 CREATE PROCEDURE sp_comanda_finalizar(IN p_id INT)
 BEGIN
-    UPDATE Pedido SET status = 'Finalizado' WHERE id = p_id;
+    UPDATE Pedido SET comanda_fechada = 1 WHERE id = p_id;
 END $$
-
 DELIMITER ;

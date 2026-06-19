@@ -457,10 +457,9 @@
     }
 </style>
 
-<!-- Modal de confirmação de finalização -->
 <div class="modal-bg" id="modalFinalizar">
     <div class="modal-box">
-        <img src="~/logos/icon/check.png" alt="OK" class="modal-check" />
+        <img src="@Url.Content("~/logos/icon/check.png")" alt="OK" class="modal-check" />
         <div class="modal-titulo">Finalizar Comanda?</div>
         <div class="modal-sub">Confirme os valores antes de fechar</div>
 
@@ -469,7 +468,7 @@
         <form asp-action="FinalizarComanda" method="post" id="formFinalizar">
             @Html.AntiForgeryToken()
             <input type="hidden" name="id" id="modalPedidoId" />
-            <button type="submit" class="modal-btn-ok">✅ Confirmar Finalização</button>
+            <button type="submit" class="modal-btn-ok"> Confirmar Finalização</button>
         </form>
         <button class="modal-btn-cancelar" onclick="fecharModal()">Cancelar</button>
     </div>
@@ -478,16 +477,16 @@
 <div class="cmd-page">
 
     <h1 style="font-size:1.5rem; font-weight:800; color:#111827; margin-bottom:20px;">
-        🧾 Gerenciar Comandas
+         Comandas
     </h1>
 
     <!-- Abas -->
     <div class="cmd-tabs">
         <button class="cmd-tab ativa" onclick="mostrarPainel('abertas', this)">
-            🔥 Em Aberto (@Model.Count)
+             Em Aberto (@Model.Count)
         </button>
         <button class="cmd-tab" onclick="mostrarPainel('novo', this)">
-            ➕ Nova Comanda
+             Nova Comanda
         </button>
     </div>
 
@@ -496,7 +495,7 @@
         @if (!Model.Any())
         {
             <div class="vazio-estado">
-                <p>🎉 Nenhuma comanda em aberto no momento.</p>
+                <p> Nenhuma comanda em aberto no momento.</p>
             </div>
         }
         else
@@ -513,11 +512,10 @@
                                     #@c.Id · @c.DataHora.ToString("HH:mm") · @c.Garcom
                                     @if (!string.IsNullOrEmpty(c.Observacao))
                                     {
-                                        <span> · 📝 @c.Observacao</span>
+                                        <span> · @c.Observacao</span>
                                     }
                                 </div>
                             </div>
-                            <span class="badge-s badge-@(c.Status)">@c.Status</span>
                         </div>
 
                         <!-- Itens -->
@@ -543,7 +541,6 @@
                             }
                         </div>
 
-                        <!-- Adicionar item a esta comanda -->
                         <div class="cc-add-wrap">
                             <div class="cc-add-titulo">+ Adicionar item</div>
                             <div class="cc-add-grid">
@@ -565,7 +562,7 @@
                                     }
                                 </select>
                                 <input type="number" class="cc-add-qty" id="qty-@c.Id" value="1" min="1" max="20" />
-                                <button class="cc-add-btn" onclick="adicionarItemComanda(@c.Id)">➕</button>
+                                <button class="cc-add-btn" onclick="adicionarItemComanda(@c.Id, @c.MesaId, @c.GarcomId)">➕</button>
                             </div>
                         </div>
 
@@ -624,10 +621,10 @@
             if (btn) btn.classList.add('ativa');
         }
 
-        async function adicionarItemComanda(pedidoId) {
-            const sel = document.getElementById('prato-' + pedidoId);
-            const qty = document.getElementById('qty-'   + pedidoId);
-            const pratoId   = sel.value;
+        async function adicionarItemComanda(pedidoId, mesaId, garcomId) {
+            const sel        = document.getElementById('prato-' + pedidoId);
+            const qty        = document.getElementById('qty-'   + pedidoId);
+            const pratoId    = sel.value;
             const quantidade = parseInt(qty.value) || 1;
 
             if (!pratoId) { alert('Selecione um prato!'); return; }
@@ -639,7 +636,7 @@
             const resp = await fetch('/Pedido/AdicionarItemComanda', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `pedidoId=${pedidoId}&pratoId=${pratoId}&quantidade=${quantidade}&__RequestVerificationToken=${encodeURIComponent(token)}`
+                body: `pedidoId=${pedidoId}&pratoId=${pratoId}&quantidade=${quantidade}&mesaId=${mesaId}&garcomId=${garcomId}&__RequestVerificationToken=${encodeURIComponent(token)}`
             });
 
             if (resp.ok) {
@@ -654,7 +651,6 @@
 
         function abrirModalFinalizar(id, total, taxa, totalFinal, mesa, garcom) {
             document.getElementById('modalPedidoId').value = id;
-
             document.getElementById('modalDetalhe').innerHTML = `
                 <div class="modal-linha"><span>Mesa</span><span><strong>${mesa}</strong></span></div>
                 <div class="modal-linha"><span>Garçom</span><span>${garcom}</span></div>
@@ -662,7 +658,6 @@
                 <div class="modal-linha verde"><span>Taxa garçom (10%)</span><span>R$ ${parseFloat(taxa).toFixed(2).replace('.',',')}</span></div>
                 <div class="modal-linha bold"><span>Total Final</span><span>R$ ${parseFloat(totalFinal).toFixed(2).replace('.',',')}</span></div>
             `;
-
             document.getElementById('modalFinalizar').classList.add('aberto');
             document.body.style.overflow = 'hidden';
         }
@@ -676,7 +671,6 @@
             if (e.target === document.getElementById('modalFinalizar')) fecharModal();
         });
 
-        // Toast de sucesso do TempData
         @if (TempData["ok"] != null)
         {
                 <text>
