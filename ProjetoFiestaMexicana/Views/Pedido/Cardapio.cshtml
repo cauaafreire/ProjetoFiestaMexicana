@@ -29,6 +29,13 @@
             margin: 0;
         }
 
+    .topo-acoes {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
     .busca-wrap {
         display: flex;
         gap: 8px;
@@ -37,8 +44,7 @@
         border: 1px solid #e5e7eb;
         border-radius: 10px;
         padding: 6px 12px;
-        flex: 1;
-        max-width: 300px;
+        min-width: 220px;
     }
 
         .busca-wrap input {
@@ -47,17 +53,54 @@
             font-size: 0.9rem;
             flex: 1;
             color: #111827;
+            background: transparent;
         }
 
-        .busca-wrap button {
-            background: #FF5757;
+        .busca-wrap .busca-icon {
+            color: #9ca3af;
+            font-size: 0.95rem;
+        }
+
+    .btn-ir-pedido {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #FF5757;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: background 0.2s;
+        position: relative;
+    }
+
+        .btn-ir-pedido:hover {
+            background: #e04444;
             color: #fff;
-            border: none;
-            border-radius: 6px;
-            padding: 5px 12px;
-            font-size: 0.82rem;
-            font-weight: 700;
-            cursor: pointer;
+        }
+
+    .cart-badge {
+        position: absolute;
+        top: -7px;
+        right: -7px;
+        background: #111827;
+        color: #fff;
+        font-size: 0.65rem;
+        font-weight: 800;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        display: none;
+    }
+
+        .cart-badge.visivel {
+            display: flex;
         }
 
     /* Tabs */
@@ -143,6 +186,11 @@
             box-shadow: 0 4px 16px rgba(255,87,87,0.12);
         }
 
+        /* esconde card quando não bate com busca */
+        .prato-card.oculto {
+            display: none;
+        }
+
     .prato-foto {
         width: 100%;
         height: 130px;
@@ -217,22 +265,40 @@
         .btn-add-comanda.adicionado {
             background: #059669;
         }
+
+    /* Mensagem sem resultados */
+    .sem-resultado {
+        display: none;
+        text-align: center;
+        padding: 40px;
+        color: #9ca3af;
+        font-size: 1rem;
+        grid-column: 1/-1;
+    }
 </style>
 
 <div class="cardapio-area">
     <div class="cardapio-topo">
         <h1>🍽 Cardápio</h1>
 
-        <p><a asp-action="Pedido" class="btn-novo">Nova Mesa</a></p>
-        <form method="get" asp-action="Cardapio" class="busca-wrap">
-            <input name="q" value="@ViewBag.q" placeholder="Buscar prato..." />
-            <button type="submit">🔍</button>
-        </form>
+        <div class="topo-acoes">
+            <!-- Busca em tempo real -->
+            <div class="busca-wrap">
+                <span class="busca-icon">🔍</span>
+                <input type="text" id="campoBusca" placeholder="Buscar prato..." oninput="filtrarPratos(this.value)" />
+            </div>
+
+            <!-- Botão ir ao carrinho -->
+            <a asp-controller="Pedido" asp-action="Pedido" class="btn-ir-pedido">
+                🛒 Ver Pedido
+                <span class="cart-badge" id="cartBadge">0</span>
+            </a>
+        </div>
     </div>
 
     @if (grupos != null && grupos.Any())
     {
-        <div class="cat-tabs">
+        <div class="cat-tabs" id="catTabs">
             @for (int i = 0; i < grupos.Keys.Count; i++)
             {
                 var cat = grupos.Keys.ElementAt(i);
@@ -255,7 +321,7 @@
                     @for (int j = 0; j < lista.Count; j++)
                     {
                         var p = lista[j];
-                        <div class="prato-card">
+                        <div class="prato-card" data-nome="@(p.Nome.ToLower())" data-desc="@((p.Descricao ?? "").ToLower())">
                             <div class="prato-foto">
                                 @if (!string.IsNullOrWhiteSpace(p.CapaArquivo))
                                 {
@@ -275,11 +341,12 @@
                                 }
                             </div>
                             <button class="btn-add-comanda" id="btn-@(p.Id)"
-                                    onclick="adicionarItem(@(p.Id), '@(p.Nome.Replace("'", "\\'"))', @(p.Preco.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)), '@(p.CapaArquivo ?? "")')">
+                                    onclick="adicionarItem(@(p.Id), this)">
                                 ➕ Adicionar
                             </button>
                         </div>
                     }
+                    <div class="sem-resultado" id="sem-@(i)">Nenhum prato encontrado 🌵</div>
                 </div>
             </div>
         }
@@ -292,7 +359,31 @@
 
 @section Scripts {
     <script>
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+        let totalCarrinho = 0;
+
+        // Carrega contagem do carrinho ao entrar na página
+        async function carregarContadorCarrinho() {
+            try {
+                const resp = await fetch('/Pedido/GetCartJson');
+                if (resp.ok) {
+                    const data = await resp.json();
+                    const total = Object.values(data).reduce((s, it) => s + it.qtd, 0);
+                    atualizarBadge(total);
+                }
+            } catch {}
+        }
+
+        function atualizarBadge(qtd) {
+            totalCarrinho = qtd;
+            const badge = document.getElementById('cartBadge');
+            badge.textContent = qtd;
+            badge.classList.toggle('visivel', qtd > 0);
+        }
+
         function mostrarCat(nome, btn) {
+            // Só troca aba se não estiver filtrando
+            if (document.getElementById('campoBusca').value.trim()) return;
             document.querySelectorAll('.cat-secao').forEach(s => s.classList.remove('ativa'));
             document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('ativa'));
             document.querySelectorAll('.cat-secao').forEach(s => {
@@ -301,27 +392,70 @@
             if (btn) btn.classList.add('ativa');
         }
 
-        // Esta função será chamada pelo botão "Adicionar",
-        // mas a lógica da comanda fica no Pedido.cshtml.
-        // Adapte conforme a comunicação entre as duas views (ex: session, redirect, etc.)
-        function adicionarItem(id, nome, preco, foto) {
-            // Redireciona para a action que adiciona o item ao carrinho em sessão
-            fetch('/Pedido/AdicionarAoPedidoSilencioso', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `id=${id}&__RequestVerificationToken=${document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? ''}`
-            }).then(() => {
-                const btn = document.getElementById('btn-' + id);
-                if (btn) {
-                    btn.textContent = '✔ Adicionado!';
-                    btn.classList.add('adicionado');
-                    setTimeout(() => {
-                        btn.textContent = '➕ Adicionar';
-                        btn.classList.remove('adicionado');
-                    }, 900);
-                }
+        function filtrarPratos(q) {
+            const termo = q.trim().toLowerCase();
+            const tabs  = document.getElementById('catTabs');
+
+            if (!termo) {
+                // Sem filtro: volta ao modo normal com abas
+                tabs.style.display = '';
+                document.querySelectorAll('.cat-secao').forEach((s, i) => {
+                    s.classList.toggle('ativa', i === 0);
+                    s.querySelectorAll('.prato-card').forEach(c => c.classList.remove('oculto'));
+                    document.getElementById('sem-' + i)?.style.setProperty('display', 'none');
+                });
+                // Reativa a primeira aba
+                const primeiraTab = document.querySelector('.cat-tab');
+                document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('ativa'));
+                if (primeiraTab) primeiraTab.classList.add('ativa');
+                return;
+            }
+
+            // Com filtro: mostra todas as seções, esconde abas visuais
+            tabs.style.display = 'none';
+            document.querySelectorAll('.cat-secao').forEach((s, i) => {
+                s.classList.add('ativa');
+                const cards  = s.querySelectorAll('.prato-card');
+                let visiveis = 0;
+
+                cards.forEach(card => {
+                    const nome = card.dataset.nome || '';
+                    const desc = card.dataset.desc || '';
+                    const bate = nome.includes(termo) || desc.includes(termo);
+                    card.classList.toggle('oculto', !bate);
+                    if (bate) visiveis++;
+                });
+
+                const semMsg = document.getElementById('sem-' + i);
+                if (semMsg) semMsg.style.display = visiveis === 0 ? 'block' : 'none';
             });
         }
+
+        async function adicionarItem(id, btn) {
+            btn.disabled = true;
+
+            const resp = await fetch('/Pedido/AdicionarAoPedidoSilencioso', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `id=${id}&__RequestVerificationToken=${encodeURIComponent(token)}`
+            });
+
+            if (resp.ok) {
+                btn.textContent = '✔ Adicionado!';
+                btn.classList.add('adicionado');
+                atualizarBadge(totalCarrinho + 1);
+                setTimeout(() => {
+                    btn.textContent = '➕ Adicionar';
+                    btn.classList.remove('adicionado');
+                    btn.disabled = false;
+                }, 900);
+            } else {
+                btn.disabled = false;
+            }
+        }
+
+        // Inicia contagem ao carregar
+        carregarContadorCarrinho();
     </script>
     @Html.AntiForgeryToken()
 }

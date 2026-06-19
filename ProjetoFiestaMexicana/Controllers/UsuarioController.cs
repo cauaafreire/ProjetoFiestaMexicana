@@ -18,7 +18,8 @@ namespace ProjetoFiestaMexicana.Controllers
             try
             {
                 using var conn = db.GetConnection();
-                using var cmd = new MySqlCommand("SELECT id, nome, email, role FROM Usuarios ORDER BY nome", conn);
+                // ADICIONADO: Selecionando o campo 'ativo'
+                using var cmd = new MySqlCommand("SELECT id, nome, email, role, ativo FROM Usuarios ORDER BY nome", conn);
                 using var rd = cmd.ExecuteReader();
                 while (rd.Read())
                 {
@@ -27,16 +28,15 @@ namespace ProjetoFiestaMexicana.Controllers
                         id = rd.GetInt32("id"),
                         nome = rd.GetString("nome"),
                         email = rd.GetString("email"),
-                        role = rd.IsDBNull(rd.GetOrdinal("role")) ? "" : rd.GetString("role")
+                        role = rd.IsDBNull(rd.GetOrdinal("role")) ? "" : rd.GetString("role"),
+                        ativo = rd.GetInt32("ativo") // MAPEADO AQUI
                     });
                 }
             }
-            catch (Exception ex)
-            {
-                TempData["Erro"] = "Erro ao carregar lista: " + ex.Message;
-            }
+            catch (Exception ex) { TempData["Erro"] = ex.Message; }
             return View(lista);
         }
+
         [HttpGet]
         public IActionResult CriarUsuario()
         {
@@ -71,25 +71,32 @@ namespace ProjetoFiestaMexicana.Controllers
             }
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Excluir(int id)
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult Desativar(int id)
         {
-            try
+            using var conn = db.GetConnection();
+            using var checkCmd = new MySqlCommand("SELECT email FROM Usuarios WHERE id = @id", conn);
+            checkCmd.Parameters.AddWithValue("@id", id);
+            if (checkCmd.ExecuteScalar()?.ToString() == "juanpablo@fiesta.com")
             {
-                using var conn = db.GetConnection();
-                // Você pode criar a sp_usuario_excluir no banco ou usar o comando abaixo:
-                using var cmd = new MySqlCommand("DELETE FROM Usuarios WHERE id = @id", conn);
-                cmd.Parameters.AddWithValue("@id", id);
-                cmd.ExecuteNonQuery();
-
-                TempData["Sucesso"] = "Funcionário removido com sucesso!";
+                TempData["Erro"] = "O Administrador Master não pode ser desativado!";
+                return RedirectToAction("Index");
             }
-            catch (Exception ex)
-            {
-                TempData["Erro"] = "Não foi possível excluir o usuário: " + ex.Message;
-            }
+            using var cmd = new MySqlCommand("UPDATE Usuarios SET ativo = 0 WHERE id = @id", conn);
+            cmd.Parameters.AddWithValue("@id", id);
+            cmd.ExecuteNonQuery();
+            TempData["Sucesso"] = "Acesso desativado!";
+            return RedirectToAction("Index");
+        }
 
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult Reativar(int id)
+        {
+            using var conn = db.GetConnection();
+            using var cmd = new MySqlCommand("UPDATE Usuarios SET ativo = 1 WHERE id = @id", conn);
+            cmd.Parameters.AddWithValue("@id", id);
+            cmd.ExecuteNonQuery();
+            TempData["Sucesso"] = "Acesso reativado!";
             return RedirectToAction("Index");
         }
 
