@@ -313,7 +313,7 @@ namespace ProjetoFiestaMexicana.Controllers
                 return RedirectToAction(nameof(Pedido));
             }
 
-            return RedirectToAction(nameof(Cardapio));
+            return RedirectToAction(nameof(Comandas ));
         }
 
         [HttpGet]
@@ -505,7 +505,7 @@ namespace ProjetoFiestaMexicana.Controllers
 
             try
             {
-                // Busca o preço uma vez só
+                // 1. Busca o preço
                 decimal preco = 0;
                 using (var cmdP = new MySqlCommand("SELECT preco FROM Prato WHERE id = @id", conn, tx))
                 {
@@ -513,7 +513,7 @@ namespace ProjetoFiestaMexicana.Controllers
                     preco = Convert.ToDecimal(cmdP.ExecuteScalar());
                 }
 
-                
+                // 2. ATUALIZA A COMANDA REAL (Para o fechamento da conta)
                 using (var cmd = new MySqlCommand("sp_comanda_adicionar_item", conn, tx)
                 { CommandType = CommandType.StoredProcedure })
                 {
@@ -524,21 +524,28 @@ namespace ProjetoFiestaMexicana.Controllers
                     cmd.ExecuteNonQuery();
                 }
 
-                
+                // 3. CRIA UM CARD NOVO PARA A COZINHA (Pedido Fantasma marcado como Adicional)
                 int idNovoPedido;
                 using (var cmd = new MySqlCommand("sp_pedido_criar", conn, tx)
                 { CommandType = CommandType.StoredProcedure })
                 {
                     cmd.Parameters.AddWithValue("p_mesa", mesaId);
                     cmd.Parameters.AddWithValue("p_garcom", garcomId);
-                    cmd.Parameters.AddWithValue("p_observacao", DBNull.Value);
-                    var pOut = new MySqlParameter("p_id_gerado", MySqlDbType.Int32)
-                    { Direction = ParameterDirection.Output };
+                    cmd.Parameters.AddWithValue("p_observacao", "ADICIONAL");
+                    var pOut = new MySqlParameter("p_id_gerado", MySqlDbType.Int32) { Direction = ParameterDirection.Output };
                     cmd.Parameters.Add(pOut);
                     cmd.ExecuteNonQuery();
                     idNovoPedido = Convert.ToInt32(pOut.Value);
                 }
 
+                // Marca como ADICIONAL para não somar no histórico/dashboard
+                using (var cmdMark = new MySqlCommand("UPDATE Pedido SET eh_adicional = 1, comanda_fechada = 1 WHERE id = @id", conn, tx))
+                {
+                    cmdMark.Parameters.AddWithValue("@id", idNovoPedido);
+                    cmdMark.ExecuteNonQuery();
+                }
+
+                // Adiciona o item nesse card da cozinha
                 using (var cmdI = new MySqlCommand("sp_pedido_adicionar_item", conn, tx)
                 { CommandType = CommandType.StoredProcedure })
                 {
@@ -550,14 +557,6 @@ namespace ProjetoFiestaMexicana.Controllers
                     cmdI.ExecuteNonQuery();
                 }
 
-                
-                using (var cmdF = new MySqlCommand(
-                       "UPDATE Pedido SET comanda_fechada = 1 WHERE id = @id", conn, tx))
-                {
-                    cmdF.Parameters.AddWithValue("@id", idNovoPedido);
-                    cmdF.ExecuteNonQuery();
-                }
-
                 tx.Commit();
                 return Ok(new { preco = preco.ToString("F2", System.Globalization.CultureInfo.InvariantCulture) });
             }
@@ -567,6 +566,8 @@ namespace ProjetoFiestaMexicana.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+
 
         // Finaliza uma comanda
         [HttpPost, ValidateAntiForgeryToken]
@@ -675,31 +676,42 @@ namespace ProjetoFiestaMexicana.Controllers
             return Ok();
         }
 
-        // Cria um novo pedido (card separado na cozinha) para a mesma mesa/garçom
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult CriarPedidoAdicional(int mesaId, int garcomId, int pratoId, int quantidade)
         {
             using var conn = db.GetConnection();
             using var tx = conn.BeginTransaction();
-
             try
             {
-                // Cria novo pedido
-                int idPed;
-                using (var cmd = new MySqlCommand("sp_pedido_criar", conn, tx)
-                { CommandType = CommandType.StoredProcedure })
+                // 1. BUSCA MELHORADA: Procura qualquer pedido pendente para esta mesa
+                int idPed = 0;
+                using (var cmdCheck = new MySqlCommand("SELECT id FROM Pedido WHERE mesa = @mesa AND status IN ('Pendente', 'Preparando') AND comanda_fechada = 0 ORDER BY id DESC LIMIT 1", conn, tx))
                 {
-                    cmd.Parameters.AddWithValue("p_mesa", mesaId);
-                    cmd.Parameters.AddWithValue("p_garcom", garcomId);
-                    cmd.Parameters.AddWithValue("p_observacao", DBNull.Value);
-                    var pOut = new MySqlParameter("p_id_gerado", MySqlDbType.Int32)
-                    { Direction = ParameterDirection.Output };
-                    cmd.Parameters.Add(pOut);
-                    cmd.ExecuteNonQuery();
-                    idPed = Convert.ToInt32(pOut.Value);
+                    cmdCheck.Parameters.AddWithValue("@mesa", mesaId);
+                    var result = cmdCheck.ExecuteScalar();
+                    if (result != null && result != DBNull.Value)
+                    {
+                        idPed = Convert.ToInt32(result);
+                    }
                 }
 
-                // Busca preço e insere o item
+                // 2. Se NÃO encontrou, aí sim cria um novo
+                if (idPed == 0)
+                {
+                    using (var cmd = new MySqlCommand("sp_pedido_criar", conn, tx))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("p_mesa", mesaId);
+                        cmd.Parameters.AddWithValue("p_garcom", garcomId);
+                        cmd.Parameters.AddWithValue("p_observacao", DBNull.Value);
+                        var pOut = new MySqlParameter("p_id_gerado", MySqlDbType.Int32) { Direction = ParameterDirection.Output };
+                        cmd.Parameters.Add(pOut);
+                        cmd.ExecuteNonQuery();
+                        idPed = Convert.ToInt32(pOut.Value);
+                    }
+                }
+
+                // 3. Busca o preço
                 decimal preco = 0;
                 using (var cmdP = new MySqlCommand("SELECT preco FROM Prato WHERE id = @id", conn, tx))
                 {
@@ -707,24 +719,30 @@ namespace ProjetoFiestaMexicana.Controllers
                     preco = Convert.ToDecimal(cmdP.ExecuteScalar());
                 }
 
-                using var cmdI = new MySqlCommand("sp_pedido_adicionar_item", conn, tx)
-                { CommandType = CommandType.StoredProcedure };
-                cmdI.Parameters.AddWithValue("p_id_pedido", idPed);
-                cmdI.Parameters.AddWithValue("p_id_prato", pratoId);
-                cmdI.Parameters.AddWithValue("p_quantidade", quantidade);
-                cmdI.Parameters.AddWithValue("p_preco_unitario", preco);
-                cmdI.Parameters.AddWithValue("p_subtotal", preco * quantidade);
-                cmdI.ExecuteNonQuery();
+                // 4. Adiciona o item (Isso vai atualizar o total automaticamente via SP)
+                using (var cmdI = new MySqlCommand("sp_pedido_adicionar_item", conn, tx))
+                {
+                    cmdI.CommandType = CommandType.StoredProcedure;
+                    cmdI.Parameters.AddWithValue("p_id_pedido", idPed);
+                    cmdI.Parameters.AddWithValue("p_id_prato", pratoId);
+                    cmdI.Parameters.AddWithValue("p_quantidade", quantidade);
+                    cmdI.Parameters.AddWithValue("p_preco_unitario", preco);
+                    cmdI.Parameters.AddWithValue("p_subtotal", preco * quantidade);
+                    cmdI.ExecuteNonQuery();
+                }
 
                 tx.Commit();
                 return Ok(new { idPedido = idPed });
             }
-            catch (MySqlException ex)
+            catch (Exception ex)
             {
                 tx.Rollback();
-                return BadRequest(ex.Message);
+                return BadRequest("Erro ao processar: " + ex.Message);
             }
         }
+
+
+
 
     }
 }

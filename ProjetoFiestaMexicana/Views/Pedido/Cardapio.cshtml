@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Rendering
 @{
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Cardápio — Garçom";
     var grupos = ViewBag.Grupos as Dictionary<string, List<ProjetoFiestaMexicana.Models.Pratos>>;
 }
@@ -9,7 +9,7 @@
     .cardapio-area {
         padding: 24px;
         overflow-y: auto;
-        background: #f9fafb;
+        background: #fff;
         min-height: calc(100vh - 63px);
     }
 
@@ -279,18 +279,16 @@
 
 <div class="cardapio-area">
     <div class="cardapio-topo">
-        <h1>🍽 Cardápio</h1>
+        <h1>Cardápio</h1>
 
         <div class="topo-acoes">
-            <!-- Busca em tempo real -->
             <div class="busca-wrap">
-                <span class="busca-icon">🔍</span>
+                <span class="busca-icon"></span>
                 <input type="text" id="campoBusca" placeholder="Buscar prato..." oninput="filtrarPratos(this.value)" />
             </div>
 
-            <!-- Botão ir ao carrinho -->
             <a asp-controller="Pedido" asp-action="Pedido" class="btn-ir-pedido">
-                🛒 Ver Pedido
+                Ver Pedido
                 <span class="cart-badge" id="cartBadge">0</span>
             </a>
         </div>
@@ -329,7 +327,7 @@
                                 }
                                 else
                                 {
-                                    <span>🌶️</span>
+                                    <span>🌶</span>
                                 }
                             </div>
                             <div class="prato-info">
@@ -342,11 +340,11 @@
                             </div>
                             <button class="btn-add-comanda" id="btn-@(p.Id)"
                                     onclick="adicionarItem(@(p.Id), this)">
-                                ➕ Adicionar
+                                Adicionar
                             </button>
                         </div>
                     }
-                    <div class="sem-resultado" id="sem-@(i)">Nenhum prato encontrado 🌵</div>
+                    <div class="sem-resultado" id="sem-@(i)">Nenhum prato encontrado </div>
                 </div>
             </div>
         }
@@ -362,7 +360,6 @@
         const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
         let totalCarrinho = 0;
 
-        // Carrega contagem do carrinho ao entrar na página
         async function carregarContadorCarrinho() {
             try {
                 const resp = await fetch('/Pedido/GetCartJson');
@@ -441,11 +438,11 @@
             });
 
             if (resp.ok) {
-                btn.textContent = '✔ Adicionado!';
+                btn.textContent = 'Adicionado!';
                 btn.classList.add('adicionado');
                 atualizarBadge(totalCarrinho + 1);
                 setTimeout(() => {
-                    btn.textContent = '➕ Adicionar';
+                    btn.textContent = 'Adicionar';
                     btn.classList.remove('adicionado');
                     btn.disabled = false;
                 }, 900);
@@ -454,7 +451,6 @@
             }
         }
 
-        // Inicia contagem ao carregar
         carregarContadorCarrinho();
     </script>
     @Html.AntiForgeryToken()

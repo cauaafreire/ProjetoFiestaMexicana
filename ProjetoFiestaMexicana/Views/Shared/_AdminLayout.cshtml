@@ -1,0 +1,406 @@
+﻿@using Microsoft.AspNetCore.Http
+@using ProjetoFiestaMexicana.Autenticacao
+@{
+    var userName = Context.Session.GetString(SessionKeys.UserName) ?? "Usuário";
+    var userRole = Context.Session.GetString(SessionKeys.UserRole) ?? "";
+    bool isAdmin = userRole == "Admin";
+    bool isChefe = userRole == "Chefe" || isAdmin;
+    bool isGarcom = userRole == "Garcom" || isAdmin;
+}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Fiesta Mexicana</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/tables.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    @RenderSection("Styles", required: false)
+
+    <style>
+        :root {
+            --fiesta-main: #FF5757;
+            --fiesta-light: #FFF5F5;
+            --fiesta-hover: #FFEAEA;
+            --fiesta-dark: #2D3436;
+            --sidebar-width: 260px;
+            --topbar-height: 70px;
+        }
+
+        body {
+            background-color: #fff !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            font-family: 'Segoe UI', system-ui, sans-serif !important;
+            color: var(--fiesta-dark);
+            height: 100vh !important;
+            overflow: hidden !important;
+            display: flex;
+        }
+
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: #fff;
+            position: fixed;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            z-index: 1050;
+            border-right: 1px solid #eee;
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-brand {
+            padding: 0 25px;
+            height: var(--topbar-height);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #eee;
+        }
+
+            .sidebar-brand span {
+                font-weight: 800;
+                font-size: 1.1rem;
+                color: var(--fiesta-main);
+                text-transform: uppercase;
+            }
+
+        .sidebar-menu {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .menu-label {
+            padding: 15px 25px 8px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #aaa;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 25px;
+            color: #555 !important;
+            text-decoration: none !important;
+            transition: all 0.2s ease;
+            gap: 14px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin: 2px 12px;
+            border-radius: 10px;
+        }
+
+            .menu-item i {
+                font-size: 1.2rem;
+                color: #888;
+            }
+
+            .menu-item:hover {
+                background: var(--fiesta-light);
+                color: var(--fiesta-main) !important;
+            }
+
+                .menu-item:hover i {
+                    color: var(--fiesta-main);
+                }
+
+            .menu-item.active {
+                background: var(--fiesta-main);
+                color: #fff !important;
+                box-shadow: 0 4px 12px rgba(255, 87, 87, 0.25);
+            }
+
+                .menu-item.active i {
+                    color: #fff;
+                }
+
+        .main-wrapper {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            transition: margin-left 0.3s;
+        }
+
+        .topbar {
+            height: var(--topbar-height);
+            background: #fff;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+            z-index: 1000;
+        }
+
+        .btn-toggle-admin {
+            display: none;
+            background: var(--fiesta-main);
+            color: #fff;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            font-size: 1.4rem;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+
+        .btn-logout {
+            color: #666;
+            border: 1px solid #e0e0e0;
+            padding: 8px 18px;
+            border-radius: 10px;
+            background: #fff;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .btn-logout:hover {
+                background: var(--fiesta-main) !important;
+                color: #fff !important;
+                border-color: var(--fiesta-main) !important;
+                box-shadow: 0 4px 15px rgba(255, 87, 87, 0.3);
+                transform: translateY(-1px);
+            }
+
+            .btn-logout i {
+                font-size: 1.1rem;
+                transition: transform 0.3s ease;
+            }
+
+            .btn-logout:hover i {
+                transform: translateX(3px);
+            }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch !important;
+            background-color: #fff;
+        }
+
+        .page-container {
+            background: #fff;
+            padding: 40px;
+            width: 100%;
+            max-width: 100% !important;
+            align-self: stretch !important;
+            margin: 0 auto;
+            flex: 1;
+            box-shadow: 0 0 20px rgba(0,0,0,0.02);
+        }
+
+        .admin-footer {
+            background: #fff;
+            padding: 15px 30px;
+            border-top: 1px solid #eee;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(2px);
+            z-index: 1040;
+        }
+
+        #btnCloseSidebar {
+            display: none !important;
+        }
+
+        @@media (max-width: 768px) {
+            .btn-toggle-admin {
+                display: flex;
+            }
+
+
+        .sidebar {
+                left: -260px;
+        }
+
+            .sidebar.aberto {
+                left: 0;
+            }
+
+        .sidebar-overlay.aberto {
+            display: block;
+        }
+
+            .sidebar #btnCloseSidebar {
+                display: flex !important;
+                background: var(--fiesta-main) !important;
+                color: #fff !important;
+                border: none;
+                width: 35px;
+                height: 35px;
+                border-radius: 50%;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                box-shadow: 0 2px 8px rgba(255, 87, 87, 0.3);
+                transition: transform 0.2s;
+            }
+
+                .sidebar #btnCloseSidebar:active {
+                    transform: scale(0.9);
+                }
+
+        .main-wrapper {
+            margin-left: 0 !important;
+                width: 100%;
+        }
+
+        .page-container {
+            padding: 20px;
+        }
+
+        .topbar {
+            padding: 0 15px;
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="adminSidebar">
+        <div class="sidebar-brand">
+            <div class="d-flex align-items-center gap-2">
+                <img src="~/logos/iconef.png" height="35" />
+                <span>Fiesta Admin</span>
+            </div>
+            <button id="btnCloseSidebar" class="btn-close-custom">
+                <i class="bi bi-x-lg"></i>
+            </button>
+
+        </div>
+        <div class="sidebar-menu">
+            @if (isAdmin)
+            {
+                <div class="menu-label">Painel</div>
+                <a href="~/Dashboard/Index" class="menu-item">
+                    <i class="bi bi-grid-1x2-fill"></i> Dashboard
+                </a>
+            }
+
+            @if (isGarcom)
+            {
+                <div class="menu-label">Atendimento</div>
+                <a href="~/Mesa/Index" class="menu-item"><i class="bi bi-layout-three-columns"></i> Mesa</a>
+                <a href="~/Pedido/Cardapio" class="menu-item"><i class="bi bi-journal-text"></i> Cardápio</a>
+                <a href="~/Pedido/Comandas" class="menu-item"><i class="bi bi-receipt-cutoff"></i> Comandas</a>
+            }
+
+            @if (isChefe)
+            {
+                <div class="menu-label">Cozinha & Estoque</div>
+                <a href="~/Pratos/Index" class="menu-item"><i class="bi bi-egg-fried"></i> Pratos</a>
+                <a href="~/Cozinha/Index" class="menu-item"><i class="bi bi-lightning-charge-fill"></i> Cozinha</a>
+                <a href="~/Categoria/Index" class="menu-item"><i class="bi bi-tags-fill"></i> Categoria</a>
+                <a href="~/MetodoPreparo/Index" class="menu-item"><i class="bi bi-mortarboard-fill"></i> Método de Preparo</a>
+            }
+
+            @if (isAdmin)
+            {
+                <div class="menu-label">Administração</div>
+                <a href="~/Garcom/Index" class="menu-item"><i class="bi bi-person-vcard-fill"></i> Garçom</a>
+                <a href="~/Usuario/Index" class="menu-item"><i class="bi bi-people-fill"></i> Usuários</a>
+            }
+        </div>
+    </aside>
+
+    <div class="main-wrapper">
+        <header class="topbar">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn-toggle-admin" id="btnToggleSidebar">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="user-info text-end d-none d-md-block">
+                    <div class="fw-bold" style="font-size: 0.85rem;">Olá, @userName</div>
+                    <div class="text-muted" style="font-size: 0.7rem; text-transform: uppercase;">@userRole</div>
+                </div>
+                <form action="~/Auth/Logout" method="post" style="margin:0;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn-logout">
+                        <i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Sair</span>
+                    </button>
+                </form>
+            </div>
+        </header>
+        <main class="content-area">
+            <div class="page-container">
+                @RenderBody()
+            </div>
+
+            <footer class="admin-footer">
+                <div>&copy; @DateTime.Now.Year - <strong>Fiesta Mexicana</strong> Admin</div>
+            </footer>
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
+
+    <script>
+        $(document).ready(function() {
+            var currentUrl = window.location.pathname;
+            $('.menu-item').each(function() {
+                var href = $(this).attr('href').replace('~', '');
+                if (currentUrl.indexOf(href) !== -1) {
+                    $(this).addClass('active');
+                }
+            });
+
+            const btnToggle = $('#btnToggleSidebar');
+            const btnClose = $('#btnCloseSidebar');
+            const sidebar = $('#adminSidebar');
+            const overlay = $('#sidebarOverlay');
+
+            function toggleMenu() {
+                sidebar.toggleClass('aberto');
+                overlay.toggleClass('aberto');
+            }
+
+            btnToggle.on('click', toggleMenu);
+            btnClose.on('click', toggleMenu);
+            overlay.on('click', toggleMenu);
+
+            $('.menu-item').on('click', function() {
+                if ($(window).width() <= 768) toggleMenu();
+            });
+        });
+    </script>
+</body>
+</html>

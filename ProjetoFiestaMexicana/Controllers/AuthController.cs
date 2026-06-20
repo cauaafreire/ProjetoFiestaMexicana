@@ -72,7 +72,9 @@ namespace ProjetoFiestaMexicana.Controllers
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
 
-            return RedirectToAction("Menu", "Pedido");
+            
+            return RedirectToAction("Index", "Dashboard");
+
         }
 
         [HttpPost, ValidateAntiForgeryToken]

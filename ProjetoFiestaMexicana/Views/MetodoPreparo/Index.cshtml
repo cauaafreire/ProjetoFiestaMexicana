@@ -1,49 +1,49 @@
 ﻿@model IEnumerable<ProjetoFiestaMexicana.Models.MetodoPreparo>
 @{
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Métodos de Preparo";
 }
 
 <div class="page-container">
 
-<h2>Métodos de Preparo</h2>
+    <h2>Métodos de Preparo</h2>
 
-@if (TempData["ok"] != null)
-{
-    <div class="ok">@TempData["ok"]</div>
-}
+    @if (TempData["ok"] != null)
+    {
+        <div class="ok">@TempData["ok"]</div>
+    }
 
-<p><a asp-action="Criar" class="btn-novo">Novo Método de Preparo</a></p>
+    <p><a asp-action="Criar" class="btn-novo">Novo Método de Preparo</a></p>
 
-
-
-<table class="tbl">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Criado Em</th>
-            <th class="col-acoes">Ações</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var mp in Model)
-        {
-            <tr>
-                <td>@mp.Id</td>
-                <td>@mp.Nome</td>
-                <td>@mp.CriadoEm.ToString("dd/MM/yyyy HH:mm")</td>
-                <td class="col-acoes">
-                    <div class="acoes">
-                        <a asp-action="Editar" asp-route-id="@mp.Id" class="btn btn-editar">Editar</a>
-                        <form asp-action="Excluir" method="post" onsubmit="return confirm(\'Excluir este método de preparo?\');">
-                            <input type="hidden" name="id" value="@mp.Id" />
-                            <button type="submit" class="btn btn-excluir">Excluir</button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <div class="table-responsive">
+        <table class="tbl">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Criado Em</th>
+                    <th class="col-acoes">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var mp in Model)
+                {
+                    <tr>
+                        <td data-label="ID">@mp.Id</td>
+                        <td data-label="Nome">@mp.Nome</td>
+                        <td data-label="Criado Em">@mp.CriadoEm.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td data-label="Ações" class="col-acoes">
+                            <div class="acoes">
+                                <a asp-action="Editar" asp-route-id="@mp.Id" class="btn btn-editar">Editar</a>
+                                <form asp-action="Excluir" method="post" onsubmit="return confirm('Excluir este método de preparo?');">
+                                    <input type="hidden" name="id" value="@mp.Id" />
+                                    <button type="submit" class="btn btn-excluir">Excluir</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>

@@ -1,12 +1,23 @@
 ﻿@model ProjetoFiestaMexicana.Models.DashboardViewModel
 @{
-    ViewData["Title"] = "Dashboard";
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Dashboard Fiesta Mexicana";
 }
 
 @section Styles {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 }
+
 <style>
+    :root {
+        --fiesta-red: #FF5757;
+        --fiesta-yellow: #F9CA24;
+        --fiesta-black: #2D3436;
+        --fiesta-green: #27AE60;
+        --fiesta-white: #FFFFFF;
+        --fiesta-gray: #636E72;
+    }
+
     .dash {
         max-width: 1300px;
         margin: 0 auto;
@@ -18,19 +29,16 @@
         align-items: center;
         justify-content: space-between;
         margin-bottom: 28px;
-        flex-wrap: wrap;
-        gap: 10px;
+        border-bottom: 3px solid var(--fiesta-yellow);
+        padding-bottom: 10px;
     }
 
         .dash-header h1 {
-            color: #4A2C17;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: var(--fiesta-red);
             font-size: 1.6rem;
-            font-weight: 700;
-            margin-bottom: 6px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #FF5757;
-            display: inline-block;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin: 0;
         }
 
     .dash-data {
@@ -41,72 +49,54 @@
         border-radius: 20px;
     }
 
-    /* KPIs */
     .kpi-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
-        gap: 16px;
-        margin-bottom: 24px;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
     }
 
     .kpi-card {
         background: #fff;
         border-radius: 16px;
-        padding: 20px;
+        padding: 25px;
         border: 1px solid #f3f4f6;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 10px;
+        border-left: 8px solid var(--fiesta-red);
     }
 
-    .kpi-icon {
-        font-size: 1.5rem;
-        line-height: 1;
-    }
+        .kpi-card.destaque {
+            background: var(--fiesta-red);
+            border-color: var(--fiesta-red);
+            color: white;
+        }
+
+            .kpi-card.destaque .kpi-label,
+            .kpi-card.destaque .kpi-valor {
+                color: white;
+            }
+
+        .kpi-card.financeiro {
+            border-left-color: var(--fiesta-green);
+        }
 
     .kpi-label {
-        font-size: 0.72rem;
+        font-size: 0.8rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
         color: #9ca3af;
     }
 
     .kpi-valor {
-        font-size: 1.75rem;
+        font-size: 2.2rem;
         font-weight: 800;
         color: #111827;
         line-height: 1;
     }
 
-    .kpi-card.destaque {
-        background: #FF5757;
-        border-color: #FF5757;
-    }
-
-        .kpi-card.destaque .kpi-label,
-        .kpi-card.destaque .kpi-valor {
-            color: #fff;
-        }
-
-    .kpi-card.amarelo {
-        border-left: 4px solid #f59e0b;
-    }
-
-    .kpi-card.azul {
-        border-left: 4px solid #3b82f6;
-    }
-
-    .kpi-card.verde {
-        border-left: 4px solid #10b981;
-    }
-
-    .kpi-card.vermelho {
-        border-left: 4px solid #ef4444;
-    }
-
-    /* Seções */
     .grid-2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -125,7 +115,8 @@
         border-radius: 16px;
         border: 1px solid #f3f4f6;
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        overflow: hidden;
+        overflow: visible;
+        margin-bottom: 20px;
     }
 
     .secao-header {
@@ -134,16 +125,18 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        background: #fafafa;
+        border-radius: 16px 16px 0 0;
     }
 
         .secao-header h3 {
             margin: 0;
             font-size: 0.95rem;
             font-weight: 800;
-            color: #111827;
+            color: var(--fiesta-black);
+            text-transform: uppercase;
         }
 
-    /* Top pratos */
     .top-lista {
         padding: 16px 20px;
         display: flex;
@@ -176,16 +169,6 @@
             color: #92400e;
         }
 
-        .top-rank.silver {
-            background: #e5e7eb;
-            color: #374151;
-        }
-
-        .top-rank.bronze {
-            background: #fde8d8;
-            color: #7c2d12;
-        }
-
     .top-info {
         flex: 1;
         min-width: 0;
@@ -195,13 +178,10 @@
         font-size: 0.88rem;
         font-weight: 700;
         color: #111827;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
 
     .top-barra {
-        height: 5px;
+        height: 6px;
         border-radius: 5px;
         background: #f3f4f6;
         overflow: hidden;
@@ -210,19 +190,16 @@
 
     .top-barra-fill {
         height: 100%;
-        background: #FF5757;
+        background: var(--fiesta-red);
         border-radius: 5px;
     }
 
     .top-qtd {
         font-size: 0.9rem;
         font-weight: 800;
-        color: #FF5757;
-        white-space: nowrap;
-        flex-shrink: 0;
+        color: var(--fiesta-red);
     }
 
-    /* Garçons */
     .garcom-lista {
         padding: 8px 20px 16px;
         display: flex;
@@ -237,22 +214,17 @@
         border-bottom: 1px solid #f9fafb;
     }
 
-        .garcom-item:last-child {
-            border-bottom: none;
-        }
-
     .garcom-avatar {
         width: 38px;
         height: 38px;
         border-radius: 50%;
-        background: #FF5757;
+        background: var(--fiesta-red);
         color: #fff;
         font-size: 0.95rem;
         font-weight: 800;
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-shrink: 0;
     }
 
     .garcom-nome {
@@ -266,47 +238,38 @@
         text-align: right;
     }
 
-    .garcom-pedidos {
-        font-size: 0.75rem;
-        color: #6b7280;
-    }
-
     .garcom-valor {
         font-size: 0.9rem;
         font-weight: 800;
-        color: #059669;
+        color: var(--fiesta-green);
     }
 
-    /* Gráficos */
-    .chart-pad {
-        padding: 20px;
-    }
-
-    /* Tabela pedidos */
-    .pedidos-card {
-        background: #fff;
-        border-radius: 16px;
-        border: 1px solid #f3f4f6;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        overflow: hidden;
-        margin-bottom: 24px;
+    .pedidos-tabela-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 0 0 16px 16px;
     }
 
     .pedidos-tabela {
         width: 100%;
         border-collapse: collapse;
+        table-layout: fixed;
     }
+
+        .pedidos-tabela thead tr {
+            background: #fafafa;
+        }
 
         .pedidos-tabela th {
             padding: 12px 16px;
-            text-align: left;
+            text-align: center;
             font-size: 0.72rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
             color: #9ca3af;
             border-bottom: 1px solid #f3f4f6;
-            background: #fafafa;
+            white-space: nowrap;
         }
 
         .pedidos-tabela td {
@@ -314,25 +277,20 @@
             font-size: 0.88rem;
             color: #374151;
             border-bottom: 1px solid #f9fafb;
+            text-align: center;
             vertical-align: middle;
         }
 
-        .pedidos-tabela tr:last-child td {
+        .pedidos-tabela tbody tr:last-child td {
             border-bottom: none;
         }
 
-        .pedidos-tabela tr:hover td {
-            background: #fafafa;
-        }
-
     .badge-status {
-        display: inline-block;
-        padding: 3px 10px;
+        padding: 4px 10px;
         border-radius: 20px;
-        font-size: 0.72rem;
-        font-weight: 700;
+        font-size: 0.7rem;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
     }
 
     .badge-Pendente {
@@ -355,91 +313,59 @@
         color: #991b1b;
     }
 
-    .vazio-msg {
-        padding: 40px;
-        text-align: center;
-        color: #9ca3af;
-        font-size: 0.9rem;
-        font-style: italic;
+    .secao-card .pedidos-tabela-wrapper {
+        display: block !important;
+        width: 100% !important;
+        overflow-x: auto;
     }
 
-    @@media (max-width: 640px) {
-        .kpi-grid {
-            grid-template-columns: 1fr 1fr;
-        }
+    .secao-card .pedidos-tabela {
+        width: 100% !important;
+        min-width: 100% !important;
+        table-layout: auto !important;
     }
+
+        .secao-card .pedidos-tabela th,
+        .secao-card .pedidos-tabela td {
+            width: auto !important;
+        }
 </style>
 
 <div class="dash">
-
     <div class="dash-header">
-        <h1> Dashboard</h1>
-        <span class="dash-data">
-             @DateTime.Now.ToString("dddd, dd 'de' MMMM 'de' yyyy",
-                        new System.Globalization.CultureInfo("pt-BR"))
-        </span>
+        <h1>Dashboard </h1>
+        <span class="dash-data">@DateTime.Now.ToString("dddd, dd 'de' MMMM 'de' yyyy", new System.Globalization.CultureInfo("pt-BR"))</span>
     </div>
 
-    <!-- KPIs -->
     <div class="kpi-grid">
         <div class="kpi-card destaque">
-            <span class="kpi-icon">💰</span>
             <span class="kpi-label">Faturamento Hoje</span>
             <span class="kpi-valor">@Model.Resumo.Faturamento.ToString("C")</span>
         </div>
+        <div class="kpi-card financeiro">
+            <span class="kpi-label">Ticket Médio</span>
+            <span class="kpi-valor">@Model.Resumo.TicketMedio.ToString("C")</span>
+        </div>
         <div class="kpi-card">
-            <span class="kpi-icon">🧾</span>
-            <span class="kpi-label">Pedidos Hoje</span>
+            <span class="kpi-label">Total Pedidos (Hoje)</span>
             <span class="kpi-valor">@Model.Resumo.TotalPedidos</span>
         </div>
-        <div class="kpi-card amarelo">
-            <span class="kpi-icon">⏳</span>
-            <span class="kpi-label">Pendentes</span>
-            <span class="kpi-valor">@Model.Resumo.Pendentes</span>
+    </div>
+
+    <div class="grid-2">
+        <div class="secao-card">
+            <div class="secao-header"><h3>Vendas por Hora (Hoje)</h3></div>
+            <div style="padding: 20px;"><canvas id="salesChart" height="150"></canvas></div>
         </div>
-        <div class="kpi-card azul">
-            <span class="kpi-icon">👨‍🍳</span>
-            <span class="kpi-label">Preparando</span>
-            <span class="kpi-valor">@Model.Resumo.Preparando</span>
-        </div>
-        <div class="kpi-card verde">
-            <span class="kpi-icon">✅</span>
-            <span class="kpi-label">Finalizados</span>
-            <span class="kpi-valor">@Model.Resumo.Finalizados</span>
-        </div>
-        <div class="kpi-card vermelho">
-            <span class="kpi-icon">❌</span>
-            <span class="kpi-label">Cancelados</span>
-            <span class="kpi-valor">@Model.Resumo.Cancelados</span>
-        </div>
-        <div class="kpi-card">
-            <span class="kpi-icon">🪑</span>
-            <span class="kpi-label">Mesas Livres</span>
-            <span class="kpi-valor">@Model.Mesas.Livres</span>
-        </div>
-        <div class="kpi-card">
-            <span class="kpi-icon">🔴</span>
-            <span class="kpi-label">Mesas Ocupadas</span>
-            <span class="kpi-valor">@Model.Mesas.Ocupadas</span>
+        <div class="secao-card">
+            <div class="secao-header"><h3>Desempenho Mensal (30 dias)</h3></div>
+            <div style="padding: 20px;"><canvas id="monthChart" height="150"></canvas></div>
         </div>
     </div>
 
-    <!-- Gráficos -->
     <div class="grid-2">
         <div class="secao-card">
-            <div class="secao-header"><span></span><h3>Pedidos por Status</h3></div>
-            <div class="chart-pad" style="display:flex; align-items:center; gap:20px;">
-                <canvas id="chartStatus" width="110" height="110" style="flex-shrink:0; width:110px; height:110px;"></canvas>
-                <div id="legendaStatus" style="display:flex; flex-direction:column; gap:8px; flex:1;"></div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Top pratos + Garçons -->
-    <div class="grid-2">
-        <div class="secao-card">
-            <div class="secao-header"><span></span><h3>Pratos Mais Vendidos Hoje</h3></div>
+            <div class="secao-header"><h3>Pratos Mais Vendidos</h3></div>
             @if (Model.TopPratos.Any())
             {
                 var maxV = Model.TopPratos.Max(x => x.TotalVendido);
@@ -447,30 +373,27 @@
                     @for (int i = 0; i < Model.TopPratos.Count; i++)
                     {
                         var p = Model.TopPratos[i];
-                        var rankClass = i == 0 ? "gold" : i == 1 ? "silver" : i == 2 ? "bronze" : "";
+                        var rankClass = i == 0 ? "gold" : "";
                         var pct = maxV > 0 ? (p.TotalVendido * 100 / maxV) : 0;
                         <div class="top-item">
-                            <div class="top-rank @(rankClass)">@(i + 1)</div>
+                            <div class="top-rank @rankClass">@(i + 1)</div>
                             <div class="top-info">
-                                <div class="top-nome">@(p.Nome)</div>
-                                <div class="top-barra">
-                                    <div class="top-barra-fill" style="width:@(pct)%"></div>
-                                </div>
+                                <div class="top-nome">@p.Nome</div>
+                                <div class="top-barra"><div class="top-barra-fill" style="width:@pct%"></div></div>
                             </div>
-                            <div class="top-qtd">@(p.TotalVendido)x</div>
+                            <div class="top-qtd">@p.TotalVendido x</div>
                         </div>
                     }
                 </div>
             }
             else
             {
-
-                <div class="vazio-msg">Nenhum prato vendido hoje.</div>
+                <div style="padding:40px;text-align:center;color:#9ca3af;">Nenhum prato vendido hoje.</div>
             }
         </div>
 
         <div class="secao-card">
-            <div class="secao-header"><span></span><h3>Desempenho dos Garçons</h3></div>
+            <div class="secao-header"><h3>Ranking dos Garçons</h3></div>
             @if (Model.Garcons.Any())
             {
                 <div class="garcom-lista">
@@ -481,7 +404,6 @@
                             <div class="garcom-avatar">@ini</div>
                             <div class="garcom-nome">@g.Nome</div>
                             <div class="garcom-stats">
-                                <div class="garcom-pedidos">@g.TotalPedidos pedido(s)</div>
                                 <div class="garcom-valor">@g.TotalValor.ToString("C")</div>
                             </div>
                         </div>
@@ -490,17 +412,14 @@
             }
             else
             {
-
-                <div class="vazio-msg">Nenhum dado disponível.</div>
+                <div style="padding:40px;text-align:center;color:#9ca3af;">Nenhum dado disponível.</div>
             }
         </div>
     </div>
 
-    <!-- Últimos pedidos -->
-    <div class="pedidos-card">
-        <div class="secao-header"><span></span><h3>Últimos Pedidos do Dia</h3></div>
-        @if (Model.UltimosPedidos.Any())
-        {
+    <div class="secao-card">
+        <div class="secao-header"><h3>Histórico de Pedidos (Hoje)</h3></div>
+        <div class="pedidos-tabela-wrapper">
             <table class="pedidos-tabela">
                 <thead>
                     <tr>
@@ -516,96 +435,49 @@
                     @foreach (var p in Model.UltimosPedidos)
                     {
                         <tr>
-                            <td style="color:#9ca3af; font-size:0.8rem;">#@(p.Id)</td>
-                            <td><strong>Mesa @(p.Mesa)</strong></td>
-                            <td>@(p.Garcom)</td>
-                            <td style="color:#6b7280;">@(p.DataHora.ToString("HH:mm"))</td>
-                            <td><span class="badge-status badge-@(p.Status)">@(p.Status)</span></td>
-                            <td><strong>@(p.Total.ToString("C"))</strong></td>
+                            <td style="color:#9ca3af;">#@p.Id</td>
+                            <td><strong>Mesa @p.Mesa</strong></td>
+                            <td>@p.Garcom</td>
+                            <td>@p.DataHora.ToString("HH:mm")</td>
+                            <td><span class="badge-status badge-@p.Status">@p.Status</span></td>
+                            <td><strong>@p.Total.ToString("C")</strong></td>
                         </tr>
                     }
                 </tbody>
             </table>
-        }
-        else
-        {
-
-            <div class="vazio-msg">Nenhum pedido registrado hoje.</div>
-        }
+        </div>
     </div>
-
 </div>
 
 @section Scripts {
     <script>
-        const statusLabels = ['Pendente','Preparando','Finalizado','Cancelado'];
-        const statusData   = [@Model.Resumo.Pendentes, @Model.Resumo.Preparando,
-                              @Model.Resumo.Finalizados, @Model.Resumo.Cancelados];
-        const statusCores  = ['#f59e0b','#3b82f6','#10b981','#ef4444'];
-
-        const garcomLabels = [@Html.Raw(string.Join(",", Model.Garcons.Select(g => $"\"{g.Nome}\"")))];
-        const garcomData   = [@Html.Raw(string.Join(",", Model.Garcons.Select(g =>
-                                                            g.TotalValor.ToString("F2", System.Globalization.CultureInfo.InvariantCulture))))];
-
-    // Rosca de status
-        new Chart(document.getElementById('chartStatus').getContext('2d'), {
-        type: 'doughnut',
-        data: {
-            labels: statusLabels,
-            datasets: [{
-                data: statusData,
-                backgroundColor: statusCores,
-                borderWidth: 3,
-                borderColor: '#fff',
-                hoverOffset: 6
-            }]
-        },
-        options: {
-            cutout: '68%',
-            responsive: false,
-            plugins: { legend: { display: false } }
-        }
-    });
-
-        // Legenda manual
-        const leg = document.getElementById('legendaStatus');
-        statusLabels.forEach((l, i) => {
-            leg.innerHTML += `
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <div style="width:12px;height:12px;border-radius:50%;background:${statusCores[i]};flex-shrink:0;"></div>
-                    <span style="font-size:0.85rem;color:#374151;font-weight:600;">${l}</span>
-                    <span style="margin-left:auto;font-size:0.85rem;font-weight:800;color:#111827;">${statusData[i]}</span>
-                </div>`;
-        });
-
-        // Barras garçons
-        new Chart(document.getElementById('chartGarcom').getContext('2d'), {
-            type: 'bar',
+        new Chart(document.getElementById('salesChart'), {
+            type: 'line',
             data: {
-                labels: garcomLabels,
+                labels: @Html.Raw(Json.Serialize(Model.FaturamentoHora.Select(x => x.Hora + "h"))),
                 datasets: [{
-                    label: 'Faturamento',
-                    data: garcomData,
-                    backgroundColor: '#FF5757',
-                    borderRadius: 8,
-                    borderSkipped: false
+                    label: 'Vendas (R$)',
+                    data: @Html.Raw(Json.Serialize(Model.FaturamentoHora.Select(x => x.Valor))),
+                    borderColor: '#D63031',
+                    backgroundColor: 'rgba(214, 48, 49, 0.1)',
+                    fill: true, tension: 0.4, borderWidth: 3
                 }]
             },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { callbacks: { label: ctx => 'R$ ' + parseFloat(ctx.raw).toFixed(2) } }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: '#f3f4f6' },
-                        ticks: { callback: v => 'R$ ' + v, font: { size: 11 } }
-                    },
-                    x: { grid: { display: false }, ticks: { font: { size: 11 } } }
-                }
-            }
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+
+        new Chart(document.getElementById('monthChart'), {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.FaturamentoMes.Select(x => x.Data.ToString("dd/MM")))),
+                datasets: [{
+                    label: 'Vendas Diárias (R$)',
+                    data: @Html.Raw(Json.Serialize(Model.FaturamentoMes.Select(x => x.Valor))),
+                    backgroundColor: '#F9CA24',
+                    borderRadius: 5
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
         });
     </script>
 }

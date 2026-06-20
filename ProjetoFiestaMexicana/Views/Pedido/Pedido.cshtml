@@ -1,38 +1,44 @@
 ﻿@model ProjetoFiestaMexicana.Models.Pedido
 @{
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Resumo do Pedido";
     var itens = ViewBag.Itens as List<ProjetoFiestaMexicana.Models.Pedido>;
 }
 
 <style>
     .pedido-container {
-        max-width: 860px;
-        margin: 32px auto;
-        padding: 0 16px;
+        width: 100%;
+        max-width: 900px;
+        margin: 20px auto;
+        padding: 0 15px;
     }
 
     .pedido-titulo {
-        font-size: 1.5rem;
+        font-size: 1.6rem;
         font-weight: 800;
         color: #111827;
         margin-bottom: 24px;
         text-align: center;
     }
 
+    .cardapio-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 15px;
+    }
+
     .box {
         background: #fff;
         border-radius: 14px;
         border: 1px solid #e5e7eb;
-        padding: 28px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        padding: 25px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         margin-bottom: 20px;
     }
 
     .tbl {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 20px;
     }
 
         .tbl th {
@@ -284,6 +290,131 @@
         border: 1px solid #fca5a5;
     }
 
+    @@media (max-width: 768px) {
+
+        .pedido-container {
+            margin: 10px auto;
+            padding: 0 10px;
+        }
+
+        .box {
+            padding: 15px;
+        }
+
+        .tbl thead {
+            display: none;
+        }
+
+        .table-pedidos thead {
+            display: none;
+        }
+
+        .table-pedidos, .table-pedidos tbody, .table-pedidos tr, .table-pedidos td {
+            display: block;
+            width: 100%;
+        }
+
+        .tbl tr {
+            display: block;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            margin-bottom: 20px; 
+            padding: 15px; 
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.04);
+        }
+
+
+            .tbl td:last-child {
+                border-bottom: none !important;
+                margin-top: 10px;
+                padding-top: 15px !important;
+            }
+
+        .tbl td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 !important; 
+            border-bottom: 1px dashed #f0f0f0 !important; 
+        }
+
+            .tbl td::before {
+                content: attr(data-label);
+                font-weight: 800;
+                color: #999; 
+                font-size: 0.7rem;
+                text-transform: uppercase;
+            }
+            
+            .tbl td[data-label="Ação"] {
+                display: block !important; 
+                text-align: center !important;
+                padding: 15px 0 5px 0 !important;
+                border-bottom: none !important; 
+            }
+
+                .tbl td[data-label="Ação"]::before {
+                    display: none !important;
+                }
+
+        .btn-remove {
+            width: 100% !important;
+            background-color: #fee2e2 !important; 
+            color: #dc2626 !important; 
+            border: 1.5px solid #fecaca !important;
+            padding: 12px !important;
+            border-radius: 10px !important;
+            font-weight: 800 !important;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+            .btn-remove:active {
+                background-color: #fca5a5 !important;
+                transform: scale(0.98);
+            }
+        
+        .form-grid {
+            grid-template-columns: 1fr !important;
+        }
+
+        .form-full {
+            grid-column: span 1 !important;
+        }
+
+            .table-pedidos tr {
+                margin-bottom: 15px;
+                border: 1px solid #eee;
+                border-radius: 12px;
+                padding: 10px;
+                background: #fff;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            }
+
+            .table-pedidos td {
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+                border: none;
+                font-size: 0.9rem;
+            }
+                .table-pedidos td::before {
+                    content: attr(data-label);
+                    position: absolute;
+                    left: 10px;
+                    width: 45%;
+                    font-weight: 700;
+                    text-align: left;
+                    color: var(--fiesta-main);
+                }
+    }
+
     @@media (max-width: 600px) {
         .form-grid {
             grid-template-columns: 1fr;
@@ -293,26 +424,50 @@
             grid-column: span 1;
         }
     }
+
+    @@media (max-width: 576px) {
+        .cardapio-grid {
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 10px;
+        }
+
+        .card-prato img {
+            height: 120px;
+        }
+
+        .card-prato .nome-prato {
+            font-size: 0.85rem;
+        }
+    }
+
+    .btn-finalizar-pedido {
+        width: 100%;
+        padding: 15px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        border-radius: 12px;
+        margin-top: 20px;
+    }
 </style>
 
 <div class="pedido-container">
 
     <a asp-action="Cardapio" class="btn-voltar">← Voltar ao Cardápio</a>
-    <div class="pedido-titulo">🧾 Resumo do Pedido</div>
+    <div class="pedido-titulo">Resumo do Pedido</div>
 
     @if (TempData["ok"] != null)
     {
-        <div class="alert alert-ok">✅ @TempData["ok"]</div>
+        <div class="alert alert-ok"> @TempData["ok"]</div>
     }
     @if (TempData["erro"] != null)
     {
-        <div class="alert alert-erro">❌ @TempData["erro"]</div>
+        <div class="alert alert-erro"> @TempData["erro"]</div>
     }
 
     @if (itens == null || !itens.Any())
     {
         <div class="box vazio-box">
-            <div class="icon">🛒</div>
+            <div class="icon"></div>
             <p>Seu pedido está vazio.</p>
             <a asp-action="Cardapio" style="background:#FF5757;color:#fff;padding:12px 28px;border-radius:10px;font-weight:800;text-decoration:none;display:inline-block;">
                 Ir ao Cardápio
@@ -324,7 +479,7 @@
         @Html.AntiForgeryToken()
 
         <div class="box">
-            <div class="secao-titulo">🍽 Itens selecionados</div>
+            <div class="secao-titulo"> Itens selecionados</div>
             <table class="tbl" id="tabelaItens">
                 <thead>
                     <tr>
@@ -339,7 +494,7 @@
                     @foreach (var it in itens)
                     {
                         <tr id="row-@it.PratoId" data-preco="@it.Preco.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)">
-                            <td>
+                            <td data-label="Foto">
                                 <div class="thumb">
                                     @if (!string.IsNullOrEmpty(it.CapaArquivo))
                                     {
@@ -347,15 +502,15 @@
                                     }
                                     else
                                     {
-                                        <span>🌮</span>
+                                        <span></span>
                                     }
                                 </div>
                             </td>
-                            <td>
+                            <td data-label="Prato">
                                 <div style="font-weight:700;color:#111827;font-size:0.92rem;">@it.Nome</div>
                                 <div style="font-size:0.8rem;color:#6b7280;">@it.Preco.ToString("C") cada</div>
                             </td>
-                            <td>
+                            <td data-label="Quantidade">
                                 <div class="qty-control">
                                     <button type="button" class="btn-qty btn-minus"
                                             onclick="alterarQtd(@it.PratoId, -1, this)" title="Diminuir">
@@ -368,10 +523,10 @@
                                     </button>
                                 </div>
                             </td>
-                            <td style="text-align:right;font-weight:700;color:#374151;" id="sub-@it.PratoId">
+                            <td data-label="Subtotal" style="text-align:right;font-weight:700;color:#374151;" id="sub-@it.PratoId">
                                 @it.Subtotal.ToString("C")
                             </td>
-                            <td style="text-align:center;">
+                            <td data-label="Ação" style="text-align:center;">
                                 <button type="button" class="btn-remove"
                                         onclick="removerItem(@it.PratoId, this)">
                                     🗑 Remover
@@ -379,6 +534,7 @@
                             </td>
                         </tr>
                     }
+
                 </tbody>
             </table>
 
@@ -389,26 +545,26 @@
         </div>
 
         <div class="box">
-            <div class="secao-titulo">🚀 Enviar para a Cozinha</div>
+            <div class="secao-titulo"> Enviar para a Cozinha</div>
             <form asp-action="Finalizar" method="post">
                 @Html.AntiForgeryToken()
                 <div class="form-grid">
                     <div class="form-group">
-                        <label asp-for="Mesa">🪑 Mesa</label>
+                        <label asp-for="Mesa"> Mesa</label>
                         <select asp-for="Mesa" class="form-control"
                                 asp-items="@(new SelectList(Model.NomeMesa, "Value", "Text"))" required>
                             <option value="">Selecione a mesa...</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label asp-for="Garcom">🤵 Garçom</label>
+                        <label asp-for="Garcom"> Garçom</label>
                         <select asp-for="Garcom" class="form-control"
                                 asp-items="@(new SelectList(Model.NomeGarcom, "Value", "Text"))" required>
                             <option value="">Selecione o garçom...</option>
                         </select>
                     </div>
                     <div class="form-group form-full">
-                        <label asp-for="Observacao">📝 Observações</label>
+                        <label asp-for="Observacao">Observações</label>
                         <input asp-for="Observacao" class="form-control"
                                placeholder="Ex: sem cebola, ponto da carne mal passado..." />
                     </div>

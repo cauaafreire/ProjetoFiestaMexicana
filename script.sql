@@ -408,6 +408,10 @@ BEGIN
     WHERE id = p_id;
 END $$
 
+delimiter ;
+
+delimiter $$
+
 DROP PROCEDURE IF EXISTS sp_garcom_listar $$
 CREATE PROCEDURE sp_garcom_listar()
 BEGIN
@@ -415,6 +419,10 @@ BEGIN
     FROM Garcom
     ORDER BY nome;
 END $$
+
+delimiter ;
+
+delimiter $$
 
 DROP PROCEDURE IF EXISTS sp_garcom_criar $$
 CREATE PROCEDURE sp_garcom_criar (
@@ -529,10 +537,13 @@ BEGIN
     ORDER BY nome;
 END $$
 
+DELIMITER $$
+
 DROP PROCEDURE IF EXISTS sp_cozinha_listar_pedidos $$
 CREATE PROCEDURE sp_cozinha_listar_pedidos()
 BEGIN
-    SELECT
+    -- Agora listamos os pedidos que possuem pelo menos um item não finalizado
+    SELECT DISTINCT
         p.id,
         m.numero   AS mesa_numero,
         g.nome     AS garcom_nome,
@@ -543,24 +554,33 @@ BEGIN
     FROM Pedido p
     INNER JOIN Mesa   m ON m.id = p.mesa
     INNER JOIN Garcom g ON g.id = p.garcom
-    WHERE p.status IN ('Pendente', 'Preparando')
+    INNER JOIN Pedido_itens pi ON pi.pedido = p.id
+    WHERE pi.status IN ('Pendente', 'Preparando')
        OR DATE(p.data_hora) = CURDATE()
-    ORDER BY
-        FIELD(p.status, 'Pendente', 'Preparando', 'Finalizado', 'Cancelado'),
-        p.data_hora DESC;
+    ORDER BY p.data_hora DESC;
 END $$
+delimiter ;
+
+delimiter $$
 
 DROP PROCEDURE IF EXISTS sp_cozinha_listar_itens $$
 CREATE PROCEDURE sp_cozinha_listar_itens(IN p_id_pedido INT)
 BEGIN
     SELECT
+        pi.id         AS item_id, 
         pi.prato      AS prato_id,
         pr.nome       AS prato_nome,
-        pi.quantidade
+        pi.quantidade,
+        pi.status     AS item_status
     FROM Pedido_itens pi
     INNER JOIN Prato pr ON pr.id = pi.prato
-    WHERE pi.pedido = p_id_pedido;
+    WHERE pi.pedido = p_id_pedido 
+      AND pi.status IN ('Pendente', 'Preparando');
 END $$
+
+delimiter ;
+
+delimiter $$
 
 DROP PROCEDURE IF EXISTS sp_cozinha_atualizar_status $$
 CREATE PROCEDURE sp_cozinha_atualizar_status(
@@ -664,39 +684,45 @@ BEGIN
     LIMIT 5;
 END $$
 
-DROP PROCEDURE IF EXISTS sp_dashboard_por_garcom $$
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS sp_dashboard_por_garcom;
+DELIMITER $$
 CREATE PROCEDURE sp_dashboard_por_garcom()
 BEGIN
     SELECT
-        g.nome,
-        COUNT(p.id)             AS total_pedidos,
-        COALESCE(SUM(p.total), 0) AS total_valor
+        g.nome                              AS nome,
+        COUNT(p.id)                         AS total_pedidos,
+        SUM(p.total + p.taxa_servico)       AS total_valor
     FROM Garcom g
-    LEFT JOIN Pedido p ON p.garcom = g.id
-        AND DATE(p.data_hora) = CURDATE()
-        AND p.status != 'Cancelado'
+    JOIN Pedido p ON g.id = p.garcom
+    WHERE DATE(p.data_hora) = CURDATE()
+      AND p.status = 'Finalizado'
+      AND p.eh_adicional = 0
     GROUP BY g.id, g.nome
     ORDER BY total_valor DESC;
 END $$
+DELIMITER ;
 
-DROP PROCEDURE IF EXISTS sp_dashboard_ultimos_pedidos $$
+DROP PROCEDURE IF EXISTS sp_dashboard_ultimos_pedidos;
+DELIMITER $$
 CREATE PROCEDURE sp_dashboard_ultimos_pedidos()
 BEGIN
     SELECT
         p.id,
-        m.numero  AS mesa,
-        g.nome    AS garcom,
+        m.numero                    AS mesa,
+        g.nome                      AS garcom,
         p.status,
-        p.total,
+        p.total + p.taxa_servico    AS total,
         p.data_hora
     FROM Pedido p
     INNER JOIN Mesa   m ON m.id = p.mesa
     INNER JOIN Garcom g ON g.id = p.garcom
     WHERE DATE(p.data_hora) = CURDATE()
+      AND p.eh_adicional = 0
     ORDER BY p.data_hora DESC
     LIMIT 8;
 END $$
-
 DELIMITER ;
 
 DELIMITER $$
@@ -706,14 +732,16 @@ CREATE PROCEDURE sp_dashboard_resumo()
 BEGIN
     SELECT
         COALESCE(COUNT(*), 0)                AS total_pedidos,
-        COALESCE(SUM(total), 0)              AS faturamento,
-        COALESCE(SUM(status = 'Pendente'),0)   AS pendentes,
-        COALESCE(SUM(status = 'Preparando'),0) AS preparando,
-        COALESCE(SUM(status = 'Finalizado'),0) AS finalizados,
-        COALESCE(SUM(status = 'Cancelado'),0)  AS cancelados
+        COALESCE(SUM(total + taxa_servico), 0) AS faturamento -- Soma total + 10%
     FROM Pedido
-    WHERE DATE(data_hora) = CURDATE();
+    WHERE DATE(data_hora) = CURDATE() 
+      AND status = 'Finalizado'
+      AND eh_adicional = 0; -- IMPORTANTE: Ignora os cards extras da cozinha
 END $$
+
+DELIMITER ;
+
+DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_dashboard_mesas $$
 CREATE PROCEDURE sp_dashboard_mesas()
@@ -729,6 +757,50 @@ DELIMITER ;
 
 DELIMITER $$
 
+DROP PROCEDURE IF EXISTS sp_dashboard_faturamento_hora $$
+CREATE PROCEDURE sp_dashboard_faturamento_hora()
+BEGIN
+    SELECT HOUR(data_hora) as hora, SUM(total + taxa_servico) as valor
+    FROM Pedido 
+    WHERE DATE(data_hora) = CURDATE() 
+      AND status = 'Finalizado'
+      AND eh_adicional = 0
+    GROUP BY HOUR(data_hora) ORDER BY hora;
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS sp_dashboard_por_categoria $$
+CREATE PROCEDURE sp_dashboard_por_categoria()
+BEGIN
+    SELECT c.nome as categoria, SUM(pi.subtotal) as receita
+    FROM Pedido_itens pi
+    JOIN Prato p ON p.id = pi.prato
+    JOIN categoria c ON c.id = p.categoria
+    JOIN Pedido ped ON ped.id = pi.pedido
+    WHERE DATE(ped.data_hora) = CURDATE() AND ped.status != 'Cancelado'
+    GROUP BY c.id, c.nome ORDER BY receita DESC;
+END $$
+DELIMITER ;
+
+DELIMITER $$
+DROP PROCEDURE IF EXISTS sp_dashboard_faturamento_mes $$
+CREATE PROCEDURE sp_dashboard_faturamento_mes()
+BEGIN
+    SELECT 
+        DATE(data_hora) as data,
+        SUM(total) as valor
+    FROM Pedido
+    WHERE data_hora >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) 
+      AND status = 'Finalizado' -- SÓ CONTA O QUE FOI FINALIZADO
+    GROUP BY DATE(data_hora)
+    ORDER BY data;
+END $$
+DELIMITER ;
+
+DELIMITER $$
 DROP PROCEDURE IF EXISTS sp_comanda_listar_abertas $$
 CREATE PROCEDURE sp_comanda_listar_abertas()
 BEGIN
@@ -817,8 +889,19 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS sp_comanda_finalizar;
 DELIMITER $$
+DROP PROCEDURE IF EXISTS sp_comanda_finalizar $$
 CREATE PROCEDURE sp_comanda_finalizar(IN p_id INT)
 BEGIN
-    UPDATE Pedido SET comanda_fechada = 1 WHERE id = p_id;
+    -- Calcula 10% sobre o total e fecha a comanda
+    UPDATE Pedido 
+    SET comanda_fechada = 1, 
+        status = 'Finalizado',
+        taxa_servico = total * 0.10 
+    WHERE id = p_id;
 END $$
 DELIMITER ;
+
+ALTER TABLE Pedido_itens ADD COLUMN status ENUM('Pendente', 'Preparando', 'Finalizado', 'Cancelado') DEFAULT 'Pendente';
+
+ALTER TABLE Pedido ADD COLUMN eh_adicional TINYINT(1) NOT NULL DEFAULT 0;
+ALTER TABLE Pedido ADD COLUMN taxa_servico DECIMAL(10,2) DEFAULT 0.00;

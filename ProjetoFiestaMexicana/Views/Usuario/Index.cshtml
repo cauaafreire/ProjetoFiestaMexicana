@@ -1,5 +1,7 @@
 ﻿@model IEnumerable<ProjetoFiestaMexicana.Models.Usuarios>
-
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
 <style>
     .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
     .status-ativo { background-color: #d1fae5; color: #065f46; }
@@ -21,10 +23,22 @@
         background: #f9fafb;
         font-style: italic;
     }
+
+    .tbl {
+        width: 100%;
+        margin-top: 10px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.05); 
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
 </style>
 <link href="~/css/tables.css" rel="stylesheet" />
+
 <div class="page-container">
     <h2>Gestão de Funcionários</h2>
+
+    <p><a asp-action="CriarUsuario" class="btn-novo">Novo Usuário</a></p>
 
     <table class="tbl">
         <thead>
@@ -42,37 +56,39 @@
                 <tr>
                     <td>@user.nome</td>
                     <td>@user.email</td>
-                    <td><span class="badge">@user.role</span></td>
+                    <td><span class="badge" style="color:#4A2C17;font-weight:600;">@user.role</span></td>
                     <td>
                         <span class="status-badge @(user.ativo == 1 ? "status-ativo" : "status-inativo")">
                             @(user.ativo == 1 ? "Ativo" : "Inativo")
                         </span>
                     </td>
-                    <td class="acoes">
-
-                        @if (user.email == "juanpablo@fiesta.com")
+                    <td class="acoes text-center">
+                        
+                        @if (user.role == "Admin")
                         {
-                            <span class="admin-master-label">Admin Master</span>
-                        } else
+                            <span class="admin-master-label">Admin</span>
+                        }
+                        else
                         {
-
                             @if (user.ativo == 1)
                             {
-                                <form asp-action="Desativar" asp-route-id="@user.id" method="post" onsubmit="return confirm('Desativar o acesso?')">
+                                <form asp-action="Desativar" asp-route-id="@user.id" method="post" onsubmit="return confirm('Desativar o acesso?')" style="display:inline;">
                                     @Html.AntiForgeryToken()
                                     <button type="submit" class="btn-desativar">Desativar</button>
                                 </form>
                             }
                             else
                             {
-                                <form asp-action="Reativar" asp-route-id="@user.id" method="post">
+                                <form asp-action="Reativar" asp-route-id="@user.id" method="post" style="display:inline;">
                                     @Html.AntiForgeryToken()
                                     <button type="submit" class="btn-reativar">Reativar</button>
                                 </form>
                             }
                         }
+                    </td> 
                 </tr>
             }
         </tbody>
+
     </table>
 </div>

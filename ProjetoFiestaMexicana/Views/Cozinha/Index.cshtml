@@ -1,6 +1,6 @@
 ﻿@model List<ProjetoFiestaMexicana.Models.CozinhaPedido>
 @{
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Painel da Cozinha";
     var ocultados = ViewBag.Ocultados as List<int> ?? new List<int>();
     var visiveis = Model.Where(p => !ocultados.Contains(p.Id)).ToList();

@@ -1,20 +1,23 @@
-﻿namespace ProjetoFiestaMexicana.Models
+﻿using System;
+using System.Collections.Generic;
+
+namespace ProjetoFiestaMexicana.Models
 {
+    public class DashboardViewModel
+    {
+        public DashboardResumo Resumo { get; set; } = new DashboardResumo();
+        public List<DashboardTopPrato> TopPratos { get; set; } = new List<DashboardTopPrato>();
+        public List<DashboardGarcom> Garcons { get; set; } = new List<DashboardGarcom>();
+        public List<DashboardPedido> UltimosPedidos { get; set; } = new List<DashboardPedido>();
+        public List<DashboardFaturamentoHora> FaturamentoHora { get; set; } = new List<DashboardFaturamentoHora>();
+        public List<DashboardFaturamentoMes> FaturamentoMes { get; set; } = new List<DashboardFaturamentoMes>();
+    }
+
     public class DashboardResumo
     {
         public int TotalPedidos { get; set; }
         public decimal Faturamento { get; set; }
-        public int Pendentes { get; set; }
-        public int Preparando { get; set; }
-        public int Finalizados { get; set; }
-        public int Cancelados { get; set; }
-    }
-
-    public class DashboardMesas
-    {
-        public int Livres { get; set; }
-        public int Ocupadas { get; set; }
-        public int Total { get; set; }
+        public decimal TicketMedio => TotalPedidos > 0 ? Faturamento / TotalPedidos : 0;
     }
 
     public class DashboardTopPrato
@@ -41,12 +44,15 @@
         public DateTime DataHora { get; set; }
     }
 
-    public class DashboardViewModel
+    public class DashboardFaturamentoHora
     {
-        public DashboardResumo Resumo { get; set; } = new();
-        public DashboardMesas Mesas { get; set; } = new();
-        public List<DashboardTopPrato> TopPratos { get; set; } = new();
-        public List<DashboardGarcom> Garcons { get; set; } = new();
-        public List<DashboardPedido> UltimosPedidos { get; set; } = new();
+        public int Hora { get; set; }
+        public decimal Valor { get; set; }
+    }
+
+    public class DashboardFaturamentoMes
+    {
+        public DateTime Data { get; set; }
+        public decimal Valor { get; set; }
     }
 }

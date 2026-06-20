@@ -7,5 +7,6 @@
         public string Cpf { get; set; }
         public string Turno { get; set; }
         public DateTime CriadoEm { get; set; }
+        public string Origem { get; set; } = "Garcom"; // "Garcom" ou "Usuario"
     }
 }

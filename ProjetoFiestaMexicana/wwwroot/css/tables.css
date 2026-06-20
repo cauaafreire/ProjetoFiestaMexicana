@@ -1,32 +1,32 @@
 ﻿h2 {
     color: #4A2C17;
     font-family: 'Segoe UI', system-ui, sans-serif;
-    font-size: 1.6rem;
-    font-weight: 700;
-    margin-bottom: 6px;
-    padding-bottom: 10px;
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0 auto 30px auto;
+    padding-bottom: 15px;
     border-bottom: 3px solid #FF5757;
-    display: inline-block;
+    display: table;
+    text-align: center;
 }
 
 .btn-novo {
-    display: inline-block;
-    padding: 9px 20px;
+    display: block;
+    width: fit-content;
+    margin: 0 auto 25px auto;
+    padding: 10px 25px;
     background-color: #FF5757;
     color: #fff !important;
     text-decoration: none;
     border-radius: 8px;
     font-weight: 600;
-    font-size: 0.9rem;
-    margin-bottom: 18px;
-    transition: background 0.2s, box-shadow 0.2s;
-    border: none;
+    transition: all 0.2s;
 }
 
-.btn-novo:hover {
-    background-color: #e04444;
-    box-shadow: 0 3px 8px rgba(255, 87, 87, 0.4);
-}
+    .btn-novo:hover {
+        background-color: #e04444;
+        box-shadow: 0 3px 8px rgba(255, 87, 87, 0.4);
+    }
 
 .ok {
     padding: 11px 16px;
@@ -39,63 +39,73 @@
     font-weight: 500;
 }
 
+.table-responsive,
+.tbl-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 12px;
+}
+
 .tbl {
     width: 100%;
-    border-collapse: collapse;
-    table-layout: auto;
-    margin-top: 8px;
+    max-width: 1200px;
+    margin: 0 auto;
+    border-collapse: separate;
+    border-spacing: 0;
     background: #fff;
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 12px rgba(255, 87, 87, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    min-width: 480px;
 }
 
-.tbl thead th {
-    background: #FF5757;
-    color: #fff;
-    padding: 13px 14px;
-    font-weight: 600;
-    font-size: 0.88rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    text-align: left;
-    border-bottom: 3px solid #e04444;
-}
+    .tbl thead th {
+        background: #FF5757;
+        color: #fff;
+        padding: 16px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        text-align: center;
+        border: none;
+        white-space: nowrap;
+    }
 
-.tbl tbody td {
-    padding: 11px 14px;
-    border-bottom: 1px solid #ffe8e8;
-    vertical-align: middle;
-    text-align: left;
-    color: #3a2010;
-    font-size: 0.93rem;
-}
+    .tbl tbody td {
+        padding: 14px;
+        border-bottom: 1px solid #f1f1f1;
+        vertical-align: middle;
+        text-align: center;
+        color: #333;
+        font-size: 0.95rem;
+    }
 
-.tbl thead th:last-child,
-.tbl tbody td:last-child {
-    text-align: center;
-    width: 160px;
-}
+        .tbl thead th:last-child,
+        .tbl tbody td:last-child {
+            text-align: center;
+            width: 160px;
+        }
 
-.tbl tbody tr:hover {
-    background: #FFF5F5;
-}
+    .tbl tbody tr:hover {
+        background: #fffafa;
+    }
 
-.tbl tbody tr:last-child td {
-    border-bottom: none;
-}
+    .tbl tbody tr:last-child td {
+        border-bottom: none;
+    }
 
 .acoes {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     justify-content: center;
     align-items: center;
 }
 
-.acoes form {
-    margin: 0;
-    display: flex;
-}
+    .acoes form {
+        margin: 0;
+        display: flex;
+    }
 
 .btn-editar {
     display: inline-flex;
@@ -115,11 +125,11 @@
     transition: all 0.2s;
 }
 
-.btn-editar:hover {
-    background: #FF8C42;
-    color: #fff !important;
-    box-shadow: 0 2px 6px rgba(255, 140, 66, 0.35);
-}
+    .btn-editar:hover {
+        background: #FF8C42;
+        color: #fff !important;
+        box-shadow: 0 2px 6px rgba(255, 140, 66, 0.35);
+    }
 
 .btn-excluir {
     display: inline-flex;
@@ -138,13 +148,12 @@
     transition: all 0.2s;
 }
 
-.btn-excluir:hover {
-    background: #FF5757;
-    color: #fff !important;
-    box-shadow: 0 2px 6px rgba(255, 87, 87, 0.35);
-}
+    .btn-excluir:hover {
+        background: #FF5757;
+        color: #fff !important;
+        box-shadow: 0 2px 6px rgba(255, 87, 87, 0.35);
+    }
 
-/* Status badges (Mesas) */
 .status-badge {
     display: inline-block;
     padding: 3px 10px;
@@ -165,7 +174,6 @@
     border: 1px solid #FF5757;
 }
 
-/* Disponibilidade (Pratos) */
 .badge-disponivel {
     background: #eafaf1;
     color: #27AE60;
@@ -188,17 +196,147 @@
     font-weight: 600;
 }
 
-/* Miniatura de imagem (Pratos) */
 .img-capa {
-    width: 48px;
-    height: 48px;
+    width: 50px;
+    height: 50px;
     object-fit: cover;
-    border-radius: 6px;
-    border: 2px solid #ffe8e8;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-/* Container das páginas de listagem */
-.page-container {
-    width: 85%;
-    margin: 30px auto;
+
+.status-badge, .badge-disponivel, .badge-indisponivel {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.pedidos-tabela-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.pedidos-tabela {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+    .pedidos-tabela th {
+        padding: 12px 16px;
+        text-align: center;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #9ca3af;
+        border-bottom: 1px solid #f3f4f6;
+        background: #fafafa;
+        white-space: nowrap;
+    }
+
+    .pedidos-tabela td {
+        padding: 13px 16px;
+        font-size: 0.88rem;
+        color: #374151;
+        border-bottom: 1px solid #f9fafb;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+@media (max-width: 640px) {
+
+    .tbl,
+    .tbl thead,
+    .tbl tbody,
+    .tbl th,
+    .tbl td,
+    .tbl tr {
+        display: block;
+    }
+
+        .tbl thead {
+            display: none;
+        }
+
+        .tbl tbody tr {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+            margin-bottom: 14px;
+            padding: 12px 16px;
+            text-align: left;
+        }
+
+        .tbl tbody td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 9px 4px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 0.88rem;
+            text-align: right;
+        }
+
+            .tbl tbody td:last-child {
+                border-bottom: none;
+                width: auto;
+            }
+
+            .tbl tbody td::before {
+                content: attr(data-label);
+                font-weight: 700;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                color: #9ca3af;
+                margin-right: 10px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+    .acoes {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .btn-novo {
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 576px) {
+
+    .acoes {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-novo {
+        display: block;
+        width: fit-content;
+        margin: 0 auto 25px auto;
+        background: #FF5757;
+        color: #fff !important;
+        padding: 10px 25px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 700;
+        transition: all 0.2s;
+    }
+
+        .btn-novo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 87, 87, 0.3);
+        }
 }

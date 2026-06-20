@@ -1,7 +1,7 @@
 ﻿@model List<ProjetoFiestaMexicana.Models.ComandasViewModel>
 @using Microsoft.AspNetCore.Mvc.Rendering
 @{
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Comandas em Aberto";
     var grupos = ViewBag.Grupos as Dictionary<string, List<ProjetoFiestaMexicana.Models.Pratos>>;
     var mesas = ViewBag.Mesas as List<SelectListItem> ?? new();
@@ -479,7 +479,6 @@
          Comandas
     </h1>
 
-    <!-- Abas -->
     <div class="cmd-tabs">
         <button class="cmd-tab ativa" onclick="mostrarPainel('abertas', this)">
              Em Aberto (@Model.Count)
@@ -489,7 +488,6 @@
         </button>
     </div>
 
-    <!-- Painel: comandas em aberto -->
     <div class="cmd-painel ativo" id="painel-abertas">
         @if (!Model.Any())
         {
@@ -517,7 +515,7 @@
                             </div>
                         </div>
 
-                        <!-- Itens -->
+                        
                         <div class="cc-itens">
                             @foreach (var it in c.Itens)
                             {
@@ -565,7 +563,6 @@
                             </div>
                         </div>
 
-                        <!-- Totais e ações -->
                         <div class="cc-footer">
                             <div class="cc-totais">
                                 <div class="cc-linha">
@@ -584,7 +581,7 @@
                             <div class="cc-acoes">
                                 <button class="btn-finalizar-cmd"
                                         onclick="abrirModalFinalizar(@c.Id, @c.Total.ToString("F2", System.Globalization.CultureInfo.InvariantCulture), @c.TaxaGarcom.ToString("F2", System.Globalization.CultureInfo.InvariantCulture), @c.TotalFinal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture), @c.Mesa, '@c.Garcom')">
-                                    ✅ Finalizar Comanda
+                                    Finalizar Comanda
                                 </button>
                             </div>
                         </div>

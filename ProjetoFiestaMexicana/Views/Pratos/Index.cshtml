@@ -1,63 +1,64 @@
 ﻿@model IEnumerable<ProjetoFiestaMexicana.Models.Pratos>
 @{
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Cardápio - Pratos";
 }
 
 <div class="page-container">
 
-<h2>Pratos do Cardápio</h2>
+    <h2>Pratos do Cardápio</h2>
 
-@if (TempData["ok"] != null)
-{
-    <div class="ok">@TempData["ok"]</div>
-}
+    @if (TempData["ok"] != null)
+    {
+        <div class="ok">@TempData["ok"]</div>
+    }
 
-<p><a asp-action="Criar" class="btn-novo" >Novo Prato</a></p>
+    <p><a asp-action="Criar" class="btn-novo">Novo Prato</a></p>
 
-
-<table class="tbl">
-    <thead>
-        <tr>
-            <th>Capa</th>
-            <th>Nome</th>
-            <th>Preço</th>
-            <th>Categoria</th>
-            <th>Picância</th>
-            <th>Disponível</th>
-            <th class="col-acoes">Ações</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var p in Model)
-        {
-            <tr>
-                <td>
-                    @if (!string.IsNullOrEmpty(p.CapaArquivo))
-                    {
-                        <img src="~/@p.CapaArquivo" class="img-capa" />
-                    }
-                    else
-                    {
-                        <span>-</span>
-                    }
-                </td>
-                <td><strong>@p.Nome</strong></td>
-                <td>@p.Preco.ToString("C")</td>
-                <td>@(p.CategoriaNome ?? "-")</td>
-                <td>@p.NivelPicancia</td>
-                <td>@(p.Disponivel ? "✅ Sim" : "❌ Não")</td>
-                <td class="col-acoes">
-                    <div class="acoes">
-                        <a asp-action="Editar" asp-route-id="@p.Id" class="btn btn-editar">Editar</a>
-                        <form asp-action="Excluir" method="post" onsubmit="return confirm('Excluir este prato?');">
-                            <input type="hidden" name="id" value="@p.Id" />
-                            <button type="submit" class="btn btn-excluir">Excluir</button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <div class="table-responsive">
+        <table class="tbl">
+            <thead>
+                <tr>
+                    <th>Capa</th>
+                    <th>Nome</th>
+                    <th>Preço</th>
+                    <th>Categoria</th>
+                    <th>Picância</th>
+                    <th>Disponível</th>
+                    <th class="col-acoes">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <td data-label="Capa">
+                            @if (!string.IsNullOrEmpty(p.CapaArquivo))
+                            {
+                                <img src="~/@p.CapaArquivo" class="img-capa" />
+                            }
+                            else
+                            {
+                                <span>-</span>
+                            }
+                        </td>
+                        <td data-label="Nome"><strong>@p.Nome</strong></td>
+                        <td data-label="Preço">@p.Preco.ToString("C")</td>
+                        <td data-label="Categoria">@(p.CategoriaNome ?? "-")</td>
+                        <td data-label="Picância">@p.NivelPicancia</td>
+                        <td data-label="Disponível">@(p.Disponivel ? "✅ Sim" : "❌ Não")</td>
+                        <td data-label="Ações" class="col-acoes">
+                            <div class="acoes">
+                                <a asp-action="Editar" asp-route-id="@p.Id" class="btn btn-editar">Editar</a>
+                                <form asp-action="Excluir" method="post" onsubmit="return confirm('Excluir este prato?');">
+                                    <input type="hidden" name="id" value="@p.Id" />
+                                    <button type="submit" class="btn btn-excluir">Excluir</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
