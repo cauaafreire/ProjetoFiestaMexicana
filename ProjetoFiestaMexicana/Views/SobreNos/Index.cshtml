@@ -11,7 +11,7 @@
     }
 
     html {
-        scroll-behavior: smooth; /* Isso faz o deslize suave em toda a página */
+        scroll-behavior: smooth; 
     }
 
     main {
@@ -30,7 +30,7 @@
         box-sizing: border-box;
     }
 
-    /* Força o container a ocupar a tela toda */
+
     .container {
         max-width: 100% !important;
         width: 100% !important;
@@ -691,7 +691,6 @@
         padding: 0 24px 20px;
     }
 
-    /* ── CTA final ── */
     .cta-final {
         position: relative;
         min-height: 340px;
@@ -735,59 +734,75 @@
         line-height: 1.7;
     }
 
-    /* ── Responsivo ── */
+    @@media (max-width: 992px) {
+        .hero-bg h1
+
+    {
+        font-size: 2.8rem;
+    }
+
+    .historia-grid, .tradicao-conteudo {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .historia-img-box {
+        min-height: 350px;
+    }
+
+    }
+
     @@media (max-width: 768px) {
         .hero-bg h1 {
-            font-size: 2.1rem;
+            font-size: 2rem;
         }
 
         .stats-inner {
             grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
         }
 
         .historia-grid {
             grid-template-columns: 1fr;
         }
 
-        .historia-img-box {
-            min-height: 260px;
-        }
+    .s-titulo {
+        font-size: 1.8rem;
+    }
 
-        .tradicao-conteudo {
-            grid-template-columns: 1fr;
-            gap: 32px;
-        }
+    .diferenciais-grid {
+        grid-template-columns: 1fr;
+    }
 
-        .diferenciais-grid {
-            grid-template-columns: 1fr 1fr;
-        }
+    .secao {
+        padding: 60px 20px;
+    }
 
-        .carrossel-slide {
-            grid-template-columns: 1fr;
-            padding: 32px 24px;
-            text-align: center;
-        }
     }
 
     @@media (max-width: 480px) {
-        .stats-inner {
-            grid-template-columns: 1fr 1fr;
+            .hero-btns
+        {
+            flex-direction: column;
+        }
+
+        .btn-hero-prim, .btn-hero-sec {
+            width: 100%;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: 1.8rem;
         }
 
         .diferenciais-grid {
             grid-template-columns: 1fr;
         }
 
-        .hero-btns {
-            flex-direction: column;
-            align-items: center;
-        }
     }
 </style>
 
 <div class="sobre-page">
-
-    <!-- ── Hero ── -->
     <div class="hero-bg">
         <div class="hero-conteudo">
             <span class="hero-tag">Fiesta Mexicana</span>
@@ -831,12 +846,11 @@
                 <p>Aqui você não encontra Tex-Mex. Encontra o México de verdade.</p>
             </div>
             <div class="historia-img-box">
-                <div class="historia-badge"> Culinária 100% Autêntica</div>
             </div>
         </div>
     </div>
 
-    <!-- ── Tradição e Cultura ── -->
+
     <div class="tradicao-section" id="tradicao">
         <div class="tradicao-conteudo">
             <div class="tradicao-texto">

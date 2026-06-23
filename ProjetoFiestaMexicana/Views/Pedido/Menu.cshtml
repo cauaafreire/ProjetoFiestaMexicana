@@ -7,13 +7,11 @@
 }
 
 <style>
-    /* ── Reset local ── */
     .menu-page {
         font-family: 'Segoe UI', sans-serif;
         background: #fff;
     }
 
-    /* ── Banner ── */
     .fiesta-hero {
         width: 100%;
         background: #FF5757;
@@ -21,7 +19,6 @@
         align-items: center;
         justify-content: center;
         padding: 28px 0;
-        /* Garante largura total mesmo com container logado */
         margin-left: calc(-20px);
         margin-right: calc(-20px);
         width: calc(100% + 40px);
@@ -35,7 +32,6 @@
             display: block;
         }
 
-    /* ── Tabs de categoria ── */
     .cat-nav-wrap {
         background: #fff;
         border-bottom: 1px solid #e5e7eb;
@@ -82,8 +78,6 @@
             color: #FF5757;
             border-bottom-color: #FF5757;
         }
-
-    /* ── Seções ── */
     .menu-wrap {
         max-width: 1200px;
         margin: 0 auto;
@@ -118,7 +112,6 @@
             border-radius: 2px;
         }
 
-    /* ── Grid ── */
     .products-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
@@ -240,7 +233,6 @@
             color: #fff;
         }
 
-    /* ── Toast ── */
     .fiesta-toast {
         position: fixed;
         bottom: 30px;
@@ -269,7 +261,6 @@
         }
     }
 
-    /* ── Empty state ── */
     .empty-state {
         text-align: center;
         padding: 80px 20px;
@@ -281,32 +272,73 @@
         }
 
     @@media (max-width: 640px) {
-        .fiesta-hero {
-            padding: 20px 0;
+        .products-grid
+
+    {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 0 5px;
+    }
+
+        .menu-wrap {
+            padding: 20px 15px 50px;
         }
 
-            .fiesta-hero img {
-                width: 85%;
-            }
+    .product-card {
+        border-radius: 16px;
+    }
 
-        .products-grid {
-            grid-template-columns: 1fr;
-        }
+    .product-img-box {
+        height: 150px;
+    }
 
-        .secao-titulo {
-            font-size: 1.1rem;
-        }
+    .product-price {
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        bottom: 8px;
+        right: 8px;
+    }
+
+    .product-details {
+        padding: 12px;
+        gap: 6px;
+    }
+
+    .product-name {
+        font-size: 0.95rem;
+    }
+
+    .product-desc {
+        font-size: 0.75rem;
+        -webkit-line-clamp: 2;
+    }
+
+    .product-info-small {
+        font-size: 0.7rem;
+        gap: 8px;
+    }
+
+    .btn-detalhes {
+        padding: 10px;
+        font-size: 0.75rem;
+        border-radius: 10px;
+    }
+
+    .secao-titulo {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
+
     }
 </style>
 
 <div class="menu-page">
 
-    <!-- Banner -->
+
     <div class="fiesta-hero">
         <img src="~/logos/bannerf.png" alt="Fiesta Mexicana" />
     </div>
 
-    <!-- Tabs -->
     @if (grupos != null && grupos.Any())
     {
         <div class="cat-nav-wrap">

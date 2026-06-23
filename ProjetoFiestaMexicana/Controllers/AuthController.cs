@@ -63,7 +63,6 @@ namespace ProjetoFiestaMexicana.Controllers
                 return View();
             }
 
-            // ===== Setar sessão =====
             HttpContext.Session.SetInt32(SessionKeys.UserId, id);
             HttpContext.Session.SetString(SessionKeys.UserName, nome);
             HttpContext.Session.SetString(SessionKeys.UserEmail, email);
@@ -72,8 +71,12 @@ namespace ProjetoFiestaMexicana.Controllers
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
 
-            
-            return RedirectToAction("Index", "Dashboard");
+            return role switch
+            {
+                "Garcom" => RedirectToAction("Cardapio", "Pedido"),
+                "Chefe" => RedirectToAction("Index", "Cozinha"),
+                _ => RedirectToAction("Index", "Dashboard")
+            };
 
         }
 

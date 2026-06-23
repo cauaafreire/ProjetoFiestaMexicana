@@ -154,47 +154,34 @@
         box-shadow: 0 2px 6px rgba(255, 87, 87, 0.35);
     }
 
-.status-badge {
+.status-badge,
+.badge-disponivel,
+.badge-indisponivel {
     display: inline-block;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
 }
 
-.status-livre {
-    background: #eafaf1;
-    color: #27AE60;
-    border: 1px solid #27AE60;
-}
-
-.status-ocupado {
-    background: #fff0f0;
-    color: #FF5757;
-    border: 1px solid #FF5757;
-}
-
+.status-ativo,
+.status-livre,
 .badge-disponivel {
     background: #eafaf1;
     color: #27AE60;
     border: 1px solid #a9dfbf;
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
 }
 
+.status-inativo,
+.status-ocupado,
 .badge-indisponivel {
     background: #fff0f0;
     color: #FF5757;
     border: 1px solid #ffb3b3;
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
 }
+
 
 .img-capa {
     width: 50px;
@@ -202,16 +189,6 @@
     object-fit: cover;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-
-.status-badge, .badge-disponivel, .badge-indisponivel {
-    display: inline-block;
-    padding: 5px 12px;
-    border-radius: 50px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
 }
 
 .pedidos-tabela-wrapper {
@@ -246,6 +223,89 @@
         text-align: center;
         vertical-align: middle;
     }
+
+.erro {
+    padding: 11px 16px;
+    background: #fff0f0;
+    color: #c0392b;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    border-left: 4px solid #FF5757;
+    font-size: 0.92rem;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    .table-responsive, .tbl-wrapper {
+        box-shadow: none;
+        background: transparent;
+    }
+
+    .tbl, .tbl thead, .tbl tbody, .tbl th, .tbl td, .tbl tr {
+        display: block;
+    }
+
+        .tbl thead {
+            display: none; 
+        }
+
+        .tbl tbody tr {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .tbl tbody td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 5px;
+            border-bottom: 1px solid #f3f4f6;
+            text-align: right;
+            font-size: 0.9rem;
+        }
+
+            .tbl tbody td:last-child {
+                border-bottom: none;
+                padding-top: 15px;
+                justify-content: center;
+            }
+
+            .tbl tbody td::before {
+                content: attr(data-label);
+                font-weight: 800;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                color: #9ca3af;
+                margin-right: 15px;
+                text-align: left;
+                flex-shrink: 0;
+            }
+
+    .acoes {
+        width: 100%;
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .btn-editar, .btn-excluir {
+        flex: 1;
+        padding: 10px;
+    }
+
+    .btn-novo {
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+}
 
 @media (max-width: 640px) {
 
@@ -339,4 +399,125 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(255, 87, 87, 0.3);
         }
+}
+
+@media (max-width: 580px) {
+    .table-responsive,
+    .tbl-wrapper {
+        padding: 0;
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+    }
+
+    .tbl,
+    .tbl thead,
+    .tbl tbody,
+    .tbl th,
+    .tbl td,
+    .tbl tr {
+        display: block;
+    }
+
+        .tbl thead {
+            display: none;
+        }
+
+        .tbl tbody tr {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            margin-bottom: 12px;
+            padding: 10px 12px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .tbl tbody td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 2px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 0.82rem;
+            text-align: right;
+            min-height: 32px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+            .tbl tbody td:last-child {
+                border-bottom: none;
+                justify-content: center;
+                padding-top: 10px;
+                width: 100% !important;
+            }
+
+            .tbl tbody td::before {
+                content: attr(data-label);
+                font-weight: 800;
+                font-size: 0.67rem;
+                text-transform: uppercase;
+                color: #9ca3af;
+                margin-right: 10px;
+                text-align: left;
+                flex-shrink: 0;
+            }
+
+    .acoes {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+        padding-top: 6px;
+        width: 100%;
+    }
+
+    .btn-editar,
+    .btn-excluir {
+        flex: 1;
+        min-width: 80px;
+        padding: 8px 6px;
+        font-size: 0.75rem;
+        border-radius: 6px;
+        text-align: center;
+        justify-content: center;
+    }
+
+    h2 {
+        font-size: 1.2rem;
+        margin-bottom: 16px;
+    }
+
+    .btn-novo {
+        display: block;
+        width: 100%;
+        text-align: center;
+        font-size: 0.88rem;
+        padding: 11px 10px;
+        box-sizing: border-box;
+        border-radius: 8px;
+    }
+
+    .status-badge,
+    .badge-disponivel,
+    .badge-indisponivel {
+        font-size: 0.68rem;
+        padding: 3px 8px;
+    }
+
+    .img-capa {
+        width: 38px;
+        height: 38px;
+    }
+
+    .pedidos-tabela-wrapper {
+        padding: 0;
+    }
+
+    .pedidos-tabela th,
+    .pedidos-tabela td {
+        padding: 9px 8px;
+        font-size: 0.78rem;
+        white-space: nowrap;
+    }
 }

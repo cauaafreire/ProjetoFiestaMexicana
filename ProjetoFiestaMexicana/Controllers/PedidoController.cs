@@ -258,10 +258,20 @@ namespace ProjetoFiestaMexicana.Controllers
             using var conn = db.GetConnection();
             using var tx = conn.BeginTransaction();
 
+            using (var checkMesa = new MySqlCommand("SELECT status FROM Mesa WHERE id = @id", conn))
+            {
+                checkMesa.Parameters.AddWithValue("@id", model.Mesa);
+                var status = checkMesa.ExecuteScalar()?.ToString();
+                if (status == "Ocupado")
+                {
+                    TempData["erro"] = "Esta mesa está indisponivel e não pode receber novos pedidos.";
+                    return RedirectToAction(nameof(Pedido));
+                }
+            }
+
+
             try
             {
-                // 1. Cria o pedido principal (vai para Cozinha e Comanda automaticamente
-                //    pois ambas leem da mesma tabela Pedido via stored procedures)
                 int idPed;
                 using (var cmd = new MySqlCommand("sp_pedido_criar", conn, tx)
                 { CommandType = CommandType.StoredProcedure })
@@ -276,7 +286,6 @@ namespace ProjetoFiestaMexicana.Controllers
                     idPed = Convert.ToInt32(pOut.Value);
                 }
 
-                // 2. Insere cada item do carrinho com preço buscado do banco
                 foreach (var kv in cart)
                 {
                     int pratoId = kv.Key;
@@ -301,7 +310,6 @@ namespace ProjetoFiestaMexicana.Controllers
 
                 tx.Commit();
 
-                // Limpa o carrinho da sessão
                 HttpContext.Session.Remove(CART_KEY);
 
                 TempData["ok"] = $"Pedido #{idPed} enviado para a cozinha com sucesso! 🚀";
@@ -424,7 +432,6 @@ namespace ProjetoFiestaMexicana.Controllers
 
         
         [HttpGet]
-        [HttpGet]
         public IActionResult Comandas()
         {
             var lista = new List<dynamic>();
@@ -505,7 +512,6 @@ namespace ProjetoFiestaMexicana.Controllers
 
             try
             {
-                // 1. Busca o preço
                 decimal preco = 0;
                 using (var cmdP = new MySqlCommand("SELECT preco FROM Prato WHERE id = @id", conn, tx))
                 {
@@ -513,7 +519,6 @@ namespace ProjetoFiestaMexicana.Controllers
                     preco = Convert.ToDecimal(cmdP.ExecuteScalar());
                 }
 
-                // 2. ATUALIZA A COMANDA REAL (Para o fechamento da conta)
                 using (var cmd = new MySqlCommand("sp_comanda_adicionar_item", conn, tx)
                 { CommandType = CommandType.StoredProcedure })
                 {
@@ -524,7 +529,6 @@ namespace ProjetoFiestaMexicana.Controllers
                     cmd.ExecuteNonQuery();
                 }
 
-                // 3. CRIA UM CARD NOVO PARA A COZINHA (Pedido Fantasma marcado como Adicional)
                 int idNovoPedido;
                 using (var cmd = new MySqlCommand("sp_pedido_criar", conn, tx)
                 { CommandType = CommandType.StoredProcedure })
@@ -538,14 +542,12 @@ namespace ProjetoFiestaMexicana.Controllers
                     idNovoPedido = Convert.ToInt32(pOut.Value);
                 }
 
-                // Marca como ADICIONAL para não somar no histórico/dashboard
                 using (var cmdMark = new MySqlCommand("UPDATE Pedido SET eh_adicional = 1, comanda_fechada = 1 WHERE id = @id", conn, tx))
                 {
                     cmdMark.Parameters.AddWithValue("@id", idNovoPedido);
                     cmdMark.ExecuteNonQuery();
                 }
 
-                // Adiciona o item nesse card da cozinha
                 using (var cmdI = new MySqlCommand("sp_pedido_adicionar_item", conn, tx)
                 { CommandType = CommandType.StoredProcedure })
                 {
@@ -568,8 +570,6 @@ namespace ProjetoFiestaMexicana.Controllers
         }
 
 
-
-        // Finaliza uma comanda
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult FinalizarComanda(int id)
         {
@@ -582,7 +582,6 @@ namespace ProjetoFiestaMexicana.Controllers
             return RedirectToAction(nameof(Comandas));
         }
 
-        // Adiciona item sem redirecionar
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult AdicionarAoPedidoSilencioso(int id)
         {
@@ -681,9 +680,20 @@ namespace ProjetoFiestaMexicana.Controllers
         {
             using var conn = db.GetConnection();
             using var tx = conn.BeginTransaction();
+
+            using (var checkMesa = new MySqlCommand("SELECT status FROM Mesa WHERE id = @id", conn))
+            {
+                checkMesa.Parameters.AddWithValue("@id", mesaId);
+                var status = checkMesa.ExecuteScalar()?.ToString();
+                if (status == "Ocupado")
+                {
+                    TempData["erro"] = "Esta mesa está Infisponivel e não pode receber novos pedidos.";
+                    return RedirectToAction(nameof(Cardapio));
+                }
+            }
+
             try
             {
-                // 1. BUSCA MELHORADA: Procura qualquer pedido pendente para esta mesa
                 int idPed = 0;
                 using (var cmdCheck = new MySqlCommand("SELECT id FROM Pedido WHERE mesa = @mesa AND status IN ('Pendente', 'Preparando') AND comanda_fechada = 0 ORDER BY id DESC LIMIT 1", conn, tx))
                 {
@@ -695,7 +705,6 @@ namespace ProjetoFiestaMexicana.Controllers
                     }
                 }
 
-                // 2. Se NÃO encontrou, aí sim cria um novo
                 if (idPed == 0)
                 {
                     using (var cmd = new MySqlCommand("sp_pedido_criar", conn, tx))
@@ -711,7 +720,6 @@ namespace ProjetoFiestaMexicana.Controllers
                     }
                 }
 
-                // 3. Busca o preço
                 decimal preco = 0;
                 using (var cmdP = new MySqlCommand("SELECT preco FROM Prato WHERE id = @id", conn, tx))
                 {
@@ -719,7 +727,6 @@ namespace ProjetoFiestaMexicana.Controllers
                     preco = Convert.ToDecimal(cmdP.ExecuteScalar());
                 }
 
-                // 4. Adiciona o item (Isso vai atualizar o total automaticamente via SP)
                 using (var cmdI = new MySqlCommand("sp_pedido_adicionar_item", conn, tx))
                 {
                     cmdI.CommandType = CommandType.StoredProcedure;

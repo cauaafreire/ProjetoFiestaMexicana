@@ -46,7 +46,11 @@
                         <td data-label="Preço">@p.Preco.ToString("C")</td>
                         <td data-label="Categoria">@(p.CategoriaNome ?? "-")</td>
                         <td data-label="Picância">@p.NivelPicancia</td>
-                        <td data-label="Disponível">@(p.Disponivel ? "✅ Sim" : "❌ Não")</td>
+                        <td data-label="Disponível">
+                            <span class="status-badge @(p.Disponivel ? "status-ativo" : "status-inativo")">
+                                @(p.Disponivel ? "Disponível" : "Indisponível")
+                            </span>
+                        </td>
                         <td data-label="Ações" class="col-acoes">
                             <div class="acoes">
                                 <a asp-action="Editar" asp-route-id="@p.Id" class="btn btn-editar">Editar</a>

@@ -3,11 +3,66 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 <style>
-    .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
-    .status-ativo { background-color: #d1fae5; color: #065f46; }
-    .status-inativo { background-color: #fee2e2; color: #991b1b; }
-    .btn-desativar { background-color: #f59e0b; color: white; border: none; padding: 6px 12px; border-radius: 4px; }
-    .btn-reativar { background-color: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 4px; }
+    .status-badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+
+    .status-ativo {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-inativo {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .btn-desativar {
+        background-color: #FF5757;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+        .btn-desativar:hover {
+            background-color: #e04444;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 87, 87, 0.4);
+            transition: ease 0.4s;
+        }
+
+        .btn-desativar:active {
+            transform: translateY(0);
+            box-shadow: none;
+            transition: ease 0.4s;
+        }
+
+    .btn-reativar {
+        background-color: #10b981;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+        .btn-reativar:hover {
+            background-color: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+            transition: ease 0.4s;
+        }
+
+        .btn-reativar:active {
+            transform: translateY(0);
+            box-shadow: none;
+            transition: ease 0.4s;
+        }
 
     .btn-desativar, .btn-reativar, .admin-master-label {
         display: inline-flex;
@@ -27,11 +82,19 @@
     .tbl {
         width: 100%;
         margin-top: 10px;
-        box-shadow: 0 2px 15px rgba(0,0,0,0.05); 
+        box-shadow: 0 2px 15px rgba(0,0,0,0.05);
         border-radius: 12px;
         overflow: hidden;
     }
 
+    .acoes {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: nowrap;
+    }
 </style>
 <link href="~/css/tables.css" rel="stylesheet" />
 
@@ -62,30 +125,43 @@
                             @(user.ativo == 1 ? "Ativo" : "Inativo")
                         </span>
                     </td>
-                    <td class="acoes text-center">
-                        
-                        @if (user.role == "Admin")
-                        {
-                            <span class="admin-master-label">Admin</span>
+                    <td class="text-center">
+                        @{
+                            bool isMaster = ViewBag.EmailLogado == "juanpablo@fiesta.com";
+                            bool alvoBloqueado = user.email == "juanpablo@fiesta.com";
+                            bool podeDesativar = !alvoBloqueado && (isMaster || user.role != "Admin");
                         }
-                        else
-                        {
-                            @if (user.ativo == 1)
+
+                        <div class="acoes">
+                            <a asp-action="Editar" asp-route-id="@user.id" class="btn-editar">Editar</a>
+
+                            @if (alvoBloqueado)
                             {
-                                <form asp-action="Desativar" asp-route-id="@user.id" method="post" onsubmit="return confirm('Desativar o acesso?')" style="display:inline;">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn-desativar">Desativar</button>
-                                </form>
+                                <span class="admin-master-label">Master</span>
+                            }
+                            else if (podeDesativar)
+                            {
+                                @if (user.ativo == 1)
+                                {
+                                    <form asp-action="Desativar" asp-route-id="@user.id" method="post" onsubmit="return confirm('Desativar o acesso?')" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-desativar">Desativar</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="Reativar" asp-route-id="@user.id" method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-reativar">Reativar</button>
+                                    </form>
+                                }
                             }
                             else
                             {
-                                <form asp-action="Reativar" asp-route-id="@user.id" method="post" style="display:inline;">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn-reativar">Reativar</button>
-                                </form>
+                                <span class="admin-master-label">Admin</span>
                             }
-                        }
-                    </td> 
+                        </div>
+                    </td>
                 </tr>
             }
         </tbody>

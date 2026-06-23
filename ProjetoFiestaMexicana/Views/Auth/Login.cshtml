@@ -1,89 +1,77 @@
 ﻿@{
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = null;
     ViewData["Title"] = "Acesso";
 }
-
-@section Styles {
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fiesta Mexicana — Login</title>
     <style>
-
-        .container {
-            padding: 0 !important;
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        .login-page {
-            min-height: calc(100vh - 63px);
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 16px;
         }
 
-        .login-card {
-            background: #fff;
-            border-radius: 24px;
-            overflow: hidden;
-            width: 100%;
-            max-width: 440px;
-            box-shadow: 0 24px 60px rgba(0,0,0,0.15);
-        }
-
-        .login-banner {
+        .lp-left {
+            width: 50%;
             background: #FF5757;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 28px 24px;
+            padding: 48px 32px;
         }
 
-            .login-banner img {
-                width: 100%;
-                max-width: 300px;
-                height: auto;
-                object-fit: contain;
-                display: block;
-            }
+        .lp-logo {
+            width: 100%;
+            max-width: 420px;
+        }
 
-        .login-body {
-            padding: 32px 36px 36px;
+        .lp-right {
+            width: 50%;
+            background: #fff;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 60px;
         }
 
-        .login-titulo {
-            font-size: 1.3rem;
+        .lp-right-inner {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .lp-titulo {
+            font-size: 2rem;
             font-weight: 800;
             color: #111827;
-            text-align: center;
-            letter-spacing: 0.01em;
         }
 
-        .login-subtitulo {
-            font-size: 0.82rem;
-            color: #9ca3af;
-            text-align: center;
+        .lp-subtitulo {
+            font-size: 0.95rem;
+            color: #6b7280;
+            margin-top: 6px;
         }
 
-        .alert-error {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #991b1b;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .form-field {
+        .lp-field {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
 
-            .form-field label {
+            .lp-field label {
                 font-size: 0.82rem;
                 font-weight: 700;
                 color: #374151;
@@ -91,74 +79,133 @@
                 letter-spacing: 0.05em;
             }
 
-            .form-field input {
+            .lp-field input {
                 width: 100%;
-                padding: 12px 14px;
+                padding: 15px 16px;
                 border: 1.5px solid #e5e7eb;
                 border-radius: 10px;
-                font-size: 0.95rem;
+                font-size: 1rem;
                 color: #111827;
-                transition: border-color 0.2s, box-shadow 0.2s;
                 outline: none;
+                transition: border-color 0.2s, box-shadow 0.2s;
             }
 
-                .form-field input:focus {
+                .lp-field input:focus {
                     border-color: #FF5757;
                     box-shadow: 0 0 0 3px rgba(255,87,87,0.12);
                 }
+
+        .alert-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
 
         .btn-login {
             width: 100%;
             background: #FF5757;
             color: #fff;
             border: none;
-            padding: 14px;
+            padding: 16px;
             border-radius: 12px;
-            font-size: 1rem;
+            font-size: 1.05rem;
             font-weight: 800;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 0.06em;
-            transition: background 0.2s, transform 0.15s;
-            margin-top: 4px;
+            transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+            box-shadow: 0 4px 14px rgba(255,87,87,0.35);
         }
 
             .btn-login:hover {
                 background: #e04444;
-                transform: translateY(-1px);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(255,87,87,0.45);
             }
 
             .btn-login:active {
                 transform: translateY(0);
+                box-shadow: none;
             }
 
-        .login-card-footer {
+        .btn-voltar {
+            color: #666;
+            border: 1px solid #e0e0e0;
+            padding: 8px 18px;
+            border-radius: 10px;
+            background: #fff;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            justify-content: center;
+        }
+
+            .btn-voltar:hover {
+                background: #FF5757;
+                color: #fff;
+                border-color: #FF5757;
+                box-shadow: 0 4px 15px rgba(255, 87, 87, 0.3);
+                transform: translateY(-1px);
+            }
+
+            .btn-voltar::before {
+                font-size: 1rem;
+                transition: transform 0.2s;
+            }
+
+
+                .btn-voltar:hover::before {
+                    transform: translateX(-3px);
+                }
+
+        .lp-footer {
             text-align: center;
             font-size: 0.75rem;
             color: #d1d5db;
-            padding-bottom: 4px;
         }
 
-        @@media (max-width: 480px) {
-            .login-body {
-                padding: 24px 20px 28px;
+        @@media (max-width: 700px) {
+            body {
+                flex-direction: column;
+            }
+
+            .lp-left {
+                width: 100%;
+                min-height: 220px;
+                padding: 32px 24px;
+            }
+
+            .lp-logo {
+                max-width: 220px;
+            }
+
+            .lp-right {
+                width: 100%;
+                padding: 36px 24px 48px;
             }
         }
     </style>
-}
+</head>
+<body>
 
-<div class="login-page">
-    <div class="login-card">
+    <div class="lp-left">
+        <img src="~/logos/bannerf.png" alt="Fiesta Mexicana" class="lp-logo" />
+    </div>
 
-        <div class="login-banner">
-            <img src="~/logos/bannerf.png" alt="Fiesta Mexicana" />
-        </div>
-
-        <div class="login-body">
+    <div class="lp-right">
+        <div class="lp-right-inner">
 
             <div>
-                <div class="login-titulo">Área dos Funcionários</div>
-                <div class="login-subtitulo">Faça login para continuar</div>
+                <div class="lp-titulo">Área dos Funcionários</div>
+                <div class="lp-subtitulo">Faça login para continuar</div>
             </div>
 
             @if (ViewBag.Error != null)
@@ -166,16 +213,16 @@
                 <div class="alert-error">⚠️ @ViewBag.Error</div>
             }
 
-            <form asp-action="Login" method="post" style="display:flex; flex-direction:column; gap:16px;">
+            <form asp-action="Login" method="post" style="display:flex; flex-direction:column; gap:20px;">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
 
-                <div class="form-field">
+                <div class="lp-field">
                     <label>E-mail</label>
                     <input type="email" name="email" placeholder="seu@email.com" required />
                 </div>
 
-                <div class="form-field">
+                <div class="lp-field">
                     <label>Senha</label>
                     <input type="password" name="senha" placeholder="••••••••" required />
                 </div>
@@ -183,10 +230,12 @@
                 <button type="submit" class="btn-login">Entrar</button>
             </form>
 
-            <div class="login-card-footer">
-                Fiesta Mexicana © @DateTime.Now.Year
-            </div>
+            <a asp-controller="Pedido" asp-action="Menu" class="btn-voltar">Voltar ao Menu</a>
+
+            <div class="lp-footer">Fiesta Mexicana © @DateTime.Now.Year</div>
 
         </div>
     </div>
-</div>
+
+</body>
+</html>

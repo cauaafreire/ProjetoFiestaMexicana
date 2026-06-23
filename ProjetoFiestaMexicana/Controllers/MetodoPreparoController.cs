@@ -106,16 +106,25 @@ namespace ProjetoFiestaMexicana.Controllers
             using var conn = db.GetConnection();
             try
             {
-                using var cmd = new MySqlCommand("sp_metodo_preparo_excluir", conn) { CommandType = System.Data.CommandType.StoredProcedure };
+                using var check = new MySqlCommand("SELECT COUNT(*) FROM Prato WHERE metodo_preparo = @id", conn);
+                check.Parameters.AddWithValue("@id", id);
+                var total = Convert.ToInt32(check.ExecuteScalar());
 
+                if (total > 0)
+                {
+                    TempData["erro"] = $"Não é possível excluir este método de preparo pois ele possui {total} prato(s) vinculado(s).";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                using var cmd = new MySqlCommand("sp_metodo_preparo_excluir", conn) { CommandType = System.Data.CommandType.StoredProcedure };
                 cmd.Parameters.AddWithValue("p_id", id);
                 cmd.ExecuteNonQuery();
 
-                TempData["ok"] = "Método de Preparo excluído!";
+                TempData["ok"] = "Método de preparo excluído com sucesso!";
             }
-            catch (MySqlException ex)
+            catch (Exception ex)
             {
-                TempData["ok"] = "Não foi possível excluir o método de preparo: " + ex.Message;
+                TempData["erro"] = "Erro inesperado ao excluir: " + ex.Message;
             }
             return RedirectToAction(nameof(Index));
         }

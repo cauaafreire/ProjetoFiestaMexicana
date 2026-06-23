@@ -31,13 +31,6 @@
             </div>
 
             <div class="field">
-                <label asp-for="Cpf">CPF</label>
-                <input asp-for="Cpf" class="input" maxlength="14" required/>
-                <small class="hint">Apenas números, 11 dígitos.</small>
-                <span asp-validation-for="Cpf" class="text-danger"></span>
-            </div>
-
-            <div class="field">
                 <label asp-for="Turno">Turno</label>
                 <select asp-for="Turno" asp-items="ViewBag.Turnos" class="input">
                     <option value="">(Selecione o Turno)</option>
@@ -47,14 +40,13 @@
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="btn   btn btn-light">Salvar Alterações</button>
+            <button type="submit" class="btn btn-light">Salvar Alterações</button>
             <a asp-action="Index" class="btn btn-primary">Cancelar</a>
         </div>
     </form>
 </div>
 
 <style>
-    /* Estilo Fiesta Mexicana - Editar Garçom */
     .page-header h2 {
         text-align: center;
         color: #2d2d2d;
@@ -106,14 +98,6 @@
             outline: none;
         }
 
-    /* Dica do CPF */
-    .hint {
-        color: #888;
-        font-size: 12px;
-        margin-top: -4px;
-    }
-
-    /* BOTÕES - Padrão Fiesta Mexicana */
     .form-actions {
         margin-top: 35px;
         display: flex;
@@ -135,13 +119,11 @@
         border: none;
     }
 
-        /* Botão CANCELAR (Vermelho Fiesta) */
         .btn-light, .btn:not(.btn-primary) {
             background-color: #ff5a5f !important;
             color: #ffffff !important;
         }
 
-    /* Botão SALVAR (Preto Fiesta) */
     .btn-primary {
         background-color: #2d2d2d !important;
         color: #ffffff !important;
@@ -153,7 +135,6 @@
         box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
 
-    /* Mensagens de Erro */
     .validation {
         background-color: #ffeaea;
         color: #ef4444;
@@ -170,31 +151,8 @@
     }
 </style>
 
-
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
-    <script>
-        const cpfInput = document.getElementById('Cpf');
-
-        cpfInput.addEventListener('input', function () {
-            let v = this.value.replace(/\D/g, '').substring(0, 11);
-
-            if (v.length > 9) {
-                v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, '$1.$2.$3-$4');
-            } else if (v.length > 6) {
-                v = v.replace(/(\d{3})(\d{3})(\d{0,3})/, '$1.$2.$3');
-            } else if (v.length > 3) {
-                v = v.replace(/(\d{3})(\d{0,3})/, '$1.$2');
-            }
-
-            this.value = v;
-        });
-
-        document.querySelector('form').addEventListener('submit', function (e) {
-            cpfInput.value = cpfInput.value.replace(/\D/g, '');
-        });
-    </script>
 }

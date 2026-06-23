@@ -14,11 +14,11 @@ namespace ProjetoFiestaMexicana.Controllers
         [HttpGet]
         public IActionResult Index()
         {
+            ViewBag.EmailLogado = HttpContext.Session.GetString(SessionKeys.UserEmail);
             var lista = new List<Usuarios>();
             try
             {
                 using var conn = db.GetConnection();
-                // ADICIONADO: Selecionando o campo 'ativo'
                 using var cmd = new MySqlCommand("SELECT id, nome, email, role, ativo FROM Usuarios ORDER BY nome", conn);
                 using var rd = cmd.ExecuteReader();
                 while (rd.Read())
@@ -29,7 +29,7 @@ namespace ProjetoFiestaMexicana.Controllers
                         nome = rd.GetString("nome"),
                         email = rd.GetString("email"),
                         role = rd.IsDBNull(rd.GetOrdinal("role")) ? "" : rd.GetString("role"),
-                        ativo = rd.GetInt32("ativo") // MAPEADO AQUI
+                        ativo = rd.GetInt32("ativo")
                     });
                 }
             }
@@ -57,7 +57,7 @@ namespace ProjetoFiestaMexicana.Controllers
 
                 cmd.Parameters.AddWithValue("p_nome", vm.nome);
                 cmd.Parameters.AddWithValue("p_email", vm.email);
-                cmd.Parameters.AddWithValue("p_senha_hash", senhaCriptografada); // Envia a senha segura
+                cmd.Parameters.AddWithValue("p_senha_hash", senhaCriptografada);
                 cmd.Parameters.AddWithValue("p_role", role);
                 cmd.ExecuteNonQuery();
 
@@ -74,17 +74,41 @@ namespace ProjetoFiestaMexicana.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Desativar(int id)
         {
+            var emailLogado = HttpContext.Session.GetString(SessionKeys.UserEmail);
+            var roleLogado = HttpContext.Session.GetString(SessionKeys.UserRole);
+
             using var conn = db.GetConnection();
-            using var checkCmd = new MySqlCommand("SELECT email FROM Usuarios WHERE id = @id", conn);
+
+            using var checkCmd = new MySqlCommand("SELECT email, role FROM Usuarios WHERE id = @id", conn);
             checkCmd.Parameters.AddWithValue("@id", id);
-            if (checkCmd.ExecuteScalar()?.ToString() == "juanpablo@fiesta.com")
+            using var rd = checkCmd.ExecuteReader();
+
+            if (!rd.Read())
+            {
+                TempData["Erro"] = "Usuário não encontrado.";
+                return RedirectToAction("Index");
+            }
+
+            var emailAlvo = rd.GetString("email");
+            var roleAlvo = rd.GetString("role");
+            rd.Close();
+
+            if (emailAlvo == "juanpablo@fiesta.com")
             {
                 TempData["Erro"] = "O Administrador Master não pode ser desativado!";
                 return RedirectToAction("Index");
             }
+
+            if (roleLogado == "Admin" && emailLogado != "juanpablo@fiesta.com" && roleAlvo == "Admin")
+            {
+                TempData["Erro"] = "Admins não podem desativar outros Admins.";
+                return RedirectToAction("Index");
+            }
+
             using var cmd = new MySqlCommand("UPDATE Usuarios SET ativo = 0 WHERE id = @id", conn);
             cmd.Parameters.AddWithValue("@id", id);
             cmd.ExecuteNonQuery();
+
             TempData["Sucesso"] = "Acesso desativado!";
             return RedirectToAction("Index");
         }
@@ -98,6 +122,64 @@ namespace ProjetoFiestaMexicana.Controllers
             cmd.ExecuteNonQuery();
             TempData["Sucesso"] = "Acesso reativado!";
             return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public IActionResult Editar(int id)
+        {
+            using var conn = db.GetConnection();
+            using var cmd = new MySqlCommand("SELECT id, nome, email, role FROM Usuarios WHERE id = @id", conn);
+            cmd.Parameters.AddWithValue("@id", id);
+            using var rd = cmd.ExecuteReader();
+
+            if (!rd.Read()) return RedirectToAction("Index");
+
+            var user = new Usuarios
+            {
+                id = rd.GetInt32("id"),
+                nome = rd.GetString("nome"),
+                email = rd.GetString("email"),
+                role = rd.GetString("role")
+            };
+
+            return View(user);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult Editar(int id, string email, string role)
+        {
+            try
+            {
+                using var conn = db.GetConnection();
+                using var cmd = new MySqlCommand("UPDATE Usuarios SET email = @email, role = @role WHERE id = @id", conn);
+                cmd.Parameters.AddWithValue("@email", email);
+                cmd.Parameters.AddWithValue("@role", role);
+                cmd.Parameters.AddWithValue("@id", id);
+                cmd.ExecuteNonQuery();
+
+                TempData["Sucesso"] = "Usuário atualizado com sucesso!";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+
+                using var conn2 = db.GetConnection();
+                using var cmd2 = new MySqlCommand("SELECT id, nome, email, role FROM Usuarios WHERE id = @id", conn2);
+                cmd2.Parameters.AddWithValue("@id", id);
+                using var rd = cmd2.ExecuteReader();
+                if (!rd.Read()) return RedirectToAction("Index");
+
+                var user = new Usuarios
+                {
+                    id = rd.GetInt32("id"),
+                    nome = rd.GetString("nome"),
+                    email = email,   
+                    role = role
+                };
+
+                ViewBag.Erro = "Erro ao salvar: " + ex.Message;
+                return View(user);
+            }
         }
 
 

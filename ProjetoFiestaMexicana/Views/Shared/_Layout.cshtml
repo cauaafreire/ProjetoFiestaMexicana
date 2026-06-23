@@ -36,19 +36,19 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding-top: 70px; /* Mesma altura da Nav Bar */
+            padding-top: 70px; 
         }
 
         main {
-            flex: 1 0 auto; /* Faz o main "esticar" para preencher o fundo */
+            flex: 1 0 auto; 
             width: 100%;
             display: block;
         }
 
         .container {
             width: 100%;
-            max-width: 100% !important; /* Remove o limite de largura do Bootstrap */
-            padding: 0; /* Remove vácuos laterais */
+            max-width: 100% !important; 
+            padding: 0; 
             margin: 0;
         }
 
@@ -603,29 +603,6 @@
         <nav class="drawer-nav">
             <a asp-controller="Pedido" asp-action="Menu">Início</a>
                 <a asp-controller="SobreNos" asp-action="Index">Sobre Nós</a>
-
-            @if (isLogged)
-            {
-                @if (isGarcom)
-                {
-                    <a asp-controller="Mesa" asp-action="Index">Mesa</a>
-                    <a asp-controller="Pedido" asp-action="Cardapio">Cardápio</a>
-                    <a asp-controller="Pedido" asp-action="Comandas">Comandas</a>
-                }
-                @if (isChefe)
-                {
-                    <a asp-controller="Pratos" asp-action="Index">Pratos</a>
-                    <a asp-controller="Cozinha" asp-action="Index">Cozinha</a>
-                    <a asp-controller="Categoria" asp-action="Index">Categoria</a>
-                    <a asp-controller="MetodoPreparo" asp-action="Index"> Método de Preparo</a>
-                }
-                @if (isAdmin)
-                {
-                    <a asp-controller="Garcom" asp-action="Index"> Garçom</a>
-                    <a asp-controller="Usuario" asp-action="Index"> Usuários</a>
-                    <a asp-controller="Dashboard" asp-action="Index"> Dashboard</a>
-                }
-            }
         </nav>
 
         <div class="drawer-footer">
@@ -661,13 +638,11 @@
             </div>
 
             <div class="footer-divider"></div>
-
-            <!-- Contato -->
             <div class="footer-col">
                 <h4 class="footer-heading">Contato & Horário</h4>
                 <ul class="footer-links">
                     <li>São Paulo, SP</li>
-                    <li>(11) 99999-9999</li>
+                    <li>(11) 94029-8850</li>
                     <li>contato@fiestamexicana.com</li>
                     <li style="margin-top:4px;"> Seg–Sex: 11h às 23h</li>
                     <li>Sáb–Dom: 11h às 00h</li>

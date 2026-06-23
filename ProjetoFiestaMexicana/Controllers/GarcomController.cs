@@ -38,7 +38,6 @@ namespace ProjetoFiestaMexicana.Controllers
                     {
                         Id = rd.GetInt32("id"),
                         Nome = rd["nome"] as string,
-                        Cpf = rd["cpf"] as string,
                         Turno = rd["turno"] as string,
                         CriadoEm = rd.GetDateTime("criado_em")
                     });
@@ -67,22 +66,20 @@ namespace ProjetoFiestaMexicana.Controllers
             using var conn = db.GetConnection();
             using var cmd = new MySqlCommand("sp_garcom_criar", conn) { CommandType = System.Data.CommandType.StoredProcedure };
             cmd.Parameters.AddWithValue("p_nome", model.Nome);
-            cmd.Parameters.AddWithValue("p_cpf", (object?)System.Text.RegularExpressions.Regex.Replace(model.Cpf ?? "", @"\D", "") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("p_turno", (object?)model.Turno ?? DBNull.Value);
 
             try
             {
                 cmd.ExecuteNonQuery();
-
                 TempData["ok"] = "Garçom cadastrado!";
                 return RedirectToAction(nameof(Index));
             }
-            catch (MySqlException ex) when (ex.Number == 1062)
+            catch (MySqlException ex)
             {
-                ModelState.AddModelError("Cpf", "Este CPF já está cadastrado.");
+                ModelState.AddModelError("", "Erro ao cadastrar: " + ex.Message);
+                ViewBag.Turnos = CarregarTurnos();
                 return View(model);
             }
-
         }
 
         [HttpGet]
@@ -103,7 +100,6 @@ namespace ProjetoFiestaMexicana.Controllers
                     {
                         Id = rd.GetInt32("id"),
                         Nome = rd.GetString("nome"),
-                        Cpf = rd["cpf"] as string,
                         Turno = rd["turno"] as string,
                         CriadoEm = rd.GetDateTime("criado_em")
                     };
@@ -130,7 +126,6 @@ namespace ProjetoFiestaMexicana.Controllers
             using var cmd = new MySqlCommand("sp_garcom_atualizar", conn) { CommandType = System.Data.CommandType.StoredProcedure };
             cmd.Parameters.AddWithValue("p_id", model.Id);
             cmd.Parameters.AddWithValue("p_nome", model.Nome);
-            cmd.Parameters.AddWithValue("p_cpf", (object?)System.Text.RegularExpressions.Regex.Replace(model.Cpf ?? "", @"\D", "") ?? DBNull.Value);
             cmd.Parameters.AddWithValue("p_turno", (object?)model.Turno ?? DBNull.Value);
             cmd.ExecuteNonQuery();
 
@@ -144,16 +139,25 @@ namespace ProjetoFiestaMexicana.Controllers
             using var conn = db.GetConnection();
             try
             {
-                using var cmd = new MySqlCommand("sp_garcom_excluir", conn) { CommandType = System.Data.CommandType.StoredProcedure };
+                using var check = new MySqlCommand("SELECT COUNT(*) FROM Pedido WHERE garcom = @id", conn);
+                check.Parameters.AddWithValue("@id", id);
+                var total = Convert.ToInt32(check.ExecuteScalar());
 
+                if (total > 0)
+                {
+                    TempData["erro"] = $"Não é possível excluir este garçom pois ele possui {total} pedido(s) vinculado(s).";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                using var cmd = new MySqlCommand("sp_garcom_excluir", conn) { CommandType = System.Data.CommandType.StoredProcedure };
                 cmd.Parameters.AddWithValue("p_id", id);
                 cmd.ExecuteNonQuery();
 
-                TempData["ok"] = "Garçom excluído!";
+                TempData["ok"] = "Garçom excluído com sucesso!";
             }
-            catch (MySqlException ex)
+            catch (Exception ex)
             {
-                TempData["ok"] = "Não foi possível excluir o garçom: " + ex.Message;
+                TempData["erro"] = "Erro inesperado ao excluir: " + ex.Message;
             }
             return RedirectToAction(nameof(Index));
         }

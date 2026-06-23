@@ -12,6 +12,10 @@
     {
         <div class="ok">@TempData["ok"]</div>
     }
+    @if (TempData["erro"] != null)
+    {
+        <div class="erro">@TempData["erro"]</div>
+    }
 
     <p><a asp-action="Criar" class="btn-novo">Nova Mesa</a></p>
 

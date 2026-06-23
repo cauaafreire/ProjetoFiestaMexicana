@@ -1,49 +1,7 @@
-﻿@model ProjetoFiestaMexicana.Models.Garcom
+﻿@model ProjetoFiestaMexicana.Models.Usuarios
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Novo Garçom";
 }
-
-<div class="page-header">
-    <h2>Novo Garçom</h2>
-</div>
-
-<div class="card">
-    @if (!ViewData.ModelState.IsValid)
-    {
-        <div class="validation">
-            @foreach (var e in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-            {
-                <div>@e.ErrorMessage</div>
-            }
-        </div>
-    }
-
-    <form asp-action="Criar" method="post">
-        @Html.AntiForgeryToken()
-
-        <div class="form-grid">
-            <div class="field">
-                <label asp-for="Nome">Nome Completo</label>
-                <input asp-for="Nome" class="input" required />
-                <span asp-validation-for="Nome" class="text-danger"></span>
-            </div>
-
-            <div class="field">
-                <label asp-for="Turno">Turno</label>
-                <select asp-for="Turno" asp-items="ViewBag.Turnos" class="input">
-                    <option value="">(Selecione o Turno)</option>
-                </select>
-                <span asp-validation-for="Turno" class="text-danger"></span>
-            </div>
-        </div>
-
-        <div class="form-actions">
-            <button type="submit" class="btn btn-light">Salvar</button>
-            <a asp-action="Index" class="btn btn-primary">Cancelar</a>
-        </div>
-    </form>
-</div>
 
 <style>
     .page-header h2 {
@@ -55,7 +13,7 @@
 
     .card {
         background: #ffffff;
-        max-width: 600px;
+        max-width: 550px;
         margin: 20px auto 50px auto;
         padding: 35px;
         border-radius: 15px;
@@ -95,6 +53,12 @@
         .input:focus {
             border-color: #ff5a5f;
             outline: none;
+        }
+
+        .input:disabled {
+            background-color: #f9fafb;
+            color: #9ca3af;
+            cursor: not-allowed;
         }
 
     .form-actions {
@@ -143,15 +107,45 @@
         border: 1px solid #ef4444;
         font-size: 14px;
     }
-
-    .text-danger {
-        color: #ef4444;
-        font-size: 13px;
-    }
 </style>
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+<div class="page-header">
+    <h2>Editar Usuário</h2>
+</div>
+
+<div class="card">
+    @if (ViewBag.Erro != null)
+    {
+        <div class="validation">@ViewBag.Erro</div>
     }
-}
+
+    <form asp-action="Editar" asp-route-id="@Model.id" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="form-grid">
+            <div class="field">
+                <label>Nome</label>
+                <input type="text" value="@Model.nome" class="input" disabled />
+            </div>
+
+            <div class="field">
+                <label>E-mail</label>
+                <input type="email" name="email" value="@Model.email" class="input" required />
+            </div>
+
+            <div class="field">
+                <label>Cargo</label>
+                <select asp-for="role" name="role" class="input" required>
+                    <option value="Admin">Admin</option>
+                    <option value="Chefe">Chefe</option>
+                    <option value="Garcom">Garçom</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-light">Salvar Alterações</button>
+            <a asp-action="Index" class="btn btn-primary">Cancelar</a>
+        </div>
+    </form>
+</div>

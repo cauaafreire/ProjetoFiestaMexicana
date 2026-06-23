@@ -209,16 +209,25 @@ namespace ProjetoFiestaMexicana.Controllers
             using var conn = db.GetConnection();
             try
             {
-                using var cmd = new MySqlCommand("sp_prato_excluir", conn) { CommandType = CommandType.StoredProcedure };
+                using var check = new MySqlCommand("SELECT COUNT(*) FROM ItemPedido WHERE prato = @id", conn);
+                check.Parameters.AddWithValue("@id", id);
+                var total = Convert.ToInt32(check.ExecuteScalar());
 
+                if (total > 0)
+                {
+                    TempData["erro"] = $"Não é possível excluir este prato pois ele está vinculado a {total} pedido(s).";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                using var cmd = new MySqlCommand("sp_prato_excluir", conn) { CommandType = System.Data.CommandType.StoredProcedure };
                 cmd.Parameters.AddWithValue("p_id", id);
                 cmd.ExecuteNonQuery();
 
-                TempData["ok"] = "Prato excluído!";
+                TempData["ok"] = "Prato excluído com sucesso!";
             }
-            catch (MySqlException ex)
+            catch (Exception ex)
             {
-                TempData["ok"] = ex.Message;
+                TempData["erro"] = "Erro inesperado ao excluir: " + ex.Message;
             }
             return RedirectToAction(nameof(Index));
         }

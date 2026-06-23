@@ -408,31 +408,22 @@ BEGIN
     WHERE id = p_id;
 END $$
 
-delimiter ;
-
-delimiter $$
-
 DROP PROCEDURE IF EXISTS sp_garcom_listar $$
 CREATE PROCEDURE sp_garcom_listar()
 BEGIN
-    SELECT id, nome, cpf, turno, criado_em
+    SELECT id, nome, turno, criado_em
     FROM Garcom
     ORDER BY nome;
 END $$
 
-delimiter ;
-
-delimiter $$
-
 DROP PROCEDURE IF EXISTS sp_garcom_criar $$
 CREATE PROCEDURE sp_garcom_criar (
     IN p_nome  VARCHAR(100),
-    IN p_cpf   CHAR(11),
     IN p_turno VARCHAR(20)
 )
 BEGIN
-    INSERT INTO Garcom (nome, cpf, turno)
-    VALUES (p_nome, p_cpf, p_turno);
+    INSERT INTO Garcom (nome, turno)
+    VALUES (p_nome, p_turno);
 END $$
 
 DROP PROCEDURE IF EXISTS sp_garcom_obter $$
@@ -440,7 +431,7 @@ CREATE PROCEDURE sp_garcom_obter (
     IN p_id INT
 )
 BEGIN
-    SELECT id, nome, cpf, turno, criado_em
+    SELECT id, nome, turno, criado_em
     FROM Garcom
     WHERE id = p_id;
 END $$
@@ -449,14 +440,12 @@ DROP PROCEDURE IF EXISTS sp_garcom_atualizar $$
 CREATE PROCEDURE sp_garcom_atualizar (
     IN p_id    INT,
     IN p_nome  VARCHAR(100),
-    IN p_cpf   CHAR(11),
     IN p_turno VARCHAR(20)
 )
 BEGIN
     UPDATE Garcom
     SET
         nome  = p_nome,
-        cpf   = p_cpf,
         turno = p_turno
     WHERE id = p_id;
 END $$
@@ -905,3 +894,5 @@ ALTER TABLE Pedido_itens ADD COLUMN status ENUM('Pendente', 'Preparando', 'Final
 
 ALTER TABLE Pedido ADD COLUMN eh_adicional TINYINT(1) NOT NULL DEFAULT 0;
 ALTER TABLE Pedido ADD COLUMN taxa_servico DECIMAL(10,2) DEFAULT 0.00;
+
+ALTER TABLE Garcom DROP COLUMN cpf;
