@@ -264,7 +264,7 @@ namespace ProjetoFiestaMexicana.Controllers
                 var status = checkMesa.ExecuteScalar()?.ToString();
                 if (status == "Ocupado")
                 {
-                    TempData["erro"] = "Esta mesa está indisponivel e não pode receber novos pedidos.";
+                    TempData["erro"] = "Esta mesa está ocupada e não pode receber novos pedidos.";
                     return RedirectToAction(nameof(Pedido));
                 }
             }
@@ -687,7 +687,7 @@ namespace ProjetoFiestaMexicana.Controllers
                 var status = checkMesa.ExecuteScalar()?.ToString();
                 if (status == "Ocupado")
                 {
-                    TempData["erro"] = "Esta mesa está Infisponivel e não pode receber novos pedidos.";
+                    TempData["erro"] = "Esta mesa está ocupada e não pode receber novos pedidos.";
                     return RedirectToAction(nameof(Cardapio));
                 }
             }
